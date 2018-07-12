@@ -8,3 +8,5 @@ Continuously updated collection of little helpers (tm) that facilitate my life i
 
 
 Use `devtools::install_github("maksimrudnev/LittleHelpers")` to install.
+
+More details soon.
