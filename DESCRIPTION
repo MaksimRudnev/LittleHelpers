@@ -1,7 +1,7 @@
 Package: LittleHelpers
 Type: Package
 Title: Helpers of little use to anybody but myself
-Version: 0.2.3
+Version: 0.3.0
 Author: Maksim Rudnev <http://maksimrudnev.com>
 Maintainer: Maksim Rudnev <maksim.rudnev@gmail.com>
 Description: Continuously updated collection of little helpers (tm) that facilitate my life in analyzing data (mostly comparative datasets) with R.
