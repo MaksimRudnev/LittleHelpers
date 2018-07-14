@@ -14,7 +14,7 @@ Use `devtools::install_github("maksimrudnev/LittleHelpers")` to install.
 - [Multilevel helpers](#multilevel-helpers)
 - [Multigroup helpers](#multigroup-helpers)
 - [Tools for labelled data and Rstudio viewer](#tools-for-labelled-data-and-rstudio-viewer)
-- [Pipes helpers](#pipes-helpers)
+- [Pipe helpers](#pipe-helpers)
 - [Values, Schwartz, ESS](#values-schwartz-ess)
 - [Miscellaneous](#miscellaneous)
 
@@ -30,8 +30,8 @@ Explore multilevel data:
 Recode multilevel data:
 
 - `aggr_and_merge` helps to create group-level variables from individual-level variables and merge them back to the data.frame on the go.
-- `grand_center` Quickly grand-mean centering.
-- `group_center` Quickly group-center a variable.
+- `grand_center` Quick grand-mean centering.
+- `group_center` Quick group-mean centering.
 
 Summarize and visualize multilevel regressions:
 
@@ -55,15 +55,60 @@ Compute extra stats for multilevel regressions:
 
 - See also [Measurement invariance explorer - Shiny App](https://github.com/MaksimRudnev/MIE)
 
-## Pipes helpers
+## Pipe helpers
 
-Three little functions that allow for brunching pipes.
+### Branching/ramifying pipes
+
+Imagine you need to create a list with means, correlations, and regression results. And you like to do it in one single pipe. In general, it is not possible, and you'll have to start a second pipe, probably doing some redundant computations.
+
+Three little functions that allow for brunching pipes. It is against [Hadley's idea](#footnote), as pipes are in principle linear, and in general I agree, but sometimes it would be comfy to ramify pipes away. It overcomes native `magrittr` `%T>%` by allowing more than one step after cutting the pipe.
 
 - `ramify` Saves current result into temporary object .buf and identifies a point in the pipe where branching will happen. Argument is an id of a ramification.
 - `branch` Starts a new brunch from the ramify point. (brunch(1) can be omitted, as ramify creates the first brunch. Second argument is a family of branches, or parent branch. By default it uses the last parent branch created by the last used ramify.
 - `harvest` Returns contents of all the brunches as a list.
 
+Example that allows it:
 
+```
+data.frame(a=1:5, b=1/(1+exp(6:10)) ) %>%
+  ramify(1) %>%
+    branch(1) %>% colMeans %>% 
+    branch(2) %>% lm(a ~ b, .) %>% broom::tidy(.) %>% 
+    branch(3) %>% cor %>%
+      ramify(2) %>%
+        branch(1) %>% round(2) %>%
+        branch(2) %>% psych::fisherz(.) %>%
+      harvest(2) %>%
+  harvest
+```
+
+
+
+### Save'n'go & Append'n'go
+
+`savengo` is ridiculously  simple but very useful function that saves objects from a middle of your pipe and passes the same object to further elements of the pipe. It allows more efficient debugging and less confusing code, in which you don't have to interrupt your pipe every time you need to save an output.
+
+Its sister function `appendngo` appends an intermediary product to an existing list or a vector.
+
+By analogy, one can create whatever storing function they need.
+
+
+
+```
+## Example 1
+#Saves intermediary result as an object called intermediate.result
+
+final.result <- dt %>% dplyr::filter(score<.5) %>%
+                        savengo("intermediate.result") %>% 
+                        dplyr::filter(estimated<0)
+  
+## Example 2
+#Saves intermediary result as a first element of existing list myExistingList
+
+final.result <- dt %>% dplyr::filter(score<.5) %>%
+                        appendngo(myExistingList, after=0) %>% 
+                        dplyr::filter(estimated<0)
+```
 
 ## Tools for labelled data and Rstudio viewer
 
