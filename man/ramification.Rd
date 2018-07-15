@@ -37,7 +37,7 @@ Imagine you need to create a list with means, correlations, and regression resul
 \item{harvest}{Returns contents of all the branches as a list.}
 \item{getbranch}{to access information from neghbouring branches. Not implemented yet.}
 }
-\if{html}{\figure{branch.png}{options: width=400 alt="Ramification function"}}
+\if{html}{\figure{branch.png}{options: width=500 alt="Ramification function"}}
 }
 \examples{
 data.frame(a=1:5, b=1/(1+exp(6:10)) ) \%>\%
