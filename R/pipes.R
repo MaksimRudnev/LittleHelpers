@@ -16,8 +16,8 @@
 #'  \url{http://r4ds.had.co.nz/pipes.html#when-not-to-use-the-pipe}
 #'
 #'  \describe{
-#'   \item{ramify}{Saves current result into temporary object \preformatted{.buf} and identifies a point in the pipe where branching will happen. Argument is an id of a ramification.}
-#'   \item{branch}{Starts a new branch from the \preformatted{ramify} point. (branch(1) can be omitted, as ramify creates the first branch. Second argument is a family of branches, or parent branch. By default it uses the last parent branch created by the last used \preformatted{ramify}.}
+#'   \item{ramify}{Saves current result into temporary object `.buf` and identifies a point in the pipe where branching will happen. Argument is an id of a ramification.}
+#'   \item{branch}{Starts a new branch from the `ramify` point. (`branch(1)` can be omitted, as `ramify` creates the first branch. Second argument is a family of branches, or parent branch. By default it uses the last parent branch created by the last used `ramify`.}
 #'   \item{harvest}{Returns contents of all the branches as a list.}
 #'   \item{getbranch}{to access information from neghbouring branches. Not implemented yet.}
 #' }
