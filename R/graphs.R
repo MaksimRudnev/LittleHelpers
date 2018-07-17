@@ -375,48 +375,138 @@ stacked_bar_ntf_nm<-function(vars, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap
 #' Graph means w/CIs
 #'
 #' Returns ggplot of means by group with 95% confidence intervals. Modifiable with standard ggplot geoms, scales, themes, etc.
+#' @param var Variable to aggregate.
+#' @param group Group variable.
+#' @param highlight.group Character vector of groups make bold.
+#' @param codes "print" or "caption"
+#' @param type "means", "ridges", "heat"
+#'
 #' @examples d<-data.frame(v=1:100, group=rep(1:2, 50))
 #' graph_means_ci(d$v, d$group)
 #' with(d, graph_means_ci(v, group))
 #' @export
-graph_means_ci <- function(var, group) {
+graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "caption") , type=c("means", "ridges", "heat")) {
 
+  # if(!is.null(attr(var, "labels"))) {
+  #   lbl.tbl<-  data.frame(codes= attr(var, "labels"),
+  #                         labels= names(attr(var, "labels")),
+  #                         row.names = NULL)
+  #   print(lbl.tbl)
+  # }
+
+
+  # Caption and codes
   if(!is.null(attr(var, "labels"))) {
-    lbl.tbl<-  data.frame(codes= attr(var, "labels"),
-                          labels= names(attr(var, "labels")),
-                          row.names = NULL)
-    print(lbl.tbl)
+    g.caption <- paste(attr(var, "labels"),
+                       attr(attr(var, "labels"), "names"), collapse="; \n")
+  } else {
+    g.caption <- paste(unique(var), collapse="; \n")
+  }
+
+  # X labs
+  if(!is.null(attr(var, "label"))  &&  any(!attr(var, "label")==attr(var, "labels")) ) {
+    x.label <-  attr(var, "label")
+  } else {
+    x.label <-   deparse(substitute(var))
   }
 
 
+  if(type[1]=="means") {
 
-  dt<-data.frame(
-    mean=tapply(var, to_label(group), function(x) mean(x, na.rm=T), simplify = T),
-    sd=tapply(var, to_label(group), function(x) sd(x, na.rm=T), simplify = T),
-    n=tapply(var, to_label(group), function(x) length(x), simplify = T)
-  )
-  dt$lower<-dt[,1]-dt[,2]*1.96/sqrt(dt[,3])
-  dt$upper<-dt[,1]+dt[,2]*1.96/sqrt(dt[,3])
-  dt<-na.omit(dt)
-  dt$country<-factor(rownames(dt), levels=rownames(dt)[order(dt$mean)])
+    dt<-data.frame(
+      mean=tapply(var, to_label(group), function(x) mean(x, na.rm=T), simplify = T),
+      sd=tapply(var, to_label(group), function(x) sd(x, na.rm=T), simplify = T),
+      n=tapply(var, to_label(group), function(x) length(x), simplify = T)
+    )
+    dt$lower<-dt[,1]-dt[,2]*1.96/sqrt(dt[,3])
+    dt$upper<-dt[,1]+dt[,2]*1.96/sqrt(dt[,3])
+    dt<-na.omit(dt)
+    dt$country<-factor(rownames(dt), levels=rownames(dt)[order(dt$mean)])
+    dt$group.highlighted <- as.character(dt$country %in% highlight.group)
 
-  ggplot(dt, aes(x=country, y=mean))+
-    geom_errorbar(aes(ymin=lower, ymax=upper), width=.2, colour="grey")+
-    geom_point(colour="red")+
-    geom_text(aes(label=round(mean,1)), nudge_x=.4, size=2)+
-    xlab("") +
-    scale_y_continuous(name="",
-                       #breaks=2:7,
-                       minor_breaks=NULL) +
-    coord_flip()+theme_minimal()+
-    labs(title = gsub('(.{1,50})(\\s|$)', '\\1\n', get_label(var)),
-         caption =   paste(attr(var, "labels"),
-                           attr(attr(var, "labels"), "names"), collapse="; ")
-    )+
-    theme(axis.line = element_line(colour = "black"),
-          panel.grid = element_blank(),
-          plot.caption = element_text(size=10, hjust=0))
-  #dt
+    # Main plot
+    g<-ggplot(dt, aes(x=country, y=mean))+
+      geom_errorbar(aes(ymin=lower, ymax=upper), width=.2, colour="grey")+theme_minimal()+
+      geom_point(aes(colour=group.highlighted), show.legend = F, alpha=1 )+
+      geom_text(aes(label=format(mean,digits=1,nsmall=1)), nudge_x=.4, size=2, color="black")+
+      xlab("") +
+      scale_y_continuous(name="",
+                         #breaks=2:7,
+                         minor_breaks=NULL) +
+      coord_flip()+
+      labs(title = gsub('(.{1,50})(\\s|$)', '\\1\n', x.label))+
+      theme(axis.line = element_line(colour = "black"),
+            panel.grid = element_blank(),
+            plot.caption = element_text(size=5, hjust=0))
+
+    # Highlights
+    if(!is.null(highlight.group)) {
+      bold.highlight <- rep("plain", length(dt$country))
+      bold.highlight[dt$highlight.group] <- "bold"
+
+      g<-g+theme(axis.text.y=element_text(face= bold.highlight ))+
+        geom_vline(xintercept=(1:length(levels(dt$country)))[levels(dt$country) %in% highlight.group], linetype="dotted", color="black", size=.1)+
+        scale_colour_manual(values = c("red", "black") )
+    }
+
+
+
+
+  } else if(type[1] == "ridges") {
+
+    library(ggridges)
+
+    means<-tapply(var, lab_to_fac(group), function(x) mean(x, na.rm=T), simplify = T)
+
+    dt<- data.frame(var=var,
+                    group=factor(group, levels=names(means)[order(means)]))
+
+    g<-ggplot(dt, aes(x=var, y=group))+
+      geom_density_ridges(aes(fill=group %in% highlight.group),
+                          show.legend = F, quantiles=4, scale = 2, size=0.3)+theme_mr()+
+      scale_fill_manual(values=c("skyblue", "#FF8FDA"))+
+      geom_point(data=data.frame(x=means, y=names(means)), aes(x, y), shape=19, size=1, color="black", alpha=.5)+
+      geom_text(data=data.frame(x=means, y=names(means)),
+                aes(x, y, label=format(x, digits=2, nsmall=2)), size=2, nudge_y = 0.5)+
+      labs(x=x.label, y=NULL)
+
+  } else if(type[1]=="heat") {
+
+    freq.dt<-as.data.frame(prop.table(table(group, var, useNA="no"), margin=1))
+    means<-tapply(var, lab_to_fac(group), function(x) mean(x, na.rm=T), simplify = T)
+    means.dt<- data.frame(group=names(means), means=means)
+    freq.dt$ones <- rep(1, nrow(freq.dt))
+    freq.dt$group <- factor(freq.dt$group, levels=names(means)[order(means)])
+
+    g<-ggplot(freq.dt, aes(group, ones, fill=Freq))+geom_col(position="stack")+coord_flip()+
+      scale_fill_gradient2(low = "white", mid="#5FC768", high = "blue", midpoint = .5)+
+      #scale_fill_distiller(type="seq", direction = 1, palette="GnBu")+
+      geom_point(data=means.dt, aes(group, means, fill=NULL))+
+      geom_text(data=means.dt, aes(group, means, fill=NULL, label=format(means, digits=2, nsmall=2)), size=2, nudge_y=.5)+
+      scale_y_continuous(breaks=min(var,na.rm =T):max(var,na.rm =T) - 0.5, labels=min(var,na.rm =T):max(var,na.rm =T))+
+      theme_mr()+labs(x="", y="", fill="Frequency")
+
+
+    if(!is.null(highlight.group)) {
+      bold.highlight <- rep("plain", length(levels(freq.dt$group)))
+      bold.highlight[levels(freq.dt$group) %in% highlight.group] <- "bold"
+
+      g<-g+theme(axis.text.y=element_text(face= bold.highlight ))+
+        geom_vline(xintercept=(1:length(levels(freq.dt$group)))[levels(freq.dt$group) %in% highlight.group], linetype="dotted", color="black", size=.1)#+
+        #scale_colour_manual(breaks = c("4", "6", "8"), values = c("red", "black") )
+    }
+
+  }
+
+
+  if(codes[1]=="caption") {
+    g+labs(caption = g.caption)
+  } else if (codes[1]=="print") {
+    cat(g.caption)
+  }
+
+  g
+
 }
 
 #Means and SEs####
@@ -471,8 +561,17 @@ scatter_means_ci <- function(var1, var2, group, plot=TRUE, print=TRUE) {
   names.dt<-c(deparse(substitute(var1)),deparse(substitute(var2)))
   dt1<-dt; names(dt1) <- names.dt;
   if(print)  print(dt1)
-  if(plot) ggplot(dt, aes(mean1, mean2, label=row.names(dt)))+geom_point()+geom_text_repel()+labs(x=names.dt[1], y=names.dt[2])+geom_smooth(method = "lm", se = FALSE)+labs(caption=round(cor(dt$mean1, dt$mean2),2)) else dt
 
+  if(plot) {
+
+    ggplot(dt, aes(mean1, mean2, label=row.names(dt)))+
+      geom_point()+geom_text_repel()+
+      labs(x=names.dt[1], y=names.dt[2])+geom_smooth(method = "lm", se = FALSE)+
+      labs(caption=c(round(cor(dt$mean1, dt$mean2, use="pairwise.complete.obs"),2), "n=", nrow(na.omit(cbind(dt$mean1, dt$mean2))) ))+
+      theme_mr()
+    } else {
+      dt
+}
 }
 
 #Corr by country#####
@@ -522,6 +621,61 @@ require(sjmisc);
   }
   return(tb)
 
+}
+
+
+#' Correlation of aggregates
+#'
+#'
+#'@param var1 Character name of variable 1.
+#'@param var2 Character name of variable 2.
+#'@param group Character name of group variable.
+#'@param data Dataset
+#'@param print Logical, T of you need to see it in console, F, if you use it inside other function.
+#'@param ... Passed to `cor.test`
+#'
+#' @export
+
+cor_group <- function(var1, var2, group, data, print=T, ...) {
+  if(any(class(data)=="tbl")) data<-drop_labs(data);
+
+  if(length(var1)==1) {
+  var1 = data[,var1]
+  var2 = data[,var2]
+  group =data[,group]
+
+
+
+  dt<-data.frame(
+
+    mean1=tapply(var1, to_label(group), function(x) mean(x, na.rm=T), simplify = T),
+    mean2=tapply(var2, to_label(group), function(x) mean(x, na.rm=T), simplify = T)
+  )
+
+  cr <- cor.test(dt$mean1, dt$mean2, na.action="na.omit", method = "pearson", ...)
+
+  out <- list(
+    cor=cr$estimate,
+    n=nrow(na.omit(cbind(dt$mean1, dt$mean2))),
+    p.value=cr$p.value
+  )
+
+
+    print(data.frame(Correlation=round(out$cor, 2),
+                     n= out$n,
+                     p.value=round(out$p.value, 3),
+                     `.`= ifelse(out$p.value<0.001, "***", ifelse(out$p.value<0.01, "**", ifelse(out$p.value<0.05, "*", "")))   ),
+          row.names = F)
+
+    invisible(out)
+
+
+  }  else {
+
+   print(cor_table(aggregate(data[,var1], list(data[,group]), mean, na.rm=T)[,-1], method="pearson", star=TRUE))
+   invisible(cor_table(
+             aggregate(data[,var1], list(data[,group]), mean, na.rm=T)[,-1], method="pearson", star=FALSE))
+  }
 }
 
 # Plot random effects #####

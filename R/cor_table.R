@@ -6,9 +6,13 @@
 #' @param method Method from `cor` function. spearman by default.
 #'
 #' @export
-cor_table <- function(d, method="spearman") {
+cor_table <- function(d, method="spearman", star=TRUE) {
 
-  r <-  cor(d, use="pairwise", method=method)
+  if(any(class(d)=="tbl"))  d<- drop_labs(untibble(d))
+
+  #print(str(d))
+
+  r <-  cor(d, use="pairwise.complete.obs", method=method)
 
   n <- sapply(1:ncol(d), function(a) {
     sapply(1:ncol(d), function(b) {
@@ -20,15 +24,20 @@ cor_table <- function(d, method="spearman") {
 
   p <- 2*pt(abs(t), n-2, lower=FALSE)
 
-  stars <- matrix(rep("", ncol(d)^2), nrow=ncol(d))
-  stars[p<0.05]<-"*"
-  stars[p<0.01]<-"**"
-  stars[p<0.001]<-"***"
+  starz <- matrix(rep("", ncol(d)^2), nrow=ncol(d))
+  starz[p<0.05]<-"*"
+  starz[p<0.01]<-"**"
+  starz[p<0.001]<-"***"
 
 
-
-  m<- paste(format(round(r, 2), digits=2, nsmall = 2), stars, sep="")
+if(star) {
+  m<- paste(format(round(r, 2), digits=2, nsmall = 2), starz, sep="")
   m<-as.data.frame(matrix(m, nrow=ncol(d)))
+} else {
+  m<- paste(r, sep="")
+  m <- as.data.frame(matrix(m, nrow=ncol(d)))
+}
+
   names(m)<-names(d)
   rownames(m)<-names(d)
   m

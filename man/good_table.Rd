@@ -2,7 +2,7 @@
 % Please edit documentation in R/multilevel_helpers.R
 \name{good_table}
 \alias{good_table}
-\title{Function producing a good table for many ML regressions #####}
+\title{Function producing a good table for many ML regressions}
 \usage{
 good_table(models, fit.stats = c("ICC", "random", "random.p", "R2", "fit",
   "LRT", "REML", "VIF"), mod.names = "", show.viewer = TRUE, ...)
@@ -10,7 +10,7 @@ good_table(models, fit.stats = c("ICC", "random", "random.p", "R2", "fit",
 \arguments{
 \item{models}{List of the fitted lmer objects}
 
-\item{fit.stats}{What fit statistics to compute/extract and show? Possible options are "ICC", "random", "R2s", "fit", "LRT", "REML", "VIF".}
+\item{fit.stats}{What fit statistics to compute/extract and show? Possible options are "ICC", "random", "R2s", "fit", "LRT", "REML", "VIF". See "Details".}
 
 \item{mod.names}{Vector of the same length as models list, giving names to each model.}
 
@@ -19,7 +19,18 @@ good_table(models, fit.stats = c("ICC", "random", "random.p", "R2", "fit",
 \item{...}{Arguments passed to stargazer.}
 }
 \description{
-Function producing a good table for many ML regressions #####
+Function producing a good table for many ML regressions
+}
+\details{
+\describe{
+\item{fit}{Shows deviance (-2*logLikelihood), AIC, BIC, number of parameters, number of groups, number of observations, if the model converged}
+\item{ICC}{Computes intra-class correlation by fitting an empty model and computing a ratio of first-level and intercept variances.   }
+\item{R2}{Computes R-square by fitting an empoty model and computing a ratio of residuals in an empty model and in the current model. }
+\item{LRT}{Computes Likelihood ratio test; all the models should be fitted to the same sample and be in order of nestedness, otherwise the test fails. }
+\item{random}{Adds variances of all the random effects.}
+\item{random.p}{Adds variances of all the random effects and implements bootstrapping (\code{lme4::confint.merMod}) in order to get confidence intervals and this p.values for variances of random effects. }
+\item{REML}{Shows if REML was used to fit the model.}
+}
 }
 \note{
 Issues to implement:

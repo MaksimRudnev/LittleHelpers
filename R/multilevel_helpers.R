@@ -1,7 +1,7 @@
-#' Function producing a good table for many ML regressions #####
+#' Function producing a good table for many ML regressions
 #'
 #' @param models List of the fitted lmer objects
-#' @param fit.stats What fit statistics to compute/extract and show? Possible options are "ICC", "random", "R2s", "fit", "LRT", "REML", "VIF".
+#' @param fit.stats What fit statistics to compute/extract and show? Possible options are "ICC", "random", "R2s", "fit", "LRT", "REML", "VIF". See "Details".
 #' @param mod.names Vector of the same length as models list, giving names to each model.
 #' @param show.viewer Logical. Whether the resulting table should be shown in the RStudio viewer. If FALSE then the file "good_table_output.html" is saved to working directory.
 #' @param ... Arguments passed to stargazer.
@@ -16,6 +16,17 @@
 #' #f1 <- as.formula(HE ~ age + gender + (1|country))
 #' #f2 <- as.formula(HE ~ age + gender + (1|country))
 #' #good_table(lapply(c(f1, f2), function(x) lmer(x, ess.data.d, weights=dweight)))
+#'
+#' @details   \describe{
+#'   \item{fit}{Shows deviance (-2*logLikelihood), AIC, BIC, number of parameters, number of groups, number of observations, if the model converged}
+#'   \item{ICC}{Computes intra-class correlation by fitting an empty model and computing a ratio of first-level and intercept variances.   }
+#'   \item{R2}{Computes R-square by fitting an empoty model and computing a ratio of residuals in an empty model and in the current model. }
+#'   \item{LRT}{Computes Likelihood ratio test; all the models should be fitted to the same sample and be in order of nestedness, otherwise the test fails. }
+#'   \item{random}{Adds variances of all the random effects.}
+#'   \item{random.p}{Adds variances of all the random effects and implements bootstrapping (`lme4::confint.merMod`) in order to get confidence intervals and this p.values for variances of random effects. }
+#'   \item{REML}{Shows if REML was used to fit the model.}
+#' }
+#'
 #'
 #'@note Issues to implement:
 #' * Might be veeery slow (something to work on)
@@ -51,18 +62,25 @@ good_table <- function(models,
 
 
   if("LRT" %in% fit.stats | "fit" %in% fit.stats ) {
-    if(any(sapply(models, isREML))) {
-      message("Refitting model with ML estimator to extract correct deviance and compute information criteria. \n Might take a long time.")
-    pb<-txtProgressBar(0, length(models), label="Going progress bar...", style = 3)
-    modelsML<- lapply(1:length(models), function(m) {
-        refitML(models[[m]])
-        utils::setTxtProgressBar(pb, m)
-    })
-    } else {
-      modelsML <- models
-    }
 
-  }
+   if( any(!lapply(models, nobs)==nobs(models[[1]])) ) {
+     message("At least one model wasn't fit to the same sample, so LRT computation is stopped.")
+   } else {
+
+
+        if(any(sapply(models, isREML))) {
+          message("Refitting model with ML estimator to extract correct deviance and compute information criteria. \n Might take a long time.")
+            pb<-txtProgressBar(0, length(models), label="Going progress bar...", style = 3)
+            modelsML<- lapply(1:length(models), function(m) {
+                refitML(models[[m]])
+                utils::setTxtProgressBar(pb, m)
+                })
+
+        } else {
+          modelsML <- models
+        }
+   }
+    }
 
 
 
@@ -155,8 +173,8 @@ good_table <- function(models,
 
 
   if("fit" %in% fit.stats ) {
-  fit <-sapply(modelsML, function(x)  c(
-              Deviance = comma(round(deviance(x,REML=F), 0)),
+  fit <-sapply(models, function(x)  c(
+              Deviance = comma(round(-2*logLik(x)[1], 0)),
               Nparameters = extractAIC(x)[1],
               AIC = comma(round(AIC(x),0)),
               BIC = comma(round(BIC(x),0)),
@@ -391,12 +409,12 @@ require(lme4)
   f
 }
 
-#
 
 
-#' Poterntial interactions
+#' Potential interactions
 #'
 #' Refits lmer model with given 'random terms' and correlates the predicted random effects with aggregated at group level variable mentioned at 'group.level.terms'
+#'
 #' @param random.terms Individual predictors  that should be made random and associated with predictors (mediators) at group level
 #' @param group.level.terms Predictors (mediators) at the group level
 #' @param lmer.fit Model fitted with lmer.
@@ -421,7 +439,7 @@ re<-sapply(random.terms, function(x) ranef(update(lmer.fit, add_term(lmer.fit@ca
 
 iv <- aggregate(data[,group.level.terms], list(data[,names(getME(lmer.fit, "flist"))]), mean, na.rm=T)
 
-out <- round(cor(cbind(re, iv[,-1]))[1:length(random.terms),
+out <- round(cor(cbind(re, iv[,-1]), use="pairwise.complete.obs")[1:length(random.terms),
                                      (length(random.terms)+1):(length(random.terms)+length(group.level.terms))],
              3)
 
@@ -464,6 +482,7 @@ out <- round(cor(cbind(re, iv[,-1]))[1:length(random.terms),
     warning("Argument measure should be either 'correlation' or 'interaction'")
   }
 
+  df_to_viewer(out[[2]])
   out
 
 }
@@ -474,13 +493,29 @@ out <- round(cor(cbind(re, iv[,-1]))[1:length(random.terms),
 #' @export
 group_center <- function(variables, group, data, prefix="g.") {
   new.data <- data[,c(group,variables)]
-  l<- sapply(unique(data[,group]),
-             function(g) sapply(variables,
-                                function(v)  {
-                                  new.data[new.data[,group]==g, v]<- data[data[,group]==g, v] - mean(data[data[,group]==g, v], na.rm=T)
-                                })  )
-  names(new.data) <- paste(prefix, names(new.data), sep="")
-  new.data[, -1]
+  # l<- sapply(unique(data[,group]),
+  #            function(g) sapply(variables,
+  #                               function(v)  {
+  #                                 new.data[new.data[,group]==g, v]<- data[data[,group]==g, v] - mean(data[data[,group]==g, v], na.rm=T)
+  #                               })  )
+  # names(new.data) <- paste(prefix, names(new.data), sep="")
+  # new.data[, -1]
+
+  new <- merge(data[,c(group, variables)],
+               aggregate(data[,variables], list(data[,group]), mean, na.rm=T),
+               by.x=group, by.y="Group.1", all.x=T, suffixes = c("", ".a"))
+
+  for(x in variables) {
+    new$new <- rep(NA, nrow(new))
+    new$new <- new[,x] - new[,paste(x,"a", sep=".")]
+    names(new)[length(new)]<-paste(prefix, x, sep="")
+    new[,paste(x,"a", sep=".")]<-NULL
+    new[,x]<-NULL
+  }
+  new[,group]<-NULL
+  cbind(data, new)
+
+
 }
 
 #' Grand mean centering of one or more variables

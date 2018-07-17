@@ -4,7 +4,7 @@
 \alias{cor_table}
 \title{Correlation table with stars}
 \usage{
-cor_table(d, method = "spearman")
+cor_table(d, method = "spearman", star = TRUE)
 }
 \arguments{
 \item{d}{Data.frame}

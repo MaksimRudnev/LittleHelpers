@@ -4,7 +4,19 @@
 \alias{graph_means_ci}
 \title{Graph means w/CIs}
 \usage{
-graph_means_ci(var, group)
+graph_means_ci(var, group, highlight.group = NA, codes = c("print",
+  "caption"), type = c("means", "ridges", "heat"))
+}
+\arguments{
+\item{var}{Variable to aggregate.}
+
+\item{group}{Group variable.}
+
+\item{highlight.group}{Character vector of groups make bold.}
+
+\item{codes}{"print" or "caption"}
+
+\item{type}{"means", "ridges", "heat"}
 }
 \description{
 Returns ggplot of means by group with 95% confidence intervals. Modifiable with standard ggplot geoms, scales, themes, etc.

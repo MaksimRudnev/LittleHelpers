@@ -225,7 +225,8 @@ lab_to_fac <- function(var.labelled) {
   }
 
   if(is.null(attr(var.labelled, "labels"))) {
-    stop("No labels in variable.")
+    return(var.labelled)
+    message("No labels in variable. Return the same variable.")
   } else {
   labs<-names(attr(var.labelled, "labels"))[  na.omit(match(unique(var.labelled), attr(var.labelled, "labels"))) ]
 
@@ -247,7 +248,7 @@ drop_labs <- function(dataframe) {
   new.data <- dataframe
 
   for(i in names(dataframe)) {
-    if(class(dataframe[,i])=="labelled")  {
+    if(any(class(dataframe[,i])=="labelled"))  {
       new.data[,i] <- unclass(new.data[,i])
       attr(new.data[,i], "labels")<-NULL
     }}
