@@ -60,11 +60,11 @@ Compute extra stats for multilevel regressions:
 
 Imagine you need to create a list with means, correlations, and regression results. And you like to do it in one single pipe. In general, it is not possible, and you'll have to start a second pipe, probably doing some redundant computations.
 
-Three little functions that allow for brunching pipes. It is against [Hadley's idea](http://r4ds.had.co.nz/pipes.html#when-not-to-use-the-pipe), as pipes are in principle linear, and in general I agree, but sometimes it would be comfy to ramify pipes away. It overcomes native `magrittr` `%T>%` by allowing more than one step after cutting the pipe.
+Three little functions that allow for branching pipes. It is against [Hadley's idea](http://r4ds.had.co.nz/pipes.html#when-not-to-use-the-pipe), as pipes are in principle linear, and in general I agree, but sometimes it would be comfy to ramify pipes away. It overcomes native `magrittr` `%T>%` by allowing more than one step after cutting the pipe.
 
 - `ramify` Saves current result into temporary object .buf and identifies a point in the pipe where branching will happen. Argument is an id of a ramification.
-- `branch` Starts a new brunch from the ramify point. (brunch(1) can be omitted, as ramify creates the first brunch. Second argument is a family of branches, or parent branch. By default it uses the last parent branch created by the last used ramify.
-- `harvest` Returns contents of all the brunches as a list.
+- `branch` Starts a new branch from the ramify point. (branch(1) can be omitted, as ramify creates the first branch. Second argument is a family of branches, or parent branch. By default it uses the last parent branch created by the last used ramify.
+- `harvest` Returns contents of all the branches as a list.
 
 Example that allows it:
 
