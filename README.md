@@ -22,8 +22,8 @@ Use `devtools::install_github("maksimrudnev/LittleHelpers")` to install.
 
 Explore multilevel data:
 
-- `cor_by_country` prints and plots individual correlations within each group.
-- `cor_group` computes means and shows group-level correlation between two variables.
+- `cor_within` prints and plots individual correlations within each group.
+- `cor_between` computes means and shows group-level correlation between two variables.
 - `scatter_means_ci` Computes means by group and plots on scatterplot against each other (shows country-level correlations).
 - `graph_means_ci` Plots means by group.
 - `stacked_bar` Computes proportions cross-table and plots them in a nice way, returns ggplot object, so any further `+theme()`, `+scale_x()`, etc. codes can be added.

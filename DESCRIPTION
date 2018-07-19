@@ -5,7 +5,7 @@ Version: 0.3.2
 Author: Maksim Rudnev <http://maksimrudnev.com>
 Maintainer: Maksim Rudnev <maksim.rudnev@gmail.com>
 Description: Continuously updated collection of little helpers (tm) that facilitate my life in analyzing data (mostly comparative datasets) with R.
-Depends: R (>= 3.4), lme4 (>= 1.1), ggplot2 (>= 2.2), effects (>= 3.1), stats (>= 3.1), utils (>= 3.1), sjmisc (>= 2.5), lavaan (>= 0.6)
+Depends: R (>= 3.4), lme4 (>= 1.1), ggplot2 (>= 2.2), effects (>= 3.1), stats (>= 3.1), utils (>= 3.1), lavaan (>= 0.6)
 License: MIT
 Encoding: UTF-8
 LazyData: true

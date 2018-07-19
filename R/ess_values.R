@@ -49,10 +49,12 @@ ess_values <- function(data, v2=TRUE, v4=TRUE, v10 = TRUE, v21=FALSE, center=TRU
     data$Achievement     <- with(data, rowMeans(cbind(ipshabt, ipsuces), na.rm=T)-mrat)
     data$Power           <- with(data, rowMeans(cbind(imprich, iprspot), na.rm=T)-mrat)
 
-  if(abbr) names(data)[(ncol(data)-9):ncol(data)] <- c("SE", "CO", "TR", "BE", "UN", "SD", "ST", "HE", "AC", "PO")
+  if(abbr) names(data[,values$ten]) <- values$ten.abbr
   if(!is.null(suffix) & center) names(data)[(ncol(data)-9):ncol(data)] <- paste(names(data)[(ncol(data)-9):ncol(data)], suffix, sep=".")
 
   }
+
+
 
   #Compute 4 higher-order values
   if(v4) {
@@ -61,7 +63,7 @@ ess_values <- function(data, v2=TRUE, v4=TRUE, v10 = TRUE, v21=FALSE, center=TRU
     data$Self.Transcendence <- with(data, rowMeans(cbind(ipeqopt, ipudrst, impenv, iphlppl, iplylfr), na.rm=T) - mrat)
     data$Self.Enhancement   <- with(data, rowMeans(cbind(imprich, iprspot, ipshabt, ipsuces), na.rm=T) - mrat)
 
-  if(abbr) names(data)[(ncol(data)-3):ncol(data)] <- c("Openness", "Conserv", "Self_Trans", "Self_Enhance")
+  if(abbr) names(data[,values$four]) <- values$four.abbr
   if(!is.null(suffix) & center) names(data)[(ncol(data)-3):ncol(data)] <- paste( names(data)[(ncol(data)-3):ncol(data)], suffix, sep=".")
     }
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/multilevel_helpers.R
 \name{potential_interactions}
 \alias{potential_interactions}
-\title{Potential interactions}
+\title{Potential cross-level interactions}
 \usage{
 potential_interactions(random.terms, group.level.terms, lmer.fit,
   measure = c("correlation", "interaction"))

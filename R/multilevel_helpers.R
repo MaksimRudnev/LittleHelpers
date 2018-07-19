@@ -411,7 +411,14 @@ require(lme4)
 
 
 
-#' Potential interactions
+
+
+
+
+
+# Potential interactions ####
+
+#' Potential cross-level interactions
 #'
 #' Refits lmer model with given 'random terms' and correlates the predicted random effects with aggregated at group level variable mentioned at 'group.level.terms'
 #'
@@ -435,15 +442,22 @@ potential_interactions <- function(random.terms, group.level.terms, lmer.fit, me
     #paste(names(ranef(lmer.fit)[[1]]), collapse=" + "), "+"))
     #f.part2 <- paste("|", names(getME(lmer.fit, "flist")), ")")
 
-re<-sapply(random.terms, function(x) ranef(update(lmer.fit, add_term(lmer.fit@call$formula, random=x))   )[[1]][,x] )
+    re<-sapply(random.terms, function(x) ranef(update(lmer.fit, add_term(lmer.fit@call$formula, random=x))   )[[1]][,x] )
 
-iv <- aggregate(data[,group.level.terms], list(data[,names(getME(lmer.fit, "flist"))]), mean, na.rm=T)
+    iv <- aggregate(data[,group.level.terms], list(data[,names(getME(lmer.fit, "flist"))]), mean, na.rm=T)
 
-out <- round(cor(cbind(re, iv[,-1]), use="pairwise.complete.obs")[1:length(random.terms),
-                                     (length(random.terms)+1):(length(random.terms)+length(group.level.terms))],
-             3)
+    # out <- round(cor(cbind(re, iv[,-1]), use="pairwise.complete.obs")[1:length(random.terms),
+    #                                                                   (length(random.terms)+1):(length(random.terms)+length(group.level.terms))],
+    #              3)
 
-# INTERACTIONS
+    out<-cor_table(cbind(re, iv[,-1]))[1:length(random.terms),
+                                       (length(random.terms)+1):(length(random.terms)+length(group.level.terms))]
+
+    cat("\nCorrelations \n")
+    print(out, row.names=T)
+    df_to_viewer(out)
+
+    # INTERACTIONS
   } else if(measure=="interaction") {
 
     pairs <- expand.grid(random.terms, group.level.terms, stringsAsFactors = F)
@@ -475,17 +489,66 @@ out <- round(cor(cbind(re, iv[,-1]), use="pairwise.complete.obs")[1:length(rando
 
     b<- data.frame(pairs,
                    value=apply(pairs, 1, function(p)  unlist(tb)[names(unlist(tb))== paste(p, collapse=":")]), stringsAsFactors = F)
-    c<- reshape2::dcast(b, Var1 ~ Var2)
-    out <- list(tb, c)
+
+    cat("\nInteractions \n")
+    print(reshape2::dcast(b, Var1 ~ Var2), row.names=F)
+    invisible(c)
+    df_to_viewer(b)
 
   } else {
     warning("Argument measure should be either 'correlation' or 'interaction'")
   }
 
-  df_to_viewer(out[[2]])
-  out
+
 
 }
+
+#' Potential individual-level interactions for lmer model
+#'
+#' @description  Takes a list of variables and computes models with all possible interactions between them, one by one.
+#'
+#' @param variables Character list of variable names in the model which are already fixed effects.
+#' @param modelfit lmer model
+#'
+#' @return Returns a data frame of class "LHinteractions" supplied with a corresponding print method.
+#'
+#' @export
+potential_interactions_ind <- function(variables, modelfit) {
+
+  trms <- apply(combn(variables, 2), 2, function(x) paste(x[1], x[2], sep=":"))
+  ft<-lapply(trms, function(x) {
+    update(modelfit, add_term(modelfit@call$formula, fixed=x))
+  })
+
+  intr.eff <- sapply(1:length(ft), function(m) {
+    verb(trms[m])
+    a<-summary(ft[[m]])
+    a$coefficients[trms[m],]
+  })
+  intr.eff <-t(intr.eff)
+  rownames(intr.eff)<-trms
+  intr.eff<-as.data.frame.matrix(intr.eff)
+  intr.eff$star <- sapply(intr.eff[,"t value"], function(x) ifelse(abs(x)>2.58, "***",
+                                                                   ifelse(abs(x)>2.33 , "**",
+                                                                          ifelse(abs(x)>1.96, "*", ""))))
+  #print(format(intr.eff, digits=1, nsmall=1, scientific =FALSE))
+  intr.eff$v1 <- sapply(strsplit(rownames(intr.eff), ":"), `[`, 1)
+  intr.eff$v2 <- sapply(strsplit(rownames(intr.eff), ":"), `[`, 2)
+  intr.eff$vlu <- paste(round(intr.eff$Estimate,2), intr.eff$star, sep="")
+  lvls<-unique(c(intr.eff$v1,intr.eff$v2))
+
+  intr.eff$v2 <-factor(intr.eff$v2, levels=lvls)
+  intr.eff$v1 <-factor(intr.eff$v1, levels=lvls)
+
+  #print(reshape2::dcast(intr.eff, v2 ~ v1, value.var ="vlu", fill = ""))
+  class(intr.eff)<-c("LHinteractions", "data.frame")
+  print.LHinteractions(intr.eff)
+  invisible(intr.eff)
+}
+
+print.LHinteractions <- function(x) print(reshape2::dcast(x, v2 ~ v1, value.var ="vlu", fill = ""))
+
+# Centering ####
 
 #' Group-centering of one or more variables
 #'
@@ -526,11 +589,137 @@ grand_center <- function(variables, prefix="gm.") {
 
   new.data <- as.data.frame(sapply(variables, function(x) x-mean(x, na.rm=T)))
 
- names(new.data) <- paste(prefix, names(new.data), sep="")
+  names(new.data) <- paste(prefix, names(new.data), sep="")
 
- new.data
+  new.data
+}
+
+#Corr by country#####
+#' Within-group correlations
+#'
+#' @param var1 String. Name of variable to correlate.
+#' @param var2 String. Name of variable to correlate.
+#' @param group Grouping variable.
+#' @param data Data.framer containing var1, var2, and group.
+#' @param plot Logical. Should the plot be created?
+#' @param labs Logical. Should value labels be used?
+#'
+#' Prints correlations in console, and plots in a graph.
+#' @export
+cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pairwise", ...) {
+
+  require(sjmisc);
+  require(sjlabelled);
+  library("ggplot2")
+
+
+  if(sum(class(data)=="tbl")>0) {
+    Gr <- sjmisc::to_character(data[, group])[[1]]
+    V1 <- as.numeric(data[, var1][[1]])
+    V2 <- as.numeric(data[, var2][[1]])
+  } else {
+    Gr <- sjmisc::to_label(data[, group])
+    V1 <- data[, var1]
+    V2 <- data[, var2]
+  }
+
+  tb<-data.frame(group=unique(Gr),
+                 Corr=sapply(unique(Gr),   function(x) {
+                   cor(V1[Gr==x], V2[Gr==x], use=use, ...)
+                   # b<-cor.test(V1[Gr==x], V2[Gr==x], use="complete.obs")
+                   # c(b[["estimate"]], b[["p.value"]])
+                 },
+                 simplify=T),
+                 stringsAsFactors = F)
+
+  tb$group<-factor(tb$group, levels=tb$group[order(tb$Corr)])
+  if(plot==T) {
+    g<-ggplot(tb,aes(x=group, y=Corr))+geom_point(colour="red")+coord_flip()+theme_minimal()
+    if(labs) g<-g+geom_text_repel(aes(label=(round(Corr, 2))), size=3)
+
+    print(g)
+  }
+  return(tb)
+
 }
 
 
+#' Correlation between group aggregates
+#'
+#'
+#'@param var1 Character name of variable 1.
+#'@param var2 Character name of variable 2.
+#'@param group Character name of group variable.
+#'@param data Dataset
+#'@param print Logical, T of you need to see it in console, F, if you use it inside other function.
+#'@param ... Passed to `cor.test`
+#'
+#' @export
+
+cor_between <- function (var1, var2, group, data, print=T, ...) {
+  if(any(class(data)=="tbl")) data<-drop_labs(data);
+
+  if(length(var1)==1) {
+    var1 = data[,var1]
+    var2 = data[,var2]
+    group =data[,group]
 
 
+
+    dt<-data.frame(
+
+      mean1=tapply(var1, to_label(group), function(x) mean(x, na.rm=T), simplify = T),
+      mean2=tapply(var2, to_label(group), function(x) mean(x, na.rm=T), simplify = T)
+    )
+
+    cr <- cor.test(dt$mean1, dt$mean2, na.action="na.omit", method = "pearson", ...)
+
+    out <- list(
+      cor=cr$estimate,
+      n=nrow(na.omit(cbind(dt$mean1, dt$mean2))),
+      p.value=cr$p.value
+    )
+
+
+    print(data.frame(Correlation=round(out$cor, 2),
+                     n= out$n,
+                     p.value=round(out$p.value, 3),
+                     `.`= ifelse(out$p.value<0.001, "***", ifelse(out$p.value<0.01, "**", ifelse(out$p.value<0.05, "*", "")))   ),
+          row.names = F)
+
+    invisible(out)
+
+
+  }  else {
+
+    print(cor_table(aggregate(data[,var1], list(data[,group]), mean, na.rm=T)[,-1], method="pearson", star=TRUE))
+    invisible(cor_table(
+      aggregate(data[,var1], list(data[,group]), mean, na.rm=T)[,-1], method="pearson", star=FALSE))
+  }
+}
+
+# What fixed should be turned to random ####
+#' Find random effects across fixed
+#'
+#'
+#'
+#'
+#'
+#'@export
+search_random <- function(lmerfit, terms=NA, boot=F) {
+  if(any(is.na(terms))) {
+    terms <- dimnames(getME(lmerfit, "X"))[[2]]
+    terms<-terms[terms!="(Intercept)"]
+  }
+
+  o <-  lapply(terms, function(i) {
+    verb("Fitting model with random", i)
+    update(lmerfit, add_term(lmerfit@call$formula, random=i))
+  })
+
+  lapply(1:length(o), function(x) VarCorr(o[[x]])[[names(lmerfit@flist)]][terms[[x]], terms[[x]]])
+
+  #anova(lmerfit)
+
+  #confint(lmerfit, method="Wald")
+}

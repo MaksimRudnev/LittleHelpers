@@ -185,7 +185,17 @@ mi_test<- function(lavaan.model, ...) {
   tt$delta.RMSEA <- c(NA, abs(tt$rmsea[1:(length(tt$rmsea)-1)] - tt$rmsea[2:length(tt$rmsea)]))
   tt$delta.SRMR <- c(NA, abs(tt$srmr[1:(length(tt$srmr)-1)] - tt$srmr[2:length(tt$srmr)]))
 
-  print(tt, digits=3)
+  print(with(tt, data.frame(chisq=round(chisq, 2),
+                         df=round(df),
+                         CFI = round(cfi, 3),
+                         RMSEA = round(rmsea, 3),
+                         SRMR = round(srmr, 3),
+
+                         delta.CFI = format(delta.CFI, digits=1, nsmall=3, scientific =FALSE),
+                         delta.RMSEA = format(delta.RMSEA, digits=1, nsmall=3, scientific =FALSE),
+                         delta.SRMR = format(delta.SRMR, digits=1, nsmall=3, scientific =FALSE),
+                         row.names = rownames(mit.3))))
+  invisible(tt)
 
 }
 

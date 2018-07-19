@@ -30,13 +30,13 @@ cor_table <- function(d, method="spearman", star=TRUE) {
   starz[p<0.001]<-"***"
 
 
-if(star) {
-  m<- paste(format(round(r, 2), digits=2, nsmall = 2), starz, sep="")
-  m<-as.data.frame(matrix(m, nrow=ncol(d)))
-} else {
-  m<- paste(r, sep="")
-  m <- as.data.frame(matrix(m, nrow=ncol(d)))
-}
+  if(star) {
+    m<- paste(format(round(r, 2), digits=2, nsmall = 2), starz, sep="")
+    m<-as.data.frame(matrix(m, nrow=ncol(d)))
+  } else {
+    m<- paste(r, sep="")
+    m <- as.data.frame(matrix(m, nrow=ncol(d)))
+  }
 
   names(m)<-names(d)
   rownames(m)<-names(d)

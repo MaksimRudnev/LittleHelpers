@@ -387,6 +387,8 @@ stacked_bar_ntf_nm<-function(vars, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap
 #' @export
 graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "caption") , type=c("means", "ridges", "heat")) {
 
+  group <- lab_to_fac(group)
+
   # if(!is.null(attr(var, "labels"))) {
   #   lbl.tbl<-  data.frame(codes= attr(var, "labels"),
   #                         labels= names(attr(var, "labels")),
@@ -414,9 +416,9 @@ graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "cap
   if(type[1]=="means") {
 
     dt<-data.frame(
-      mean=tapply(var, to_label(group), function(x) mean(x, na.rm=T), simplify = T),
-      sd=tapply(var, to_label(group), function(x) sd(x, na.rm=T), simplify = T),
-      n=tapply(var, to_label(group), function(x) length(x), simplify = T)
+      mean=tapply(var, group, function(x) mean(x, na.rm=T), simplify = T),
+      sd=tapply(var, group, function(x) sd(x, na.rm=T), simplify = T),
+      n=tapply(var, group, function(x) length(x), simplify = T)
     )
     dt$lower<-dt[,1]-dt[,2]*1.96/sqrt(dt[,3])
     dt$upper<-dt[,1]+dt[,2]*1.96/sqrt(dt[,3])
@@ -574,109 +576,6 @@ scatter_means_ci <- function(var1, var2, group, plot=TRUE, print=TRUE) {
 }
 }
 
-#Corr by country#####
-#' Within-group correlations
-#'
-#' @param var1 String. Name of variable to correlate.
-#' @param var2 String. Name of variable to correlate.
-#' @param group Grouping variable.
-#' @param data Data.framer containing var1, var2, and group.
-#' @param plot Logical. Should the plot be created?
-#' @param labs Logical. Should value labels be used?
-#'
-#' Prints correlations in console, and plots in a graph.
-#' @export
-cor_by_country <-function(var1, var2, group, data, plot=TRUE, labs=TRUE, use="pairwise", ...) {
-
-require(sjmisc);
-  require(sjlabelled);
-  library("ggplot2")
-
-
-  if(sum(class(data)=="tbl")>0) {
-    Gr <- sjmisc::to_character(data[, group])[[1]]
-    V1 <- as.numeric(data[, var1][[1]])
-    V2 <- as.numeric(data[, var2][[1]])
-  } else {
-    Gr <- sjmisc::to_label(data[, group])
-    V1 <- data[, var1]
-    V2 <- data[, var2]
-  }
-
-  tb<-data.frame(group=unique(Gr),
-                 Corr=sapply(unique(Gr),   function(x) {
-                   cor(V1[Gr==x], V2[Gr==x], use=use, ...)
-                   # b<-cor.test(V1[Gr==x], V2[Gr==x], use="complete.obs")
-                   # c(b[["estimate"]], b[["p.value"]])
-                 },
-                 simplify=T),
-                 stringsAsFactors = F)
-
-  tb$group<-factor(tb$group, levels=tb$group[order(tb$Corr)])
-  if(plot==T) {
-    g<-ggplot(tb,aes(x=group, y=Corr))+geom_point(colour="red")+coord_flip()+theme_minimal()
-    if(labs) g<-g+geom_text_repel(aes(label=(round(Corr, 2))), size=3)
-
-    print(g)
-  }
-  return(tb)
-
-}
-
-
-#' Correlation of aggregates
-#'
-#'
-#'@param var1 Character name of variable 1.
-#'@param var2 Character name of variable 2.
-#'@param group Character name of group variable.
-#'@param data Dataset
-#'@param print Logical, T of you need to see it in console, F, if you use it inside other function.
-#'@param ... Passed to `cor.test`
-#'
-#' @export
-
-cor_group <- function(var1, var2, group, data, print=T, ...) {
-  if(any(class(data)=="tbl")) data<-drop_labs(data);
-
-  if(length(var1)==1) {
-  var1 = data[,var1]
-  var2 = data[,var2]
-  group =data[,group]
-
-
-
-  dt<-data.frame(
-
-    mean1=tapply(var1, to_label(group), function(x) mean(x, na.rm=T), simplify = T),
-    mean2=tapply(var2, to_label(group), function(x) mean(x, na.rm=T), simplify = T)
-  )
-
-  cr <- cor.test(dt$mean1, dt$mean2, na.action="na.omit", method = "pearson", ...)
-
-  out <- list(
-    cor=cr$estimate,
-    n=nrow(na.omit(cbind(dt$mean1, dt$mean2))),
-    p.value=cr$p.value
-  )
-
-
-    print(data.frame(Correlation=round(out$cor, 2),
-                     n= out$n,
-                     p.value=round(out$p.value, 3),
-                     `.`= ifelse(out$p.value<0.001, "***", ifelse(out$p.value<0.01, "**", ifelse(out$p.value<0.05, "*", "")))   ),
-          row.names = F)
-
-    invisible(out)
-
-
-  }  else {
-
-   print(cor_table(aggregate(data[,var1], list(data[,group]), mean, na.rm=T)[,-1], method="pearson", star=TRUE))
-   invisible(cor_table(
-             aggregate(data[,var1], list(data[,group]), mean, na.rm=T)[,-1], method="pearson", star=FALSE))
-  }
-}
 
 # Plot random effects #####
 #' Plot random effects and interactoions for mer objects
