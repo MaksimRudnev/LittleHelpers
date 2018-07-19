@@ -1,6 +1,6 @@
 Package: LittleHelpers
 Type: Package
-Title: Helpers of little use to anybody but myself
+Title: Helpers for comparative studies
 Version: 0.3.2
 Author: Maksim Rudnev <http://maksimrudnev.com>
 Maintainer: Maksim Rudnev <maksim.rudnev@gmail.com>
