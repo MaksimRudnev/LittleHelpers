@@ -263,6 +263,7 @@ drop_labs <- function(dataframe) {
 
 #' Get rid of the tibble
 #'
+<<<<<<< HEAD
 #' @param tibble Tibble to untibble.
 #' @export
 untibble <- function(tibble) {
@@ -273,6 +274,17 @@ untibble <- function(tibble) {
   } else {
     message("Dataframe is NOT a tibble. Return the same object.")
     tibble
+=======
+#' @export
+untibble <- function(dataframe) {
+
+  if("tbl" %in%  class(dataframe)) {
+    as.data.frame(unclass(dataframe))
+
+  } else {
+    message("Dataframe is NOT a tibble. Return the same object.")
+    dataframe
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
   }
 
 }

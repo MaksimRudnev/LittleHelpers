@@ -5,8 +5,12 @@
 \alias{aggr.and.merge}
 \title{Creates country level variables by aggregating individual level variables}
 \usage{
+<<<<<<< HEAD
 aggr_and_merge(ind_data, ind_var, country_var, FUN = "mean",
   suffix = NULL)
+=======
+aggr_and_merge(ind_data, ind_var, country_var, FUN = "mean", suffix = NULL)
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 }
 \arguments{
 \item{ind_data}{A dataset with individual-level data.}

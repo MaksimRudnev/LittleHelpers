@@ -5,7 +5,11 @@
 \title{Compute basic values indices as measured in European Social Survey}
 \usage{
 ess_values(data, v2 = TRUE, v4 = TRUE, v10 = TRUE, v21 = FALSE,
+<<<<<<< HEAD
   center = TRUE, abbr = FALSE, suffix = "")
+=======
+  center = TRUE, abbr = FALSE, suffix = NULL)
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 }
 \arguments{
 \item{data}{ESS dataset of any other dataset with the same 21 value indicator variable names}

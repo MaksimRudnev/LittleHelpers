@@ -41,5 +41,9 @@ It somehow repeats functionality of \link[sjPlot:sjp.int]{sjPlot::sjp.int}, but 
 random_interaction(lmr, "model.1SD.2SD")
 }
 \seealso{
+<<<<<<< HEAD
 \link{random_plot} \link{good_table}
+=======
+\link[LittleHelpers:random_plot]{LittleHelpers::random_plot}, \link[LittleHelpers:good_table]{LittleHelpers::good_table}
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 }

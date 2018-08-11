@@ -24,6 +24,10 @@ Computes means by group and plots them in as a scatterplot
 Recommended to use with `with` function, as in example.
 }
 \examples{
+<<<<<<< HEAD
 scatter_means_ci(ess$alcfreq, ess$HE, ess$cntry, plot=T, print=TRUE)
 
+=======
+ with(ess.data.d, scatter_means_ci(alcfreq_r, HE, cntry, plot=T, print=TRUE))
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 }

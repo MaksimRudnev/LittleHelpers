@@ -7,6 +7,7 @@
 #' @param ... Arguments passed to stargazer.
 #'
 #'
+<<<<<<< HEAD
 #'@examples \donttest{
 #' m1<- lmer(HE ~ age + gender + (1|country), ess.data.d, weights=dweight)
 #' m2<- lmer(HE ~ age + gender + (1+age + gender|country), ess.data.d, weights=dweight)
@@ -21,6 +22,19 @@
 #'
 #' @details  The list of possible fit.stats options:
 #'  \describe{
+=======
+#'@examples
+#'#m1<- lmer(HE ~ age + gender + (1|country), ess.data.d, weights=dweight)
+#'#m2<- lmer(HE ~ age + gender + (1+age + gender|country), ess.data.d, weights=dweight)
+#'#good_table(list(m1, m2))
+#'
+#' # Another option
+#' #f1 <- as.formula(HE ~ age + gender + (1|country))
+#' #f2 <- as.formula(HE ~ age + gender + (1|country))
+#' #good_table(lapply(c(f1, f2), function(x) lmer(x, ess.data.d, weights=dweight)))
+#'
+#' @details   \describe{
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 #'   \item{fit}{Shows deviance (-2*logLikelihood), AIC, BIC, number of parameters, number of groups, number of observations, if the model converged}
 #'   \item{ICC}{Computes intra-class correlation by fitting an empty model and computing a ratio of first-level and intercept variances.   }
 #'   \item{R2}{Computes R-square by fitting an empoty model and computing a ratio of residuals in an empty model and in the current model. }
@@ -33,7 +47,11 @@
 #'
 #'@note Issues to implement:
 #' * Might be veeery slow (something to work on)
+<<<<<<< HEAD
 #'
+=======
+#' * Add row indication of non-convergence
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 #'
 #' @md
 #'
@@ -549,10 +567,13 @@ potential_interactions_ind <- function(variables, modelfit) {
   invisible(intr.eff)
 }
 
+<<<<<<< HEAD
 #' Method for a nice printing of LHinteractions class
 #'
 #'
 #' @export
+=======
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 print.LHinteractions <- function(x) print(reshape2::dcast(x, v2 ~ v1, value.var ="vlu", fill = ""))
 
 # Centering ####

@@ -534,8 +534,12 @@ mean_se_lower_upper<-function(x) {
 #'
 #'
 #' @details Recommended to use with `with` function, as in example.
+<<<<<<< HEAD
 #' @examples scatter_means_ci(ess$alcfreq, ess$HE, ess$cntry, plot=T, print=TRUE)
 #'
+=======
+#' @examples  with(ess.data.d, scatter_means_ci(alcfreq_r, HE, cntry, plot=T, print=TRUE))
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 #' @export
 scatter_means_ci <- function(var1, var2, group, plot=TRUE, print=TRUE) {
   require(ggrepel)
@@ -558,8 +562,13 @@ scatter_means_ci <- function(var1, var2, group, plot=TRUE, print=TRUE) {
 
   dt<-data.frame(
 
+<<<<<<< HEAD
     mean1=tapply(var1, lab_to_fac(group), function(x) mean(x, na.rm=T), simplify = T),
     mean2=tapply(var2, lab_to_fac(group), function(x) mean(x, na.rm=T), simplify = T)
+=======
+    mean1=tapply(var1, to_label(group), function(x) mean(x, na.rm=T), simplify = T),
+    mean2=tapply(var2, to_label(group), function(x) mean(x, na.rm=T), simplify = T)
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
   )
   names.dt<-c(deparse(substitute(var1)),deparse(substitute(var2)))
   dt1<-dt; names(dt1) <- names.dt;
@@ -667,7 +676,11 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE) { #optional.n
 #' @return Returns one or several ggplots. In case one plot is returned it can be appended with `+theme()`, `+geom_()`, etc.
 #' @examples random_interaction(lmr, "model.1SD.2SD")
 #' @details It somehow repeats functionality of [sjPlot::sjp.int], but differs in being able to select real groups close to +/- 1 sd and mean of moderating variable; makes prettier and customizable plots.
+<<<<<<< HEAD
 #' @seealso \link{random_plot} \link{good_table}
+=======
+#' @seealso [LittleHelpers::random_plot], [LittleHelpers::good_table]
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 #' @md
 #'
 #' @export
@@ -994,16 +1007,25 @@ if(scatter) {
 }
 
 
+<<<<<<< HEAD
 
+=======
+    verb(length(glist), " ggplots have been created.")
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
   #  g
     if(length(glist)==1) {
       #plot(glist[[1]])
       g
+<<<<<<< HEAD
     } else if(length(glist)>1){
       verb(length(glist), " ggplots have been created.")
       gridExtra::grid.arrange( grobs=glist, ncol=length(glist), nrow=1)
     } else {
       message("Nothing was created, because interactions weren't found (or for some other reason")
+=======
+    } else {
+      gridExtra::grid.arrange( grobs=glist, ncol=length(glist), nrow=1)
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
     }
 
   }
@@ -1024,6 +1046,7 @@ theme_mr <- function() {
 }
 
 
+<<<<<<< HEAD
 #' Simple interaction plot with nice defaults
 #'
 #'
@@ -1038,6 +1061,8 @@ plef <-   function(modl, eff.id=1, ...) {
        rug=F, colors=c("pink", "red", "black", "blue", "skyblue"))
 }
 
+=======
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 
 # Sys.setenv(TZ="Europe/Lisbon")
 # Sys.getenv("TZ")

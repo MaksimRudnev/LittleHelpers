@@ -1,6 +1,7 @@
 Package: LittleHelpers
 Type: Package
 Title: Helpers for comparative studies
+<<<<<<< HEAD
 Version: 0.3.3
 Author: Maksim Rudnev <http://maksimrudnev.com>
 Maintainer: Maksim Rudnev <maksim.rudnev@gmail.com>
@@ -38,3 +39,17 @@ License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.0.9000
+=======
+Version: 0.3.2
+Author: Maksim Rudnev <http://maksimrudnev.com>
+Maintainer: Maksim Rudnev <maksim.rudnev@gmail.com>
+Description: Continuously updated collection of little helpers (tm) that facilitate my life in analyzing data (mostly comparative datasets) with R.
+Depends: R (>= 3.4), lme4 (>= 1.1), ggplot2 (>= 2.2), effects (>= 3.1), stats (>= 3.1), utils (>= 3.1), lavaan (>= 0.6)
+License: MIT
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
+>>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
