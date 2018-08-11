@@ -46,7 +46,7 @@ download_ess <- function(round, country="all", user) {
 
   #3. Read in with haven package
 
-  #require(haven)
+  require(haven)
 
   read_spss(path[length(path)])
 }
