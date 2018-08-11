@@ -31,11 +31,9 @@ download_ess <- function(round, country="all", user) {
   }
 
   #2. Download data
-<<<<<<< HEAD
+
   #library(httr)
-=======
-  library(httr)
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
+
   #Authenticate
   #auten<-POST("http://www.europeansocialsurvey.org/user/login", body = list(u=user))
   auten<-POST(paste("http://www.europeansocialsurvey.org/user/login?u=",user, sep=""))
@@ -47,11 +45,9 @@ download_ess <- function(round, country="all", user) {
   path<-utils::unzip(paste(tempdir(), "file.zip"))
 
   #3. Read in with haven package
-<<<<<<< HEAD
+
   #require(haven)
-=======
-  require(haven)
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
+
   read_spss(path[length(path)])
 }
 

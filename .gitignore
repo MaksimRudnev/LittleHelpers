@@ -2,11 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
-<<<<<<< HEAD
 LittleHelpers.Rproj
 TODO.md
-=======
-inst/doc
-LittleHelpers.Rproj
-archive
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5

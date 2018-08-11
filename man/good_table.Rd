@@ -4,14 +4,9 @@
 \alias{good_table}
 \title{Function producing a good table for many ML regressions}
 \usage{
-<<<<<<< HEAD
 good_table(models, fit.stats = c("ICC", "random", "random.p", "R2",
   "fit", "LRT", "REML", "VIF"), mod.names = "", show.viewer = TRUE,
   ...)
-=======
-good_table(models, fit.stats = c("ICC", "random", "random.p", "R2", "fit",
-  "LRT", "REML", "VIF"), mod.names = "", show.viewer = TRUE, ...)
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 }
 \arguments{
 \item{models}{List of the fitted lmer objects}
@@ -28,10 +23,7 @@ good_table(models, fit.stats = c("ICC", "random", "random.p", "R2", "fit",
 Function producing a good table for many ML regressions
 }
 \details{
-<<<<<<< HEAD
 The list of possible fit.stats options:
-=======
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 \describe{
 \item{fit}{Shows deviance (-2*logLikelihood), AIC, BIC, number of parameters, number of groups, number of observations, if the model converged}
 \item{ICC}{Computes intra-class correlation by fitting an empty model and computing a ratio of first-level and intercept variances.   }
@@ -46,7 +38,6 @@ The list of possible fit.stats options:
 Issues to implement:
 \itemize{
 \item Might be veeery slow (something to work on)
-<<<<<<< HEAD
 }
 }
 \examples{
@@ -61,19 +52,5 @@ f2 <- as.formula(HE ~ age + gender + (1|country))
 good_table(lapply(c(f1, f2), function(x) lmer(x, ess.data.d, weights=dweight)))
 }
 
-=======
-\item Add row indication of non-convergence
-}
-}
-\examples{
-#m1<- lmer(HE ~ age + gender + (1|country), ess.data.d, weights=dweight)
-#m2<- lmer(HE ~ age + gender + (1+age + gender|country), ess.data.d, weights=dweight)
-#good_table(list(m1, m2))
-
-# Another option
-#f1 <- as.formula(HE ~ age + gender + (1|country))
-#f2 <- as.formula(HE ~ age + gender + (1|country))
-#good_table(lapply(c(f1, f2), function(x) lmer(x, ess.data.d, weights=dweight)))
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 
 }

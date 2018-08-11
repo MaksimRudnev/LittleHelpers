@@ -4,14 +4,10 @@
 \alias{untibble}
 \title{Get rid of the tibble}
 \usage{
-<<<<<<< HEAD
 untibble(tibble)
 }
 \arguments{
 \item{tibble}{Tibble to untibble.}
-=======
-untibble(dataframe)
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 }
 \description{
 Get rid of the tibble

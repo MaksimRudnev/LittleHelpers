@@ -5,22 +5,16 @@
 #' @param df data.frame to show. Also works with a list of fitted lm() models.
 #' @param rownames Logical, if rownames should be shown.
 #' @param ... Other arguments passed to stargazer.
-<<<<<<< HEAD
+#' @param summ Passed to `summary` argument of stargazer.
 #'
-=======
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 #' @export
 
-df_to_viewer <- function(df, rownames = TRUE, ...) {
+df_to_viewer <- function(df, rownames = TRUE, summ=F,...) {
 
   tempDir <- tempfile()
   dir.create(tempDir)
   htmlFile <- file.path(tempDir, "index.html")
-<<<<<<< HEAD
-  a<-capture.output(stargazer(df, summary=F,
-=======
-  a<-capture.output(stargazer::stargazer(df, summary=F,
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
+  a<-capture.output(stargazer(df, summary=summ,
                                          #out=htmlFile,
                                          type="html",
                                          rownames = rownames, style="ajs", ...))

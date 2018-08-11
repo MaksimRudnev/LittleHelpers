@@ -5,13 +5,8 @@
 \title{Quick stacked bar plot}
 \usage{
 stacked_bar(variable, group, sort.cat = 1, colors = NA,
-<<<<<<< HEAD
   include.na = FALSE, labs = TRUE, label.col = NA,
   format.label = "2\%", weight = NA, label_col = NA)
-=======
-  include.na = FALSE, labs = TRUE, label.col = NA, format.label = "2\%",
-  weight = NA, label_col = NA)
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 }
 \arguments{
 \item{variable}{Variable to be plotted.}

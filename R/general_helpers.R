@@ -4,10 +4,7 @@
 #'
 #' @param d Data.frame
 #' @param method Method from `cor` function. spearman by default.
-<<<<<<< HEAD
 #' @param star If stars for p levels should be added.
-=======
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 #'
 #' @export
 cor_table <- function(d, method="spearman", star=TRUE) {
@@ -26,11 +23,7 @@ cor_table <- function(d, method="spearman", star=TRUE) {
 
   t <-  r / (sqrt((1-r^2)/(n-2)))
 
-<<<<<<< HEAD
   p <- 2*stats::pt(abs(t), n-2, lower=FALSE)
-=======
-  p <- 2*pt(abs(t), n-2, lower=FALSE)
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 
   starz <- matrix(rep("", ncol(d)^2), nrow=ncol(d))
   starz[p<0.05]<-"*"
@@ -50,7 +43,7 @@ cor_table <- function(d, method="spearman", star=TRUE) {
   rownames(m)<-names(d)
   m
 }
-<<<<<<< HEAD
+
 
 #' Rename variables in a data.frame
 #'
@@ -69,5 +62,4 @@ rename <- function(old.names, new.names, data) {
   }
   data
 }
-=======
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
+

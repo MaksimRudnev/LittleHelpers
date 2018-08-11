@@ -10,11 +10,8 @@ cor_table(d, method = "spearman", star = TRUE)
 \item{d}{Data.frame}
 
 \item{method}{Method from `cor` function. spearman by default.}
-<<<<<<< HEAD
 
 \item{star}{If stars for p levels should be added.}
-=======
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 }
 \description{
 Produces data frame of correlations with stars standing for significance

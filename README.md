@@ -2,11 +2,7 @@
 
 # LittleHelpers
 
-<<<<<<< HEAD
 Continuously updated collection of little helpers (tm) that facilitates my life in analyzing data (mostly comparative datasets) with R.
-=======
-Continuously updated collection of little helpers (tm) that facilitate my life in analyzing data (mostly comparative datasets) with R.
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 
 
 Use `devtools::install_github("maksimrudnev/LittleHelpers")` to install.
@@ -148,8 +144,10 @@ Make use of Rstudio viewer:
 - `replace_by_table` Useful for recoding when matching tables are alsready specified in a table. Particularly useful for translation.
 - `mean_se_lower_upper` Simply mean, SE, upper and lower 95% CI.
 - `verb` Simply prints its arguments.
-<<<<<<< HEAD
 - `rename` Renames variables in data.frame without bullshittery.
-=======
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 - `theme_mr` Clean theme for ggplot.
+
+
+## News
+
+- `plef`

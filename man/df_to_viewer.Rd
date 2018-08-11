@@ -4,12 +4,14 @@
 \alias{df_to_viewer}
 \title{Shows data.frame in RStudio viewer}
 \usage{
-df_to_viewer(df, rownames = TRUE, ...)
+df_to_viewer(df, rownames = TRUE, summ = F, ...)
 }
 \arguments{
 \item{df}{data.frame to show. Also works with a list of fitted lm() models.}
 
 \item{rownames}{Logical, if rownames should be shown.}
+
+\item{summ}{Passed to `summary` argument of stargazer.}
 
 \item{...}{Other arguments passed to stargazer.}
 }

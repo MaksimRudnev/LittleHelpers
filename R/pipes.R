@@ -25,7 +25,7 @@
 #'
 #'
 #' @examples
-<<<<<<< HEAD
+
 #' \donttest{
 #' data.frame(a=1:5, b=1/(1+exp(6:10)) ) %>%
 #'   ramify(1) %>%
@@ -38,19 +38,6 @@
 #'   harvest(2) %>%
 #' harvest
 #'}
-=======
-#' data.frame(a=1:5, b=1/(1+exp(6:10)) ) %>%
-#'   ramify(1) %>%
-#'   branch(1) %>% colMeans %>%
-#'     branch(2) %>% lm(a ~ b, .) %>% broom::tidy(.) %>%
-#'     branch(3) %>% cor %>%
-#'   ramify(2) %>%
-#'     branch(1) %>% round(2) %>%
-#'     branch(2) %>% psych::fisherz(.) %>%
-#'   harvest(2) %>%
-#' harvest
-#'
->>>>>>> 3ba7ee8f1e8c681e900d55fc66ae9042bcc8c4f5
 #'
 #' @md
 #'
