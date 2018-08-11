@@ -542,18 +542,18 @@ potential_interactions_ind <- function(variables, modelfit) {
   intr.eff$v2 <-factor(intr.eff$v2, levels=lvls)
   intr.eff$v1 <-factor(intr.eff$v1, levels=lvls)
 
-  #print(reshape2::dcast(intr.eff, v2 ~ v1, value.var ="vlu", fill = ""))
-  class(intr.eff)<-c("LHinteractions", "data.frame")
-  print.LHinteractions(intr.eff)
+  print(reshape2::dcast(intr.eff, v2 ~ v1, value.var ="vlu", fill = ""))
+  #class(intr.eff)<-c("LHinteractions", "data.frame")
+  #print.LHinteractions(intr.eff)
   invisible(intr.eff)
 }
 
 
-#' Method for a nice printing of LHinteractions class
-#'
-#'
-#' @export
-print.LHinteractions <- function(x) print(reshape2::dcast(x, v2 ~ v1, value.var ="vlu", fill = ""))
+# Method for a nice printing of LHinteractions class
+#
+#
+# @export
+# print.LHinteractions <- function(x) print(reshape2::dcast(x, v2 ~ v1, value.var ="vlu", fill = ""))
 
 # Centering ####
 
