@@ -10,7 +10,7 @@
 #' @export
 
 df_to_viewer <- function(df, rownames = TRUE, summ=F,...) {
-
+  library(stargazer, quietly=T)
   tempDir <- tempfile()
   dir.create(tempDir)
   htmlFile <- file.path(tempDir, "index.html")
