@@ -14,7 +14,9 @@ Imports:
     effects (>= 3.1),
     stats (>= 3.1),
     utils (>= 3.1),
-    lavaan (>= 0.6),
+    lavaan (>= 0.6)
+Suggests: knitr,
+    rmarkdown,
     haven,
     magrittr,
     httr,
@@ -31,8 +33,6 @@ Imports:
     RColorBrewer,
     survey,
     stringr
-Suggests: knitr,
-    rmarkdown
 VignetteBuilder: knitr
 License: GPL (>= 2)
 Encoding: UTF-8
