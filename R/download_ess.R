@@ -32,7 +32,7 @@ download_ess <- function(round, country="all", user) {
 
   #2. Download data
 
-  #library(httr)
+  require(httr)
 
   #Authenticate
   #auten<-POST("http://www.europeansocialsurvey.org/user/login", body = list(u=user))
