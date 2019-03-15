@@ -385,8 +385,8 @@ stacked_bar_ntf_nm<-function(vars, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap
 #' graph_means_ci(d$v, d$group)
 #' with(d, graph_means_ci(v, group))
 #' @export
-graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "caption") , type=c("means", "ridges", "heat")) {
-
+graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "caption") , type=c("means", "ridges", "heat"), use.labels=T) {
+ #warning("Danger! There is some error in labeling! Do not trust the results!")
   group <- lab_to_fac(group)
 
   # if(!is.null(attr(var, "labels"))) {
@@ -398,7 +398,7 @@ graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "cap
 
 
   # Caption and codes
-  if(!is.null(attr(var, "labels"))) {
+  if(!is.null(attr(var, "labels")) && use.labels) {
     g.caption <- paste(attr(var, "labels"),
                        attr(attr(var, "labels"), "names"), collapse="; \n")
   } else {
@@ -406,7 +406,7 @@ graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "cap
   }
 
   # X labs
-  if(!is.null(attr(var, "label"))  &&  any(!attr(var, "label")==attr(var, "labels")) ) {
+  if(!is.null(attr(var, "label"))  &&  any(!attr(var, "label")==attr(var, "labels")) && use.labels) {
     x.label <-  attr(var, "label")
   } else {
     x.label <-   deparse(substitute(var))
@@ -699,8 +699,9 @@ random_interaction <- function( x,
   if(length(interaction.terms)==0) stop("Interactions were not found!")
   #verb("interaction.terms", str(interaction.terms))
 
-  new.data<-model.frame(x)
+  new.data <- model.frame(x)
   is.there.any.labelled.variables <-0
+
 
   glist<-gList()
 
@@ -714,7 +715,8 @@ random_interaction <- function( x,
 
   if(is.there.any.labelled.variables>0) {
     message(paste("There are",is.there.any.labelled.variables, "variable(s) of class 'labelled', with which package 'effects' doesn't work, so refitting to a data with 'labelled' converted to 'numeric'. " ))
-    x<-lmer(formula(x), data=new.data, weights=`(weights)`)
+    x<-lmer(formula(x), data=new.data,
+            weights= `(weights)` )
   }
 
   group.name<-names(getME(x, "flist"))
@@ -819,14 +821,14 @@ print(moderator.levels.to.plot)
 
 # Compute effects
 
-    assign("new.data", new.data, envir=.GlobalEnv)
+    #assign("new.data", new.data, envir=.GlobalEnv)
     ploff<-effect(term=interaction.terms[i], xlevels=moderator.levels.to.plot, mod=x, ...)
     print(ploff)
     db<- data.frame(ploff$x, ploff$fit, ploff$lower, ploff$upper)
     real.names<-names(db)
     names(db)<-c("dep", "moderator", "ind", "lower", "upper")
     db$moderator <- as.factor(round(db$moderator, 2))
-#print(db)
+print(db)
 
 
 #Plot effects
@@ -988,7 +990,7 @@ if(scatter) {
     g <- gridExtra::grid.arrange( scatter, g, nrow=2, ncol=1)
   }
 
-    rm(new.data, envir=.GlobalEnv)
+    #rm(new.data, envir=.GlobalEnv)
     glist[[length(glist)+1]] <- g
 }
 

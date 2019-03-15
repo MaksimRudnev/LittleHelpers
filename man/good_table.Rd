@@ -2,7 +2,8 @@
 % Please edit documentation in R/multilevel_helpers.R
 \name{good_table}
 \alias{good_table}
-\title{Function producing a good table for many ML regressions}
+\alias{lmer_table}
+\title{Function producing a tidy table for many multilevel regressions (lmer fitted objects)}
 \usage{
 good_table(models, fit.stats = c("ICC", "random", "random.p", "R2",
   "fit", "LRT", "REML", "VIF"), mod.names = "", show.viewer = TRUE,
@@ -20,7 +21,7 @@ good_table(models, fit.stats = c("ICC", "random", "random.p", "R2",
 \item{...}{Arguments passed to stargazer.}
 }
 \description{
-Function producing a good table for many ML regressions
+Stacks coefficients and SEs, extracts various lmer-specific model fit statistics and confidence intervals for random effects (refits models if necessary), outputs a nicely formatted table using stargazer and shows it directly in Rstudio Viewer.
 }
 \details{
 The list of possible fit.stats options:

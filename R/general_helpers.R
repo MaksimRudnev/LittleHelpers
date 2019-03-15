@@ -52,14 +52,50 @@ cor_table <- function(d, method="spearman", star=TRUE) {
 #' @param data A data frame.
 #'
 #' @export
-rename <- function(old.names, new.names, data) {
-  if(any(!old.names %in% names(data))  ) {
+# rename <- function(old.names, new.names, data) {
+#   if(any(!old.names %in% names(data))  ) {
+#
+#     stop(paste("Can't find variable names:", paste(old.names[!old.names %in% names(data)], collapse="; "),
+#                "\n  Nothing has been renamed"))
+#   } else {
+#     names(data)[names(data) %in% old.names]<-new.names
+#   }
+#   data
+# }
 
-    stop(paste("Can't find variable names:", paste(old.names[!old.names %in% names(data)], collapse="; "),
-               "\n  Nothing has been renamed"))
-  } else {
-    names(data)[names(data) %in% old.names]<-new.names
+rename <- function(old.names, new.names, dat) {
+
+  dat.names  = names(dat)
+
+  if(any(!old.names %in% dat.names)  ) warning(paste(
+    "Can't find variable names:", paste(old.names[!old.names %in% dat.names], collapse="; ")))
+
+
+  for(x in 1:length(old.names))  {
+
+    if(any(dat.names %in% old.names[x] )) dat.names[ dat.names == old.names[x] ] <- new.names[x]
+
   }
-  data
+
+  dat.new = dat
+  names(dat.new) <- dat.names
+  return(dat.new)
+  }
+
+
+
+#'St err of mean
+#'
+#'@export
+se <- function(variable) {
+  variable <- stats::na.omit(variable)
+  sqrt(stats::var(variable)/length(variable))
+
 }
 
+
+
+pvalue_to_stars <- function(vector.of.pvalues) {
+  sapply(vector.of.pvalues, function(x) paste0(
+  ifelse(x < .001, "***", ifelse(x < .01, "**", ifelse(x < .05, "*", " ")))))
+}

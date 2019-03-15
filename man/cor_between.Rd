@@ -4,18 +4,16 @@
 \alias{cor_between}
 \title{Correlation between group aggregates}
 \usage{
-cor_between(var1, var2, group, data, print = T, ...)
+cor_between(var1, var2, group, data, ...)
 }
 \arguments{
-\item{var1}{Character name of variable 1.}
+\item{var1}{Character name of variable 1, or a list of characters (in this case var2 is ignored)}
 
 \item{var2}{Character name of variable 2.}
 
 \item{group}{Character name of group variable.}
 
 \item{data}{Dataset}
-
-\item{print}{Logical, T of you need to see it in console, F, if you use it inside other function.}
 
 \item{...}{Passed to `cor.test`}
 }

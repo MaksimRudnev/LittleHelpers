@@ -18,6 +18,10 @@ replace_by_table<- function(variable=all.data$cntry, lookup.table=recodes2,
                             matching.column="cntry",
                             replacement.column="WDIcode", save.levels.order=T) {
 
+
+  #NB rewrite using switch()
+
+
   # make data.frame, remove duplicates in matching.column with the FIRST match
   if("tbl" %in% class(lookup.table)) lookup.table<-untibble(lookup.table)
 

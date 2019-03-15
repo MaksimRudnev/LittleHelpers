@@ -1,5 +1,5 @@
-#' Function producing a good table for many ML regressions
-#'
+#' Function producing a tidy table for many multilevel regressions (lmer fitted objects)
+#' @description Stacks coefficients and SEs, extracts various lmer-specific model fit statistics and confidence intervals for random effects (refits models if necessary), outputs a nicely formatted table using stargazer and shows it directly in Rstudio Viewer.
 #' @param models List of the fitted lmer objects
 #' @param fit.stats What fit statistics to compute/extract and show? Possible options are "ICC", "random", "R2s", "fit", "LRT", "REML", "VIF". See "Details".
 #' @param mod.names Vector of the same length as models list, giving names to each model.
@@ -35,7 +35,7 @@
 #' * Might be veeery slow (something to work on)
 #'
 #' @md
-#'
+#' @aliases lmer_table
 #' @export
 good_table <- function(models,
                        fit.stats=c("ICC", "random", "random.p", "R2", "fit", "LRT", "REML", "VIF"),
@@ -46,6 +46,7 @@ good_table <- function(models,
   require(scales)
   require(stargazer)
   total.time<-Sys.time()
+
 
 
 
@@ -250,7 +251,7 @@ avalable.stats <- c("ICC", "VIF", "REML", "fit", "LRT", "random", "random.p",  "
 
     extra.lines<-lapply(extra.lines, function(x) gsub("_", "\\\\_", x))
     print(extra.lines)
-    assign("extra.lines", extra.lines, envir=.GlobalEnv)
+    #assign("extra.lines", extra.lines, envir=.GlobalEnv)
     #stargazer(hovs.fit1, type="html", out="123.html", add.lines=extra.lines, summary=F, no.space=T, single.row=T, star.cutoffs=c(0.05, 0.01, 0.001),    omit.stat="all")
     b<-capture.output(stargazer(models, out=htmlFile, type="html", summary=F, no.space=T, single.row=T, star.cutoffs=c(0.05, 0.01, 0.001),
                                 #table.layout = "-l-d-m-c-t-a-",
@@ -615,17 +616,17 @@ grand_center <- function(variables, prefix="gm.") {
 #' @export
 cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pairwise", ...) {
 
-  require(sjmisc);
-  require(sjlabelled);
+  #require(sjmisc);
+  #require(sjlabelled);
   library("ggplot2")
 
 
   if(sum(class(data)=="tbl")>0) {
-    Gr <- sjmisc::to_character(data[, group])[[1]]
+    Gr <- as.character(lab_to_fac(data[, group][[1]]))
     V1 <- as.numeric(data[, var1][[1]])
     V2 <- as.numeric(data[, var2][[1]])
   } else {
-    Gr <- sjmisc::to_label(data[, group])
+    Gr <- as.character(lab_to_fac(data[, group]))
     V1 <- data[, var1]
     V2 <- data[, var2]
   }
@@ -641,7 +642,9 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
 
   tb$group<-factor(tb$group, levels=tb$group[order(tb$Corr)])
   if(plot==T) {
-    g<-ggplot(tb,aes(x=group, y=Corr))+geom_point(colour="red")+coord_flip()+theme_minimal()
+    g<-ggplot(tb,aes(x=group, y=Corr))+
+      geom_point(colour="red")+
+      coord_flip()+theme_minimal()
     if(labs) g<-g+geom_text_repel(aes(label=(round(Corr, 2))), size=3)
 
     print(g)
@@ -654,16 +657,15 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
 #' Correlation between group aggregates
 #'
 #'
-#'@param var1 Character name of variable 1.
+#'@param var1 Character name of variable 1, or a list of characters (in this case var2 is ignored)
 #'@param var2 Character name of variable 2.
 #'@param group Character name of group variable.
 #'@param data Dataset
-#'@param print Logical, T of you need to see it in console, F, if you use it inside other function.
 #'@param ... Passed to `cor.test`
 #'
 #' @export
 
-cor_between <- function (var1, var2, group, data, print=T, ...) {
+cor_between <- function (var1, var2, group, data, ...) {
   if(any(class(data)=="tbl")) data<-drop_labs(data);
 
   if(length(var1)==1) {
@@ -710,7 +712,7 @@ cor_between <- function (var1, var2, group, data, print=T, ...) {
 #'
 #'
 #'
-#'
+#' @return
 #'
 #'@export
 search_random <- function(lmerfit, terms=NA, boot=F) {

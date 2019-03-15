@@ -115,7 +115,10 @@ ess_values <- function(data, v2=TRUE, v4=TRUE, v10 = TRUE, v21=FALSE, center=TRU
 
   #Compute 21 reversed and/or centered items
   if(v21) {
-    v21d <- sapply(values$items, function(item) d[,item]-mrat)
+    v21d <- sapply(values$items, function(item) d[,item] - mrat )
+
+    warning(paste(values$items, collapse=", "), "were updated (centered)!")
+
     if(suffix=="") {
      names(v21d) <-paste(values$items, ".rev", sep="")
     } else {

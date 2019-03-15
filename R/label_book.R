@@ -6,6 +6,8 @@
 #' @param view logical, whether the result should be shown in the RStudio viewer pane. Defualt is TRUE. If FALSE, html file named 'label_book_output.html' is saved in your working directory.
 #'
 #' @details For Haven and Foreign read spss files only. The only extra package required is `knitr`.
+#'
+#' @alias label_table
 #' @examples ## Example
 #'\dontrun{
 #' ## 1.Read the data
@@ -217,7 +219,7 @@ crosstab <- function(rows, cols, data, margin="row", useNA="always") {
 #' @param var.labelled Labelled variable or tibble with a single variable
 #'
 #' @export
-lab_to_fac <- function(var.labelled) {
+lab_to_fac <- function(var.labelled, print = F) {
 
   if(any(class(var.labelled)=="tbl")) {
     #convert from tibble
@@ -226,14 +228,23 @@ lab_to_fac <- function(var.labelled) {
 
   if(is.null(attr(var.labelled, "labels"))) {
     return(var.labelled)
-    message("No labels in variable. Return the same variable.")
-  } else {
-  labs<-names(attr(var.labelled, "labels"))[  na.omit(match(unique(var.labelled), attr(var.labelled, "labels"))) ]
+    message("No labels in variable. Returning the same variable.")
 
-  labs<-labs[na.omit(match(names(attr(var.labelled, "labels")), labs))]
-   out<-factor(var.labelled, labels=labs)
-}
-  attr(out, "header") <- attr(var.labelled, "label")
+  } else {
+
+    #Exchange places of codes and labels in attribute
+    labs<- names(attr(var.labelled, "labels"))
+    names(labs) <- attr(var.labelled, "labels")
+
+    out<- sapply(var.labelled, function(x)  {
+      do.call("switch", append( list( as.character(x)), append(labs, NA) ))
+    }, USE.NAMES = F   )
+    out <- factor(out, levels = labs)
+
+    if(print) table(out, var.labelled)
+
+  }
+  if(!is.null(attr(var.labelled, "label")))  attr(out, "label") <- attr(var.labelled, "label")
   out
 
 }

@@ -5,7 +5,7 @@
 \title{Graph means w/CIs}
 \usage{
 graph_means_ci(var, group, highlight.group = NA, codes = c("print",
-  "caption"), type = c("means", "ridges", "heat"))
+  "caption"), type = c("means", "ridges", "heat"), use.labels = T)
 }
 \arguments{
 \item{var}{Variable to aggregate.}

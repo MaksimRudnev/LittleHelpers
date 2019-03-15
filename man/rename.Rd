@@ -4,7 +4,7 @@
 \alias{rename}
 \title{Rename variables in a data.frame}
 \usage{
-rename(old.names, new.names, data)
+rename(old.names, new.names, dat)
 }
 \arguments{
 \item{old.names}{Old name(s) existing in the data. A vector or a single character value.}

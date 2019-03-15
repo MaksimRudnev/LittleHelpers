@@ -4,7 +4,7 @@
 \alias{lab_to_fac}
 \title{Convert labelled variable to a factor with corresponding values}
 \usage{
-lab_to_fac(var.labelled)
+lab_to_fac(var.labelled, print = F)
 }
 \arguments{
 \item{var.labelled}{Labelled variable or tibble with a single variable}

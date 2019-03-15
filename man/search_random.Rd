@@ -6,6 +6,9 @@
 \usage{
 search_random(lmerfit, terms = NA, boot = F)
 }
+\value{
+
+}
 \description{
 Find random effects across fixed
 }
