@@ -241,7 +241,9 @@ avalable.stats <- c("ICC", "VIF", "REML", "fit", "LRT", "random", "random.p",  "
 
 
   if(show.viewer==FALSE) {
-    stargazer(models, out="good_table_output.html", type="html", summary=F, no.space=T, single.row=T, star.cutoffs=c(0.05, 0.01, 0.001),
+    stargazer(models, out="good_table_output.html",
+              type="html",
+              summary=F, no.space=T, single.row=T, star.cutoffs=c(0.05, 0.01, 0.001),
                              #table.layout = "-l-d-m-c-t-a-",
                              omit.stat="all",
                              column.labels=mod.names,
