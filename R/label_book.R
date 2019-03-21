@@ -7,7 +7,7 @@
 #'
 #' @details For Haven and Foreign read spss files only. The only extra package required is `knitr`.
 #'
-#' @alias label_table
+#' @aliases  label_table
 #' @examples ## Example
 #'\dontrun{
 #' ## 1.Read the data
@@ -288,3 +288,8 @@ untibble <- function(tibble) {
 
 }
 
+
+#' Alias for label_book
+#'
+#' @export
+label_table <- function(...) label_book(...)

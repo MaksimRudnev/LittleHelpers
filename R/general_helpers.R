@@ -99,3 +99,21 @@ pvalue_to_stars <- function(vector.of.pvalues) {
   sapply(vector.of.pvalues, function(x) paste0(
   ifelse(x < .001, "***", ifelse(x < .01, "**", ifelse(x < .05, "*", " ")))))
 }
+
+# Match named vectors to a data.frame
+#'@param ... Named vectors with same of partly different names. OR a list of named vectors.
+#'
+#' @return The function returns a data.frame with vectors stacked as columns.
+#'
+#'@export
+match_named_vectors <- function(...) {
+  l <- list(...)
+
+  if(length(l)==1) l <- l[[1]]
+
+  all.nmz <-  unlist(sapply(l, names))
+  all.nmz <-all.nmz[!duplicated(all.nmz)]
+  sapply(l, function(x) unlist(x)[all.nmz])
+
+}
+

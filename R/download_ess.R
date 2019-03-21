@@ -3,9 +3,12 @@
 #' @param round Number of round - from 1 to 8.
 #' @param country Vector of country [iso2c](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) codes, or "all".
 #' @param user Your email which you used to register in ESS website.
+#' @param version Version of the dataset in the form of character '02_1' (v2.1). Check the ESS website for the versions. Sometimes it matters. If NULL (default) the latest version is downloaded.
+#' @param clean Logical. If the downloaded files should be removed after reading in.
+#'
 #' @details Don't put more than one country or more than one round - it won't work. This function will expire when ESS updates its data versions, but it happens about twice a year and can be fixed manually.
 #'
-#' **Motivation.** `ess` package is tuned up for Stata users and sometimes do not get all the labels; it can only download one country data at a time; when it downloads several rounds, you get a list of data instead of integrated dataset.
+#' @details `ess` package is tuned up for Stata users and sometimes do not get all the labels; it can only download one country data at a time; when it downloads several rounds, you get a list of data instead of integrated dataset.
 #'
 #' @seealso  \link{label_book}
 #'
@@ -19,14 +22,22 @@
 #'
 #' @export
 #'
-download_ess <- function(round, country="all", user) {
+download_ess <- function(round, country="all", user, version = NULL, clean = FALSE) {
 
   #1.Create url
   if(country!="all") {
     download.url <- paste("http://www.europeansocialsurvey.org/file/download?f=ESS",
                           round, country, ".spss.zip&c=", country, "&y=", round*2+2000, sep="")
   } else {
-    version <-  c("06_5", "03_5", "03_6", "04_4", "03_3", "02_3", "02_1", "02")[round]
+    if(is.null(version)) {
+    version <-  c(`1` = "06_6",
+                  `2` = "03_6",
+                  `3` = "03_7",
+                  `4` = "04_5",
+                  `5` = "03_4",
+                  `6` = "02_4",
+                  `7` = "02_2",
+                  `8` = "02_1")[round] }
     download.url <- paste("http://www.europeansocialsurvey.org/file/download?f=ESS", round, "e", version, ".spss.zip&c=&y=", round*2+2000, sep="")
   }
 
@@ -48,6 +59,10 @@ download_ess <- function(round, country="all", user) {
 
   require(haven)
 
-  read_spss(path[length(path)])
+  d <- read_spss(path[length(path)])
+
+  if(clean) file.remove(path[length(path)])
+
+    return(d)
 }
 

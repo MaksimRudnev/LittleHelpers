@@ -2,6 +2,7 @@
 % Please edit documentation in R/df_to_viewer.R
 \name{df_to_viewer}
 \alias{df_to_viewer}
+\alias{to_viewer}
 \title{Shows data.frame in RStudio viewer}
 \usage{
 df_to_viewer(df, rownames = TRUE, summ = F, ...)

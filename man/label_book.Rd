@@ -2,6 +2,7 @@
 % Please edit documentation in R/label_book.R
 \name{label_book}
 \alias{label_book}
+\alias{label_table}
 \title{Create a codebook, table of labels to explore variables and values in your data}
 \usage{
 label_book(df, max.vals = 25, vars = "all", view = TRUE)

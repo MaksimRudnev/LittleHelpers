@@ -7,6 +7,7 @@
 #' @param ... Other arguments passed to stargazer.
 #' @param summ Passed to `summary` argument of stargazer.
 #'
+#' @aliases to_viewer
 #' @export
 
 df_to_viewer <- function(df, rownames = TRUE, summ=F,...) {
