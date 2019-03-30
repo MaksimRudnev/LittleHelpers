@@ -259,7 +259,7 @@ drop_labs <- function(dataframe) {
   new.data <- dataframe
 
   for(i in names(dataframe)) {
-    if(any(class(dataframe[,i])=="labelled"))  {
+    if(any(class(dataframe[,i])=="labelled") | !is.null(attr(new.data[,i], "labels")) )  {
       new.data[,i] <- unclass(new.data[,i])
       attr(new.data[,i], "labels")<-NULL
     }}
