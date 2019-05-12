@@ -9,5 +9,5 @@ brmsea(file = "bayesian.gh5", file_sel = "Chi-square values",
   Ngr = 4)
 }
 \description{
-Hoot's BRMSEA
+Adapted from Hoots et al., 2017, https://journals.sagepub.com/doi/suppl/10.1177/0013164417709314
 }
