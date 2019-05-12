@@ -151,80 +151,94 @@ mgcfa_diagnose <- function(lavaan.model, output=c("overall", "neg.var", "mi", "c
 }
 
 
-#' Classic measurement invariance test
+# Classic measurement invariance test
+# mi_test<- function(lavaan.model, ...) {
+#
+#   if(any(class(lavaan.model)=="lavaan")) {
+#     conf <- update(lavaan.model, group.equal="none")
+#     metric <- update(lavaan.model, group.equal=c("loadings"))
+#     scalar <- update(lavaan.model, group.equal=c("loadings", "intercepts"))
+#     means <- update(lavaan.model, group.equal=c("loadings", "intercepts", "means"))
+#
+#
+#   } else if(any(class(lavaan.model)=="formula") | any(class(lavaan.model)=="character")) {
+#
+#     conf <- cfa(lavaan.model, group.equal="none", ...)
+#     metric <- cfa(lavaan.model, group.equal=c("loadings"), ...)
+#     scalar <- cfa(lavaan.model, group.equal=c("loadings", "intercepts"), ...)
+#     means <- cfa(lavaan.model, group.equal=c("loadings", "intercepts", "means"), ...)
+#
+#   } else {
+#     error("Argument should be a fitted lavaan model or a lavaan formula.")
+#
+#   }
+#
+#   tt<-data.frame(conf=fitmeasures(conf)[c("chisq", "df", "cfi", "rmsea", "srmr")],
+#                  metric=fitmeasures(metric)[c("chisq", "df", "cfi", "rmsea", "srmr")],
+#                  scalar=fitmeasures(scalar)[c("chisq", "df", "cfi", "rmsea", "srmr")],
+#                  means=fitmeasures(means)[c("chisq", "df", "cfi", "rmsea", "srmr")]) %>% t %>% as.data.frame
+#   tt$delta.CFI <- c(NA, tt$cfi[1:(length(tt$cfi)-1)] - tt$cfi[2:length(tt$cfi)])
+#   tt$delta.RMSEA <- c(NA, abs(tt$rmsea[1:(length(tt$rmsea)-1)] - tt$rmsea[2:length(tt$rmsea)]))
+#   tt$delta.SRMR <- c(NA, abs(tt$srmr[1:(length(tt$srmr)-1)] - tt$srmr[2:length(tt$srmr)]))
+#
+#   print(with(tt, data.frame(chisq=round(chisq, 2),
+#                          df=round(df),
+#                          CFI = round(cfi, 3),
+#                          RMSEA = round(rmsea, 3),
+#                          SRMR = round(srmr, 3),
+#
+#                          delta.CFI = format(delta.CFI, digits=1, nsmall=3, scientific =FALSE),
+#                          delta.RMSEA = format(delta.RMSEA, digits=1, nsmall=3, scientific =FALSE),
+#                          delta.SRMR = format(delta.SRMR, digits=1, nsmall=3, scientific =FALSE),
+#                          row.names = rownames(mit.3))))
+#   invisible(tt)
+#
+# }
+
+#' Run three models of invariance and compare them
+#' @description This mimicking the deprecated semTools::measurementInvariance()
+#' @param lavaan.model Either a fitted lavaan model object, or just a character formula model in lavaan standards
+#' @param ... any \link[lavaan]{cfa} arguments except for 'group.equal'
+#' @aliases mi_test
+#' @seealso lavaan::cfa
 #'
 #' @export
+measurementInvariance <- function(lavaan.model, ...) {
 
+  if(any(class(lavaan.model)=="formula") | any(class(lavaan.model)=="character")) {
 
-mi_test<- function(lavaan.model, ...) {
+  r.conf<-lavaan::cfa(lavaan.model, ..., group.equal = NULL)
+  r.metric<-lavaan::cfa(lavaan.model, ..., group.equal = "loadings")
+  r.scalar<-lavaan::cfa(lavaan.model, ..., group.equal = c("loadings", "intercepts"))
+  r.means<-lavaan::cfa(lavaan.model, ..., group.equal = c("loadings", "intercepts", "means"))
 
-  if(any(class(lavaan.model)=="lavaan")) {
-    conf <- update(lavaan.model, group.equal="none")
-    metric <- update(lavaan.model, group.equal=c("loadings"))
-    scalar <- update(lavaan.model, group.equal=c("loadings", "intercepts"))
-    means <- update(lavaan.model, group.equal=c("loadings", "intercepts", "means"))
+  } else if(any(class(lavaan.model)=="lavaan") ) {
 
-
-  } else if(any(class(lavaan.model)=="formula") | any(class(lavaan.model)=="character")) {
-
-    conf <- cfa(lavaan.model, group.equal="none", ...)
-    metric <- cfa(lavaan.model, group.equal=c("loadings"), ...)
-    scalar <- cfa(lavaan.model, group.equal=c("loadings", "intercepts"), ...)
-    means <- cfa(lavaan.model, group.equal=c("loadings", "intercepts", "means"), ...)
-
+    r.conf<-update(lavaan.model, ..., group.equal = NULL)
+    r.metric<-update(lavaan.model, ..., group.equal = "loadings")
+    r.scalar<-update(lavaan.model, ..., group.equal = c("loadings", "intercepts"))
+    r.means<-update(lavaan.model, ..., group.equal = c("loadings", "intercepts", "means"))
   } else {
     error("Argument should be a fitted lavaan model or a lavaan formula.")
 
   }
 
-  tt<-data.frame(conf=fitmeasures(conf)[c("chisq", "df", "cfi", "rmsea", "srmr")],
-                 metric=fitmeasures(metric)[c("chisq", "df", "cfi", "rmsea", "srmr")],
-                 scalar=fitmeasures(scalar)[c("chisq", "df", "cfi", "rmsea", "srmr")],
-                 means=fitmeasures(means)[c("chisq", "df", "cfi", "rmsea", "srmr")]) %>% t %>% as.data.frame
-  tt$delta.CFI <- c(NA, tt$cfi[1:(length(tt$cfi)-1)] - tt$cfi[2:length(tt$cfi)])
-  tt$delta.RMSEA <- c(NA, abs(tt$rmsea[1:(length(tt$rmsea)-1)] - tt$rmsea[2:length(tt$rmsea)]))
-  tt$delta.SRMR <- c(NA, abs(tt$srmr[1:(length(tt$srmr)-1)] - tt$srmr[2:length(tt$srmr)]))
-
-  print(with(tt, data.frame(chisq=round(chisq, 2),
-                         df=round(df),
-                         CFI = round(cfi, 3),
-                         RMSEA = round(rmsea, 3),
-                         SRMR = round(srmr, 3),
-
-                         delta.CFI = format(delta.CFI, digits=1, nsmall=3, scientific =FALSE),
-                         delta.RMSEA = format(delta.RMSEA, digits=1, nsmall=3, scientific =FALSE),
-                         delta.SRMR = format(delta.SRMR, digits=1, nsmall=3, scientific =FALSE),
-                         row.names = rownames(mit.3))))
-  invisible(tt)
-
-}
-
-#' Run three models of invariance and compare them
-#' @description This mimicking the deprecated semTools::measurementInvariance()
-#' @param ... any \link[lavaan]{cfa} arguments except for 'group.equal'
-#'
-#' @seealso lavaan::cfa
-#'
-#' @export
-measurementInvariance <- function(...) {
-
-  r.conf<-lavaan::cfa(...)
-  r.metric<-lavaan::cfa(..., group.equal = "loadings")
-  r.scalar<-lavaan::cfa(..., group.equal = c("loadings", "intercepts"))
 
   #print(r.conf@call[-3])
 
-  out <- lavaan::lavTestLRT(r.conf, r.metric, r.scalar, model.names = c("Configural", "Metric", "Scalar"))
+  out <- lavaan::lavTestLRT(r.conf, r.metric, r.scalar, model.names = c("Configural", "Metric", "Scalar", "Means"))
   #out <- out[,names(out)[c(4, 1, 5, 6)]]
   out2<-t(sapply(list(r.conf, r.metric, r.scalar),   fitmeasures)[c("cfi", "tli", "rmsea", "srmr"),])
-  out2.2 <- apply(out2, 2, function(x) (c(NA, x[2]-x[1], x[3]-x[2]  )))
+  out2.2 <- apply(out2, 2, function(x) (c(NA, x[2]-x[1], x[3]-x[2], x[4]-x[3] )))
   colnames(out2.2)<- paste("∆", toupper(colnames(out2.2)), sep="")
   out2.3 <- t(Reduce("rbind", lapply(1:ncol(out2), function(x) rbind(out2[,x], out2.2[,x]))))
   colnames(out2.3)<-toupper(as.vector(sapply(1:length(colnames(out2)), function(i) c(colnames(out2)[i], colnames(out2.2)[i]) )))
-  rownames(out2.3)<-c("Configural", "Metric", "Scalar")
+  rownames(out2.3)<-c("Configural", "Metric", "Scalar", "Means")
+
   print(out)
   cat("\n")
   print(round(out2.3, 3), digits=3, row.names = TRUE, na.print = "" )
 
+  invisible(list(out, out2.3))
 }
 

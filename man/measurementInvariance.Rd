@@ -2,11 +2,14 @@
 % Please edit documentation in R/lavaan_helpers.R
 \name{measurementInvariance}
 \alias{measurementInvariance}
+\alias{mi_test}
 \title{Run three models of invariance and compare them}
 \usage{
-measurementInvariance(...)
+measurementInvariance(lavaan.model, ...)
 }
 \arguments{
+\item{lavaan.model}{Either a fitted lavaan model object, or just a character formula model in lavaan standards}
+
 \item{...}{any \link[lavaan]{cfa} arguments except for 'group.equal'}
 }
 \description{
