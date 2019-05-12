@@ -1,7 +1,7 @@
 Package: LittleHelpers
 Type: Package
 Title: Helpers for comparative studies
-Version: 0.3.4
+Version: 0.4
 Author: Maksim Rudnev <http://maksimrudnev.com>
 Maintainer: Maksim Rudnev <maksim.rudnev@gmail.com>
 Description: Continuously updated collection of little helpers (tm) that facilitate my life in analyzing data (mostly comparative datasets) with R.
