@@ -199,4 +199,32 @@ mi_test<- function(lavaan.model, ...) {
 
 }
 
+#' Run three models of invariance and compare them
+#' @description This mimicking the deprecated semTools::measurementInvariance()
+#' @param ... any \link[lavaan]{cfa} arguments except for 'group.equal'
+#'
+#' @seealso lavaan::cfa
+#'
+#' @export
+measurementInvariance <- function(...) {
+
+  r.conf<-lavaan::cfa(...)
+  r.metric<-lavaan::cfa(..., group.equal = "loadings")
+  r.scalar<-lavaan::cfa(..., group.equal = c("loadings", "intercepts"))
+
+  #print(r.conf@call[-3])
+
+  out <- lavaan::lavTestLRT(r.conf, r.metric, r.scalar, model.names = c("Configural", "Metric", "Scalar"))
+  #out <- out[,names(out)[c(4, 1, 5, 6)]]
+  out2<-t(sapply(list(r.conf, r.metric, r.scalar),   fitmeasures)[c("cfi", "tli", "rmsea", "srmr"),])
+  out2.2 <- apply(out2, 2, function(x) (c(NA, x[2]-x[1], x[3]-x[2]  )))
+  colnames(out2.2)<- paste("∆", toupper(colnames(out2.2)), sep="")
+  out2.3 <- t(Reduce("rbind", lapply(1:ncol(out2), function(x) rbind(out2[,x], out2.2[,x]))))
+  colnames(out2.3)<-toupper(as.vector(sapply(1:length(colnames(out2)), function(i) c(colnames(out2)[i], colnames(out2.2)[i]) )))
+  rownames(out2.3)<-c("Configural", "Metric", "Scalar")
+  print(out)
+  cat("\n")
+  print(round(out2.3, 3), digits=3, row.names = TRUE, na.print = "" )
+
+}
 
