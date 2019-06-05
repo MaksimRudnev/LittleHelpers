@@ -247,13 +247,14 @@ measurementInvariance <- function(lavaan.model, ...) {
 #'
 #' @description Converts lavaan syntax to graphviz code. Currently works with simple models only. Requires 'DiagrammeR' package.
 #' @param m lavaan syntax model, e.g. "F =~ a1 + a2 + a3 + a4; a1 ~~ a2; d ~ F "
+#' @param file File to save svg code, usually with 'svg' extension.
 #' @param ... arguments passed of DiagrammeR::grViz function.
 #'
 #' @examples lav_to_graph("F =~ a1 + a2 + a3 + a4")
 #' lav_to_graph("F =~ a1 + a2 + a3 + a4; a1 ~~ a2; d ~ F ", engine = "neato")
 #'
 #' @export
-lav_to_graph <- function(m, layout = "dot", adds=NULL, ...) {
+lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, ...) {
   require("DiagrammeR")
     # m <- "F =~ a1 + a2 + a3 ;
     #                      F2 =~ b1 + b3 + NA*hh;
@@ -274,6 +275,7 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, ...) {
   all.vars <- gsub(" ", "", all.vars)
   all.vars <- gsub("^.*\\*", "", all.vars)
   all.vars <- all.vars[!duplicated(all.vars)]
+  all.vars <- all.vars[all.vars!=1]
 
   all.factors <- sapply(m[grepl("^.*=~", m)], function(x) strsplit(x, "=~")[[1]][1] )
   all.factors <- unname(gsub(" ", "", all.factors))
@@ -295,20 +297,49 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, ...) {
   exogenous.vars <- all.vars[!all.vars %in% endogenous.vars]
 
 
-  # all.correlated <- sapply(m[grepl("^.*~~", m)], function(x) strsplit(x, "~~")[[1]] )
-  # all.correlated <- apply(all.correlated, 2, function(x) {
-  #   a = strsplit(x, "\\+")
-  #   a = lapply(a, function(u) gsub(" ", "",u))
-  #   a = expand.grid(a,  stringsAsFactors = F)
-  #   a$constraint<- sapply(a[,2], function(u) ifelse(grepl("\\*", u), sub("\\*.*", "", u), NA))
-  #   a[,2]<-gsub("^.*\\*", "",a[,2])
-  #   a[,3][a[,3]=="NA"]<-NA
-  #   a
-  #   })
-  #
-  # all.correlated <- Reduce("rbind", all.correlated)
-  #
-  # all.factors.cors <- expand.grid(all.factors, all.factors,  stringsAsFactors = F)
+
+
+
+  all.correlated <- sapply(m[grepl("^.*~~", m)], function(x) strsplit(x, "~~")[[1]] )
+  if(length(all.correlated)>0) {
+  all.correlated <- apply(all.correlated, 2, function(x) {
+    a = strsplit(x, "\\+")
+    a = lapply(a, function(u) gsub(" ", "",u))
+    a = expand.grid(a,  stringsAsFactors = F)
+    a$constraint<- sapply(a[,2], function(u) ifelse(grepl("\\*", u), sub("\\*.*", "", u), NA))
+    a[,2]<-gsub("^.*\\*", "",a[,2])
+    a[,3][a[,3]=="NA"]<-NA
+    a
+    })
+
+   all.correlated <- Reduce("rbind", all.correlated)
+   all.exog.cors <- expand.grid(exogenous.vars, exogenous.vars,  stringsAsFactors = F)
+
+
+   # from all.exog.cors  exclude  all.correlated
+
+   excl.corr <- apply(all.exog.cors, 1, function(x) {
+
+     (x[1] %in% all.correlated$Var1) & (x[2] %in% all.correlated$Var2) |
+     (x[2] %in% all.correlated$Var1) & (x[1] %in% all.correlated$Var2)
+   })
+
+   all.exog.cors <- all.exog.cors[!excl.corr,]
+
+  } else {
+    all.exog.cors <- expand.grid(exogenous.vars, exogenous.vars,  stringsAsFactors = F)
+  }
+
+  all.exog.cors <- all.exog.cors[!all.exog.cors[,1]==all.exog.cors[,2],]
+
+  if(length(unlist(all.exog.cors))>0) {
+
+  excl.dupl.corr <- sapply( 1:nrow(all.exog.cors), function(x) which(
+    (all.exog.cors[x,2] == all.exog.cors[x:nrow(all.exog.cors),1]) &
+      (all.exog.cors[x,1] == all.exog.cors[x:nrow(all.exog.cors),2]))+x-1)
+  all.exog.cors <- all.exog.cors[ -unlist(excl.dupl.corr),]
+  }
+
   # all.factors.cors.excl <- apply(all.factors.cors,1, function(x) any(apply(all.correlated, 1, function(u) {
   #   sum(u[1:2] == x)==2 & u[3]==0 | sum(u[2:1] == x)==2 & u[3]==0
   # })))
@@ -329,14 +360,21 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, ...) {
 
         indicators <- strsplit(m0[2], "\\+")[[1]]
         indicators <- gsub(" ", "", indicators)
+
+        #params <- rep("", length(indicators))
+
+        params = gsub("\\*.*$", "", indicators[grep("\\*", indicators)])
+        params = gsub("NA", "", params)
+        params[params!=""] <- paste0("[label=",params,"]")[params!=""]
+
         indicators <- gsub("^.*\\*", "", indicators)
         indicators <- `names<-`(gsub("\\.|-", "_", indicators), indicators) #values are dotless, names are original varnames
 
         c(paste0("\n\nsubgraph cluster_", factr, '  {\n  color = white;\n'),
-          paste0("\t", factr, '[shape = ellipse label = ', paste0('"', names(factr), '"'), '];\n'),
+          paste0("\t", factr, ' [shape = ellipse label = ', paste0('"', names(factr), '"'), '];\n'),
           if(any(!names(indicators) %in% all.factors)) paste0("\t",
                                                       indicators[!names(indicators) %in% all.factors],
-                                                      '[shape = "rect" label = ', paste0('"', names(indicators), '"'), '];\n'),
+                                                      '[shape = rect label = ', paste0('"', names(indicators), '"'), '];\n'),
 
           paste(paste0("\tResid_", indicators),
                 '[shape = circle style = filled color=lightgrey',
@@ -346,8 +384,10 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, ...) {
                 paste(paste0("Resid_",indicators), collapse = " "), "};\n"),
           paste("\t{rank = ", ifelse(names(factr) %in% exogenous.vars, "max", "min"),
                 factr, "};\n"),
-          paste0("\t",  factr, " -> ",  indicators, ";\n"),
-          paste0("\t", paste0("Resid_",indicators), " -> ", indicators, "[len=0.1];\n"),
+
+          paste0("\t",  factr, " -> ",  indicators, params, ";\n"),
+
+          paste0("\t", paste0("Resid_",indicators), " -> ", indicators, "[color=grey];\n"),
           paste("}\n"),
           paste(" // end of ", names(factr), "measurement model.",
                 names(factr), " is ", ifelse(names(factr) %in% exogenous.vars, "exogenous.\n\n", "endogenous.\n\n"))
@@ -364,31 +404,50 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, ...) {
 
         rhs <- strsplit(m0[2], "\\+")[[1]]
         rhs <- gsub(" ", "", rhs)
-        pars <- gsub("\\*.*$", "", rhs)
+        pars <- rep(NA, length(rhs))
+        pars[grep("\\*", rhs)] <- gsub("\\*.*$", "", rhs[grep("\\*", rhs)])
+
+        # paste0("[label=",
+        #        gsub("\\*.*$", "", rhs[grep("\\*", rhs)]),
+        #        "]")
+
         rhs <-gsub("^.*\\*", "", rhs)
         rhs <- `names<-`(gsub("\\.|-", "_", rhs), rhs) #values are dotless, names are original varnames
 
-
+        # turn to residuals if variables are indicators
         lhs[names(lhs) %in% all.indicators] <- paste0("Resid_", lhs[names(lhs) %in% all.indicators])
         rhs[names(rhs) %in% all.indicators] <- paste0("Resid_", rhs[names(rhs) %in% all.indicators])
 
-        if(any(lhs == rhs)) {
-          paste(
-           paste0(rhs[lhs == rhs], '[xlabel="&sigma;=', pars, '"];\n'),
-           ifelse(any(pars==0), paste0(rhs[lhs == rhs], '[style=dashed];\n'),""),
-           ifelse(any(lhs != rhs),
-                 paste(lhs[lhs != rhs], "->", rhs[lhs != rhs],
-                       '[dir = "both" splines=curved constraint=false color=grey];\n'),
-                 "")
-          )
 
-        } else {
+       covs <- data.frame(lhs=unname(lhs), rhs=unname(rhs), pars, stringsAsFactors = F)
 
-        paste(lhs, "->", rhs, '[dir = "both" splines=curved constraint=false color=grey];\n')
+       sapply(1:nrow(covs), function(co) {
+         co <- covs[co,]
+         if(co$lhs == co$rhs) {
+           paste(
+             paste0(co$rhs, '[xlabel="&sigma;&sup2;&#61;', as.character(co$pars), '"];\n'),
+             ifelse(co$pars==0, paste0(co$rhs, '[style=dashed];\n'),"")
+           )
 
-        }
+         } else  {
+
+
+             if(!is.na(co$pars)) {
+               if(co$pars!=0)
+               paste(co$lhs, "->", co$rhs,
+                     '[ dir = "both" splines=curved constraint=false label=', co$pars, ' fontsize = 10 ];\n')
+             } else {
+               paste(co$lhs, "->", co$rhs,
+                     '[ dir = "both" splines=curved constraint=false];\n')
+
+               }
+         }
+       })
 
       } else if(grepl("~", i) & !grepl("~~|=~", i)) {
+
+
+
 
         m0 <- strsplit(i, "~")[[1]]
         dep <- strsplit(m0[1], "\\+")[[1]]
@@ -399,36 +458,60 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, ...) {
         indep <- strsplit(m0[2], "\\+")[[1]]
         indep <- gsub(" ", "", indep)
         indep<-indep[!indep==""]
+        cof = rep("", length(indep))
+        cof[grep("\\*", indep)] <- gsub("\\*.*$", "", indep[grep("\\*", indep)])
+        indep <- gsub("^.*\\*", "", indep)
         indep  <- `names<-`(gsub("\\.|-", "_", indep), indep) #values are dotless, names are original varnames
 
+        intercepts <- indep[indep == 1]
+        indep      <- indep[indep != 1]
+        reg.otp<-"// Regressions and intercepts \n"
+        if(length(indep)>0) {
+         reg.otp <- append(reg.otp, c(
+              paste(dep, "[label=", paste0('"', names(dep), '"'), "];\n"),
+              paste(indep, "[label=", paste0('"', names(indep), '"'), "];\n"),
+              paste0(indep, " -> ",  dep, ' [style=bold ', paste0('label=',cof)[cof!=""],'];\n'),
+              paste(paste0("Resid_",dep), ' [shape = circle style = filled color=lightgrey',
+                    'fontsize=10 width=0.2, label = "&epsilon;"];\n'),
+              paste0(paste0("Resid_",dep), " -> ", dep, " [color=grey];\n")
+            ))
+        }
 
-        c(paste(dep, "[label=", paste0('"', names(dep), '"'), "];\n"),
-          paste(indep, "[label=", paste0('"', names(indep), '"'), "];\n"),
-          paste0(indep, " -> ",  dep, "[style=bold];\n"),
-          paste(paste0("Resid_",dep), '[shape = circle style = filled color=lightgrey',
-                'fontsize=10, width=0.2, label = "&epsilon;"];\n'),
-          paste0(paste0("Resid_",dep), " -> ", dep, ";\n")
-        )
+        if(length(intercepts)>0) {
+          reg.otp <- append(reg.otp,
+           c(paste(dep, "[label=", paste0('"', names(dep), '"'), "];\n"),
+
+            paste0(paste0('intercept_', dep),
+                  ' [label="&tau;', ifelse(length(cof)!=0, paste0('&#61;', cof), ''),
+                  '" shape=triangle', ifelse(cof==0, ' style=dashed', ' style=filled'),
+                  '  color=lightgrey];\n'),
+            paste0(paste0('intercept_', dep), ' -> ',  dep, ' [color=lightgrey];\n')
+          ))
+        }
+
+        reg.otp
 
 
-      } else if(i!="") {
+      } else  { # if(i!="")
         warning("Unknown operator found in line: ", i)
       }
     })
 
   # Add covariances between exogenous vars
-  lines <- append(lines,
-                  if(length(exogenous.vars)>1) {
-                    exogenous.vars  <- `names<-`(gsub("\\.|-", "_", exogenous.vars), exogenous.vars) #values are dotless, names are original varnames
-
-                  apply(expand.grid(exogenous.vars[1:length(exogenous.vars) %% 2 == 0],
-                                    exogenous.vars[1:length(exogenous.vars) %% 2 == 1]),
+  lines <- append(lines, c("\n\n// Add covariances of all exog variables\n",
+                  if(nrow(all.exog.cors)>1) {
+                    all.exog.cors  <- sapply(all.exog.cors, function(u) gsub("\\.|-", "_", u))
+                  apply(all.exog.cors,
                         1,
                         function(x) paste(x[1], "->", x[2],
                                           '[dir = "both" splines=curved constraint=false color=grey];\n')
                         )
-                    }
-                  )
+                  } else if(length(unlist(all.exog.cors))>0) {
+                    paste("")
+                  } else {
+                    paste(all.exog.cors[1], "->", all.exog.cors[2], '[dir = "both" splines=curved constraint=false color=grey];\n')
+                  }
+                  ))
 
   lines <- unlist(lines)
   excl.lines <- duplicated(lines)
@@ -436,10 +519,10 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, ...) {
   lines <- lines[!excl.lines]
 
   lines <- paste("digraph lav_to_graph {",
-                  "node [shape=rect];",
-                 "rankdir=LR;",
-                 "layout=", layout,
-                 "forcelabels=true",
+                  " node [shape=rect];",
+                 " rankdir=LR;",
+                 paste0(" layout=", layout, ";"),
+                 " forcelabels=true;",
                  paste0(lines, collapse = ""),
                  ifelse(is.null(adds), "", paste("// code added manually \n", paste(adds, collapse="\n" ))),
                  "}",
@@ -448,12 +531,15 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, ...) {
 
   trash<- capture.output(DiagrammeR::grViz(lines, ...))
   cat(lines)
+  if(!is.na(file)) cat(DiagrammeRsvg::export_svg(DiagrammeR::grViz(lines, ...)), file=file)
   invisible(lines)
 
 }
-
-#  gv <- lav_to_graph(mdl, adds = "rankdir='TB'")
-# #
+# a=Sys.time()
+# lav_to_graph(mdl, adds = "rankdir='LR'")
+# Sys.time()-a
+# # #
+#
 # lav_to_graph("a ~ b; b ~ c; c ~ d; a ~ d0 ", adds = "rankdir='BT'")
 #
 # mdl <- "institutionalized =~ NA*contact+ NA*workorg;
@@ -471,4 +557,14 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, ...) {
 #  non.institutionalized ~ associationalism + closeness + social.trust +
 #     information + pol.interest + sociability + institutionalized
 #     institutionalized ~~ 0*institutionalized
+#     institutionalized ~ 0*1
 # "
+# lav_to_graph(mdl, file = "~/Downloads/hopahopa.svg")
+#
+# lav_to_graph('F =~ 1*a1 + 2*a2 + NA*a3
+#     F2 =~ a4 + a5 + a6
+#     G =~ NA*a1 + a2 + a3 + a4 + a5 + a6;
+#     G ~~ 0*G;
+#     a1~~ 0.5*a2;
+#     a1 ~~ 5*a1;
+#     G ~ 1*F2;', adds="splines=false;")

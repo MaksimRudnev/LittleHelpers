@@ -4,10 +4,12 @@
 \alias{lav_to_graph}
 \title{Create a path diagram using lavaan syntax}
 \usage{
-lav_to_graph(m, layout = "dot", adds = NULL, ...)
+lav_to_graph(m, layout = "dot", adds = NULL, file = NA, ...)
 }
 \arguments{
 \item{m}{lavaan syntax model, e.g. "F =~ a1 + a2 + a3 + a4; a1 ~~ a2; d ~ F "}
+
+\item{file}{File to save svg code, usually with 'svg' extension.}
 
 \item{...}{arguments passed of DiagrammeR::grViz function.}
 }
