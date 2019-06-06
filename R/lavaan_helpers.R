@@ -257,7 +257,7 @@ measurementInvariance <- function(lavaan.model, ...) {
 #' @export
 lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, ...) {
   require("DiagrammeR")
-  require("DiagrammeRsvg")
+
     # m <- "F =~ a1 + a2 + a3 ;
     #                      F2 =~ b1 + b3 + NA*hh;
     #       b1 + b3 ~~ 0*a3 + NA*a2 + G;"
@@ -536,7 +536,10 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, ...) {
 
   trash<- capture.output(DiagrammeR::grViz(lines, ...))
   #cat(lines)
-  if(!is.na(file)) cat(DiagrammeRsvg::export_svg(DiagrammeR::grViz(lines, ...)), file=file)
+  if(!is.na(file)) {
+    require("DiagrammeRsvg")
+    cat(DiagrammeRsvg::export_svg(DiagrammeR::grViz(lines, ...)), file=file)
+  }
   invisible(lines)
 
 }
