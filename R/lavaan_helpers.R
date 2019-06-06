@@ -252,6 +252,7 @@ measurementInvariance <- function(lavaan.model, ...) {
 #'
 #' @examples lav_to_graph("F =~ a1 + a2 + a3 + a4")
 #' lav_to_graph("F =~ a1 + a2 + a3 + a4; a1 ~~ a2; d ~ F ", engine = "neato")
+#' @return The function returns (invisibly) the dot code which can be edited to make more customized diagrams. You can use package \pkg{DiagrammeR} or any other graphviz engine, e.g. \url{http://graphviz.it}
 #'
 #' @export
 lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, ...) {

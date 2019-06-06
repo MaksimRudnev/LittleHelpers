@@ -127,6 +127,7 @@ label_book <- function(df, max.vals=25, vars="all", view=TRUE) {
  x1 <- paste( '<!DOCTYPE html>
                <head>
                <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+               <meta charset="UTF-8">
                </head>
                <body>
                <h1>Label Book for "', as.character(sys.call())[2], '"</h1>',

@@ -13,11 +13,13 @@ lav_to_graph(m, layout = "dot", adds = NULL, file = NA, ...)
 
 \item{...}{arguments passed of DiagrammeR::grViz function.}
 }
+\value{
+The function returns (invisibly) the dot code which can be edited to make more customized diagrams. You can use package \pkg{DiagrammeR} or any other graphviz engine, e.g. \url{http://graphviz.it}
+}
 \description{
 Converts lavaan syntax to graphviz code. Currently works with simple models only. Requires 'DiagrammeR' package.
 }
 \examples{
 lav_to_graph("F =~ a1 + a2 + a3 + a4")
 lav_to_graph("F =~ a1 + a2 + a3 + a4; a1 ~~ a2; d ~ F ", engine = "neato")
-
 }
