@@ -245,14 +245,14 @@ measurementInvariance <- function(lavaan.model, ...) {
 
 #' Create a path diagram using lavaan syntax
 #'
-#' @description Converts lavaan syntax to graphviz code. Currently works with simple models only. Requires 'DiagrammeR' package.
-#' @param m lavaan syntax model, e.g. "F =~ a1 + a2 + a3 + a4; a1 ~~ a2; d ~ F " or fitted lavaan object.
-#' @param file File to save svg code, usually with 'svg' extension.
-#' @param ... arguments passed of DiagrammeR::grViz function.
+#' @description Converts lavaan syntax or object to graphviz code. Requires 'DiagrammeR' package.
+#' @param m character, following lavaan syntax model conventions (see examples), or fitted lavaan object.
+#' @param file character, file name to save svg code, usually with 'svg' extension.
+#' @param ... arguments passed to DiagrammeR::grViz function.
 #'
 #' @examples lav_to_graph("F =~ a1 + a2 + a3 + a4")
 #' lav_to_graph("F =~ a1 + a2 + a3 + a4; a1 ~~ a2; d ~ F ", engine = "neato")
-#' @return The function returns (invisibly) the dot code which can be edited to make more customized diagrams. You can use package \pkg{DiagrammeR} or any other graphviz engine, e.g. \url{http://graphviz.it}
+#' @return The function invisibly returns the dot code which can be edited to make more customized diagrams. You can use package \pkg{DiagrammeR} or any other graphviz engine, e.g. \url{http://graphviz.it}. It will most likely to be useful with large and complex models.
 #'
 #' @export
 lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, ...) {
