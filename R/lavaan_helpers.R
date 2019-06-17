@@ -258,6 +258,16 @@ measurementInvariance <- function(lavaan.model, ...) {
 lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, ...) {
   require("DiagrammeR")
 
+  if(class(m)=="lavaan") m <- paste0(m@ParTable$lhs,
+                                     " ",
+                                     m@ParTable$op,
+                                     " ",
+                                     sprintf("%1.2f", m@ParTable$est),
+                                     "*",
+                                     m@ParTable$rhs,
+
+                                     collapse=";\n")
+
     # m <- "F =~ a1 + a2 + a3 ;
     #                      F2 =~ b1 + b3 + NA*hh;
     #       b1 + b3 ~~ 0*a3 + NA*a2 + G;"
@@ -284,6 +294,9 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, ...) {
 
 
   all.indicators <- sapply(m[grepl("^.*=~", m)], function(x) strsplit(x, "=~")[[1]][2] )
+  m<-m[!grepl("^.*=~", m)]
+  m <- append(unlist(lapply(unique(all.factors), function(x) paste(x, "=~", paste(all.indicators[all.factors==x], collapse=" + ")    ))), m)
+
   if(length(all.factors)!=0) {
    all.indicators <- unlist(strsplit(all.indicators, "\\+"))
    all.indicators<- gsub(" ", "", all.indicators)
@@ -548,25 +561,37 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, ...) {
 # Sys.time()-a
 # # #
 #
-lav_to_graph("a ~ b; b ~ c; c ~ d; a ~ d0 ", adds = "rankdir='BT'")
-
-mdl <- "institutionalized =~ NA*contact+ NA*workorg;
-non.institutionalized =~ NA*petition + NA*demonstr + NA*boycott;
-institutionalized ~~ 1*institutionalized;
-non.institutionalized  ~~ 1*non.institutionalized;
-associationalism =~ NA*voluntary + NA*participate; associationalism~~1*associationalism;
-closeness =~ 1*close.party; close.party ~~ 0*close.party;
-social.trust =~ NA*trust + NA*fairness; social.trust ~~ 1*social.trust;
-information =~ NA*tv + NA*radio; information ~~ 1*information;
-pol.interest =~ 1*interest; interest ~~ 0*interest;
-sociability =~ 1*soc.activity; soc.activity ~~ 0*soc.activity;
-institutionalized ~ associationalism + closeness + social.trust +
-    information + pol.interest + sociability + non.institutionalized;
- non.institutionalized ~ associationalism + closeness + social.trust +
-    information + pol.interest + sociability + institutionalized
-    institutionalized ~~ 0*institutionalized
-    institutionalized ~ 0*1
-"
+# lav_to_graph("a ~ b; b ~ c; c ~ d; a ~ d0 ", adds = "rankdir='BT'")
+#
+#
+# ess7 <- haven::read_sav("~/Dropbox/STAT/European Social Survey/data/ESS7/ESS7e02_1.sav")
+# Austria <- ess7[ess7$cntry == "AT",]
+#
+# library(lavaan)
+# cfa1 <- cfa( 'F1 =~ ipadvnt + impfun + impdiff + ipgdtim;
+#              F2 =~  ipcrtiv+ impfree;
+#              impfun ~~ ipgdtim;
+#              ', data=Austria)
+#
+# lav_to_graph(cfa1)
+#
+# mdl <- "institutionalized =~ NA*contact+ NA*workorg;
+# non.institutionalized =~ NA*petition + NA*demonstr + NA*boycott;
+# institutionalized ~~ 1*institutionalized;
+# non.institutionalized  ~~ 1*non.institutionalized;
+# associationalism =~ NA*voluntary + NA*participate; associationalism~~1*associationalism;
+# closeness =~ 1*close.party; close.party ~~ 0*close.party;
+# social.trust =~ NA*trust + NA*fairness; social.trust ~~ 1*social.trust;
+# information =~ NA*tv + NA*radio; information ~~ 1*information;
+# pol.interest =~ 1*interest; interest ~~ 0*interest;
+# sociability =~ 1*soc.activity; soc.activity ~~ 0*soc.activity;
+# institutionalized ~ associationalism + closeness + social.trust +
+#     information + pol.interest + sociability + non.institutionalized;
+#  non.institutionalized ~ associationalism + closeness + social.trust +
+#     information + pol.interest + sociability + institutionalized
+#     institutionalized ~~ 0*institutionalized
+#     institutionalized ~ 0*1
+# "
 # lav_to_graph(mdl, file = "~/Downloads/hopahopa.svg")
 #
 # lav_to_graph('F =~ 1*a1 + 2*a2 + NA*a3
