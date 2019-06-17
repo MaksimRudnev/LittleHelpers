@@ -246,7 +246,7 @@ measurementInvariance <- function(lavaan.model, ...) {
 #' Create a path diagram using lavaan syntax
 #'
 #' @description Converts lavaan syntax to graphviz code. Currently works with simple models only. Requires 'DiagrammeR' package.
-#' @param m lavaan syntax model, e.g. "F =~ a1 + a2 + a3 + a4; a1 ~~ a2; d ~ F "
+#' @param m lavaan syntax model, e.g. "F =~ a1 + a2 + a3 + a4; a1 ~~ a2; d ~ F " or fitted lavaan object.
 #' @param file File to save svg code, usually with 'svg' extension.
 #' @param ... arguments passed of DiagrammeR::grViz function.
 #'

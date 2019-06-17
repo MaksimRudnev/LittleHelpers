@@ -7,7 +7,7 @@
 lav_to_graph(m, layout = "dot", adds = NULL, file = NA, ...)
 }
 \arguments{
-\item{m}{lavaan syntax model, e.g. "F =~ a1 + a2 + a3 + a4; a1 ~~ a2; d ~ F "}
+\item{m}{lavaan syntax model, e.g. "F =~ a1 + a2 + a3 + a4; a1 ~~ a2; d ~ F " or fitted lavaan object.}
 
 \item{file}{File to save svg code, usually with 'svg' extension.}
 
