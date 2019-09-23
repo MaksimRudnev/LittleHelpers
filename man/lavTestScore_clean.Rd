@@ -12,5 +12,5 @@ lavTestScore_clean(lavaan.fit, ...)
 \item{...}{Arguments passed to lavTestScore}
 }
 \description{
-Simply applies \code{\link{lavTestScore}} and attached group labels and parameter names to the output.
+Simply applies \code{\link{lavTestScore}} and attaches group labels and parameter names to the output.
 }

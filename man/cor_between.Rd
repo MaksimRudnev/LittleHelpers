@@ -4,7 +4,7 @@
 \alias{cor_between}
 \title{Correlation between group aggregates}
 \usage{
-cor_between(var1, var2, group, data, ...)
+cor_between(var1, var2, group, data, print = T, ...)
 }
 \arguments{
 \item{var1}{Character name of variable 1, or a list of characters (in this case var2 is ignored)}

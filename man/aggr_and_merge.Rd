@@ -5,7 +5,7 @@
 \alias{aggr.and.merge}
 \title{Creates country level variables by aggregating individual level variables}
 \usage{
-aggr_and_merge(ind_data, ind_var, country_var, FUN = "mean",
+aggr_and_merge(ind_data, ind_var, group_var, FUN = "mean",
   suffix = NULL)
 }
 \arguments{
@@ -13,11 +13,11 @@ aggr_and_merge(ind_data, ind_var, country_var, FUN = "mean",
 
 \item{ind_var}{Variable to be aggregated.}
 
-\item{country_var}{Grouping variable.}
-
 \item{FUN}{Aggregation function, mean by default.}
 
 \item{suffix}{Character string, what should be added to the aggregated names of variables.}
+
+\item{country_var}{Grouping variable.}
 }
 \description{
 Creates country level variables by aggregating individual level variables

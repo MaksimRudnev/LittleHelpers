@@ -4,7 +4,7 @@
 \alias{random_plot}
 \title{Plot random effects and interactoions for mer objects}
 \usage{
-random_plot(lmer.fit, optional.names = NA, facets = FALSE)
+random_plot(lmer.fit, optional.names = NA, facets = FALSE, print = T)
 }
 \arguments{
 \item{lmer.fit}{A mer object}
@@ -12,6 +12,8 @@ random_plot(lmer.fit, optional.names = NA, facets = FALSE)
 \item{optional.names}{A named vector of random effects, where names are used as titles of the output plots. The length  should be equal to a number of random effects. Usually it includes "(Intercepts)" and names of variables whose effects are made random.}
 
 \item{facets}{Logical. Should the random effects be plotted in facets or as a series of single plots?}
+
+\item{print}{If the plots should be actually printed, valid only if facets = F}
 
 \item{scatter}{Logical. Should the scatterplots of the cross-level interactions be plotted? If TRUE, `facets` argument corresponds to scatterplots. This option is under development...}
 }

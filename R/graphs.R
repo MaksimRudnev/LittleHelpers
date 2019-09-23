@@ -586,11 +586,12 @@ scatter_means_ci <- function(var1, var2, group, plot=TRUE, print=TRUE) {
 #' @param optional.names A named vector of random effects, where names are used as titles of the output plots. The length  should be equal to a number of random effects. Usually it includes "(Intercepts)" and names of variables whose effects are made random.
 #' @param facets Logical. Should the random effects be plotted in facets or as a series of single plots?
 #' @param scatter Logical. Should the scatterplots of the cross-level interactions be plotted? If TRUE, `facets` argument corresponds to scatterplots. This option is under development...
+#' @param print If the plots should be actually printed, valid only if facets = F
 #' @return Returns one or several ggplots. In case one plot is returned it can be appended with `theme`, `geom_`, etc.
 #' @examples random_plot(lmr, optional.names=c(Intercept="(Intercepts)", Female="gndr"), facets=TRUE)
 #' @export
 #'
-random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE) { #optional.names should be a named vector
+random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { #optional.names should be a named vector
 
 
   group.name<-names(getME(lmer.fit, "flist"))
@@ -628,15 +629,21 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE) { #optional.n
             panel.grid = element_blank(),
             plot.caption = element_text(size=10, hjust=0))
 
-    if(!facets) {
-      print(g)
-    } else {
-      glist[[i]] <- g
-    }
+    # if(!facets) {
+    #   print(g)
+    # } else {
+    #   glist[[i]] <- g
+    # }
+
+    glist[[i]] <- g
   }
 
   if(!facets)  {
+    if(print ==T) {
+    for(i in 1:length(glist))  print( glist[[i]] )
+    }
     cat(length(names(ses)), "graphs were created.")
+    invisible(glist)
 
   } else {
     gridExtra::grid.arrange( grobs=glist, ncol=length(glist), nrow=1)
@@ -675,6 +682,7 @@ random_interaction <- function( x,
                                 z.levels=c("1SD", "2SD", "1.2SD", "all"),
                                 scatter=TRUE, labs=NULL,
                                 x.levels=NULL,
+                                silent = T,
                                 ... ) {
 
   # Works only with cross-level two-way interactions
@@ -723,7 +731,7 @@ random_interaction <- function( x,
   #verb("Group name is", group.name)
 
   interaction.terms.split<- str_split(interaction.terms, ":")
-  verb("interaction.terms.split", interaction.terms.split)
+  if(!silent) verb("interaction.terms.split", interaction.terms.split)
 
   for(i in 1:length(interaction.terms.split)) {
 
@@ -741,7 +749,7 @@ random_interaction <- function( x,
       #verb("Variable ", interaction.terms.split[[i]][2], "is group-level, as its variance within group is 0.")
 
     } else {
-      verb("The interaction '", paste(interaction.terms.split[[i]], collapse=" X "), "' is a first-level interaction. Currently I ignore it.")
+      warning("The interaction '", paste(interaction.terms.split[[i]], collapse=" X "), "' is a first-level interaction. Currently I ignore it.")
       next
     }
 
@@ -749,7 +757,7 @@ random_interaction <- function( x,
   if( sum( interaction.terms.split[[i]] %in% names(ranef(x)[[group.name]]) )>0 ) {
 
     random.eff.name <- interaction.terms.split[[i]][interaction.terms.split[[i]] %in% names(ranef(x)[[group.name]])]
-verb("Attempting to plot interaction", random.eff.name, " X ", group.eff.name, ".", sep="")
+    if(!silent) verb("Attempting to plot interaction", random.eff.name, " X ", group.eff.name, ".", sep="")
 
   } else {
     warning("Not", paste(interaction.terms.split[[i]], collapse=" nor ") , "is a random effect. Ignore this interaction.")
@@ -816,19 +824,18 @@ if(real==FALSE) {
       names(moderator.levels.to.plot)[length(moderator.levels.to.plot)]<- strsplit(interaction.terms[i], ":")[[1]][1]
     }
 
-print("Meow")
-print(moderator.levels.to.plot)
+    if(!silent) print(moderator.levels.to.plot)
 
 # Compute effects
 
     #assign("new.data", new.data, envir=.GlobalEnv)
     ploff<-effect(term=interaction.terms[i], xlevels=moderator.levels.to.plot, mod=x, ...)
-    print(ploff)
+    if(!silent) print(ploff)
     db<- data.frame(ploff$x, ploff$fit, ploff$lower, ploff$upper)
     real.names<-names(db)
     names(db)<-c("dep", "moderator", "ind", "lower", "upper")
     db$moderator <- as.factor(round(db$moderator, 2))
-print(db)
+    if(!silent) print(db)
 
 
 #Plot effects

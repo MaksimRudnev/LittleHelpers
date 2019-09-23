@@ -41,6 +41,7 @@ good_table <- function(models,
                        fit.stats=c("ICC", "random", "random.p", "R2", "fit", "LRT", "REML", "VIF"),
                        mod.names="",
                        show.viewer=TRUE,
+                       silent = TRUE,
                        #boot.ci = FALSE,
                         ...) {
   require(scales)
@@ -72,11 +73,11 @@ good_table <- function(models,
 
 
         if(any(sapply(models, isREML))) {
-          message("Refitting model with ML estimator to extract correct deviance and compute information criteria. \n Might take a long time.")
-            pb<-txtProgressBar(0, length(models), label="Going progress bar...", style = 3)
+          if(!silent)   message("Refitting model with ML estimator to extract correct deviance and compute information criteria. \n Might take a long time.")
+          if(!silent)  pb<-txtProgressBar(0, length(models), label="Going progress bar...", style = 3)
             modelsML<- lapply(1:length(models), function(m) {
                 refitML(models[[m]])
-                utils::setTxtProgressBar(pb, m)
+              if(!silent)   utils::setTxtProgressBar(pb, m)
                 })
 
         } else {
@@ -95,7 +96,10 @@ good_table <- function(models,
                       } )
   random.variances<-suppressWarnings(Reduce(function(x,y) merge(x,y, by="names", all =T, suffixes=letters), random.variances))
 
-  verb("random.variances"); print(random.variances)
+ if(!silent) {
+   verb("random.variances")
+   print(random.variances)
+ }
 
     if(!"random.p" %in% fit.stats) {
        random <-lapply(1:nrow(random.variances), function(x) unname(c(random.variances[x,1], round(unlist(random.variances[x,-1]), 3)  )))
@@ -220,7 +224,7 @@ avalable.stats <- c("ICC", "VIF", "REML", "fit", "LRT", "random", "random.p",  "
    if( sum(!fit.stats %in% avalable.stats)>0 )
    {
 
-     warning(paste("I don't know stats ", paste(fit.stats[!fit.stats %in% avalable.stats], collapse=", "),
+ warning(paste("I don't know stats ", paste(fit.stats[!fit.stats %in% avalable.stats], collapse=", "),
                    "; they are omitted.\n", sep=""))
 
     fit.stats <- fit.stats[fit.stats %in% avalable.stats]
@@ -231,7 +235,7 @@ avalable.stats <- c("ICC", "VIF", "REML", "fit", "LRT", "random", "random.p",  "
   extra.lines<- unlist(lapply(fit.stats, function(x) append(extra.lines, get(x))), F)
 
   #print(random.variances)
-  verb("Extraction of fit info took", Sys.time() - total.time)
+  if(!silent) verb("Extraction of fit info took", Sys.time() - total.time)
 
   stage2.stargazer<-Sys.time()
   require("stargazer")
@@ -252,13 +256,13 @@ avalable.stats <- c("ICC", "VIF", "REML", "fit", "LRT", "random", "random.p",  "
   } else {
 
     extra.lines<-lapply(extra.lines, function(x) gsub("_", "\\\\_", x))
-    print(extra.lines)
+    if(!silent)  print(extra.lines)
     #assign("extra.lines", extra.lines, envir=.GlobalEnv)
     #stargazer(hovs.fit1, type="html", out="123.html", add.lines=extra.lines, summary=F, no.space=T, single.row=T, star.cutoffs=c(0.05, 0.01, 0.001),    omit.stat="all")
     b<-capture.output(stargazer(models, out=htmlFile, type="html", summary=F, no.space=T, single.row=T, star.cutoffs=c(0.05, 0.01, 0.001),
                                 #table.layout = "-l-d-m-c-t-a-",
                                 omit.stat="all",
-                                #column.labels=mod.names,
+                                column.labels=mod.names,
                                 add.lines=extra.lines,
                                 digits=2,
                                 notes=ifelse("random.p" %in% fit.stats,
@@ -271,8 +275,8 @@ avalable.stats <- c("ICC", "VIF", "REML", "fit", "LRT", "random", "random.p",  "
   viewer	(htmlFile)
   }
 
-  verb("stage2.stargazer", Sys.time()-stage2.stargazer)
-  verb("Total time:", Sys.time()-total.time)
+  if(!silent) verb("stage2.stargazer", Sys.time()-stage2.stargazer)
+  if(!silent) verb("Total time:", Sys.time()-total.time)
 }
 
 
@@ -290,15 +294,26 @@ avalable.stats <- c("ICC", "VIF", "REML", "fit", "LRT", "random", "random.p",  "
 #'
 #' @export
 #' @aliases aggr.and.merge
-aggr_and_merge <- function(ind_data, ind_var, country_var, FUN="mean", suffix=NULL) {
-  c.x<-with(ind_data, tapply(get(ind_var), get(country_var),
+aggr_and_merge <- function(ind_data, ind_var, group_var, FUN="mean", suffix=NULL) {
+
+  if(length(group_var)==1) {
+  c.x<-with(ind_data, tapply(get(ind_var), get(group_var),
                              function(x) eval(call(FUN, x, na.rm=T)), simplify = T))
   c.y<-data.frame(c.x, grp=rownames(c.x))
 
-  names(c.y)[1] <- paste(ind_var, ifelse(is.null(suffix), country_var, suffix),  sep=".")
+  names(c.y)[1] <- paste(ind_var, ifelse(is.null(suffix), group_var, suffix),  sep=".")
 
-  appended_data<-merge(x=ind_data, c.y, by.x=country_var, by.y="grp", all.x=TRUE)
-  appended_data
+  appended_data<-merge(x=ind_data, c.y, by.x=group_var, by.y="grp", all.x=TRUE)
+
+  } else {
+    aggs <- tapply(ind_data[,ind_var], ind_data[,group_var],
+                   function(x) eval(call(FUN, x, na.rm=T)), simplify = T)
+
+    aggs <-reshape2::melt(aggs)
+    names(aggs)[names(aggs)=="value"]<-paste(ind_var, ifelse(is.null(suffix), paste0(group_var, collapse="."), suffix),  sep=".")
+    appended_data<-merge(ind_data, aggs, by = group_var, all.x = T)
+  }
+  return(appended_data)
 }
 
 #' Computes pseudo-R2 by subtracting residual variances
@@ -486,7 +501,7 @@ potential_interactions <- function(random.terms, group.level.terms, lmer.fit, me
                                          sep=""
       )
       )
-      print(a)
+       print(a)
       a
 
     })
@@ -574,19 +589,27 @@ group_center <- function(variables, group, data, prefix="g.") {
   # names(new.data) <- paste(prefix, names(new.data), sep="")
   # new.data[, -1]
 
-  new <- merge(data[,c(group, variables)],
-               aggregate(data[,variables], list(data[,group]), mean, na.rm=T),
-               by.x=group, by.y="Group.1", all.x=T, suffixes = c("", ".a"))
+  # new <- merge(data[,c(group, variables)],
+  #              aggregate(as.data.frame(data[,variables]), list(data[,group]), mean, na.rm=T),
+  #              by.x=group, by.y="Group.1", all.x=T, suffixes = c("", ".a"))
 
-  for(x in variables) {
-    new$new <- rep(NA, nrow(new))
-    new$new <- new[,x] - new[,paste(x,"a", sep=".")]
-    names(new)[length(new)]<-paste(prefix, x, sep="")
-    new[,paste(x,"a", sep=".")]<-NULL
-    new[,x]<-NULL
+
+  for(v in variables)  {
+    ag<- tapply(new.data[,v], list(new.data[,group]), mean, na.rm = T)
+    for(g in unique(new.data[,group])) new.data[new.data[,group]==g, v]<- new.data[new.data[,group]==g, v] -ag[g]
   }
-  new[,group]<-NULL
-  cbind(data, new)
+  new.data[,group]<-NULL
+  names(new.data)<-paste(prefix, variables, sep="")
+
+  # for(x in variables) {
+  #   new$new <- rep(NA, nrow(new))
+  #   new$new <- new[,x] - new[,paste(x,"a", sep=".")]
+  #   names(new)[length(new)]<-paste(prefix, x, sep="")
+  #   new[,paste(x,"a", sep=".")]<-NULL
+  #   new[,x]<-NULL
+  # }
+  # new[,group]<-NULL
+  cbind(data, new.data)
 
 
 }
@@ -667,7 +690,7 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
 #'
 #' @export
 
-cor_between <- function (var1, var2, group, data, ...) {
+cor_between <- function (var1, var2, group, data, print = T, ...) {
   if(any(class(data)=="tbl")) data<-drop_labs(data);
 
   if(length(var1)==1) {
@@ -679,8 +702,8 @@ cor_between <- function (var1, var2, group, data, ...) {
 
     dt<-data.frame(
 
-      mean1=tapply(var1, to_label(group), function(x) mean(x, na.rm=T), simplify = T),
-      mean2=tapply(var2, to_label(group), function(x) mean(x, na.rm=T), simplify = T)
+      mean1=tapply(var1, sjmisc::to_label(group), function(x) mean(x, na.rm=T), simplify = T),
+      mean2=tapply(var2, sjmisc::to_label(group), function(x) mean(x, na.rm=T), simplify = T)
     )
 
     cr <- cor.test(dt$mean1, dt$mean2, na.action="na.omit", method = "pearson", ...)
@@ -691,19 +714,21 @@ cor_between <- function (var1, var2, group, data, ...) {
       p.value=cr$p.value
     )
 
-
+    if(print == T) {
     print(data.frame(Correlation=round(out$cor, 2),
                      n= out$n,
                      p.value=round(out$p.value, 3),
                      `.`= ifelse(out$p.value<0.001, "***", ifelse(out$p.value<0.01, "**", ifelse(out$p.value<0.05, "*", "")))   ),
           row.names = F)
+    }
 
     invisible(out)
 
 
   }  else {
-
+if(print == T) {
     print(cor_table(aggregate(data[,var1], list(data[,group]), mean, na.rm=T)[,-1], method="pearson", star=TRUE))
+}
     invisible(cor_table(
       aggregate(data[,var1], list(data[,group]), mean, na.rm=T)[,-1], method="pearson", star=FALSE))
   }
@@ -733,4 +758,188 @@ search_random <- function(lmerfit, terms=NA, boot=F) {
   #anova(lmerfit)
 
   #confint(lmerfit, method="Wald")
+}
+
+
+# Rights, J.D., & Sterba, S.K. (in press). Quantifying explained variance in multilevel models: An integrative framework for defining R-squared measures. Psychological Methods.
+# r2MLM <- function(data,within_covs,between_covs,random_covs,
+#                   gamma_w,gamma_b,Tau,sigma2,has_intercept=T,clustermeancentered=T){
+#   if(has_intercept==T){
+#     if(length(gamma_b)>1) gamma <- c(1,gamma_w,gamma_b[2:length(gamma_b)])
+#     if(length(gamma_b)==1) gamma <- c(1,gamma_w)
+#     if(is.null(within_covs)==T) gamma_w <- 0
+#   }
+#   if(has_intercept==F){
+#     gamma <- c(gamma_w,gamma_b)
+#     if(is.null(within_covs)==T) gamma_w <- 0
+#     if(is.null(between_covs)==T) gamma_b <- 0
+#   }
+#   if(is.null(gamma)) gamma <- 0
+#   ##compute phi
+#   phi <- var(cbind(1,data[,c(within_covs)],data[,c(between_covs)]),na.rm=T)
+#   if(has_intercept==F) phi <- var(cbind(data[,c(within_covs)],data[,c(between_covs)]),na.rm=T)
+#   if(is.null(within_covs)==T & is.null(within_covs)==T & has_intercept==F) phi <- 0
+#   phi_w <- var(data[,within_covs],na.rm=T)
+#   if(is.null(within_covs)==T) phi_w <- 0
+#   phi_b <- var(cbind(1,data[,between_covs]),na.rm=T)
+#   if(is.null(between_covs)==T) phi_b <- 0
+#   ##compute psi and kappa
+#   var_randomcovs <- var(cbind(1,data[,c(random_covs)]),na.rm=T)
+#   if(length(Tau)>1) psi <- matrix(c(diag(Tau)),ncol=1)
+#   if(length(Tau)==1) psi <- Tau
+#   if(length(Tau)>1) kappa <- matrix(c(Tau[lower.tri(Tau)==TRUE]),ncol=1)
+#   if(length(Tau)==1) kappa <- 0
+#   v <- matrix(c(diag(var_randomcovs)),ncol=1)
+#   r <- matrix(c(var_randomcovs[lower.tri(var_randomcovs)==TRUE]),ncol=1)
+#   if(is.null(random_covs)==TRUE){
+#     v <- 0
+#     r <- 0
+#     m <- matrix(1,ncol=1)
+#   }
+#   if(length(random_covs)>0) m <- matrix(c(colMeans(cbind(1,data[,c(random_covs)]),na.rm=T)),ncol=1)
+#   ##total variance
+#   totalvar_notdecomp <- t(v)%*%psi + 2*(t(r)%*%kappa) + t(gamma)%*%phi%*%gamma + t(m)%*%Tau%*%m + sigma2
+#   totalwithinvar <- (t(gamma_w)%*%phi_w%*%gamma_w) + (t(v)%*%psi + 2*(t(r)%*%kappa)) + sigma2
+#   totalbetweenvar <- (t(gamma_b)%*%phi_b%*%gamma_b) + Tau[1]
+#   totalvar <- totalwithinvar + totalbetweenvar
+#   ##total decomp
+#   decomp_fixed_notdecomp <- (t(gamma)%*%phi%*%gamma) / totalvar
+#   decomp_fixed_within <- (t(gamma_w)%*%phi_w%*%gamma_w) / totalvar
+#   decomp_fixed_between <- (t(gamma_b)%*%phi_b%*%gamma_b) / totalvar
+#   decomp_fixed <- decomp_fixed_within + decomp_fixed_between
+#   decomp_varslopes <- (t(v)%*%psi + 2*(t(r)%*%kappa)) / totalvar
+#   decomp_varmeans <- (t(m)%*%Tau%*%m) / totalvar
+#   decomp_sigma <- sigma2/totalvar
+#   ##within decomp
+#   decomp_fixed_within_w <- (t(gamma_w)%*%phi_w%*%gamma_w) / totalwithinvar
+#   decomp_varslopes_w <- (t(v)%*%psi + 2*(t(r)%*%kappa)) / totalwithinvar
+#   decomp_sigma_w <- sigma2/totalwithinvar
+#   ##between decomp
+#   decomp_fixed_between_b <- (t(gamma_b)%*%phi_b%*%gamma_b) / totalbetweenvar
+#   decomp_varmeans_b <- Tau[1] / totalbetweenvar
+#   #NEW measures
+#   if (clustermeancentered==TRUE){
+#     R2_f <- decomp_fixed
+#     R2_f1 <- decomp_fixed_within
+#     R2_f2 <- decomp_fixed_between
+#     R2_fv <- decomp_fixed + decomp_varslopes
+#     R2_fvm <- decomp_fixed + decomp_varslopes + decomp_varmeans
+#     R2_v <- decomp_varslopes
+#     R2_m <- decomp_varmeans
+#     R2_f_w <- decomp_fixed_within_w
+#     R2_f_b <- decomp_fixed_between_b
+#     R2_fv_w <- decomp_fixed_within_w + decomp_varslopes_w
+#     R2_v_w <- decomp_varslopes_w
+#     R2_m_b <- decomp_varmeans_b
+#   }
+#   if (clustermeancentered==FALSE){
+#     R2_f <- decomp_fixed_notdecomp
+#     R2_fv <- decomp_fixed_notdecomp + decomp_varslopes
+#     R2_fvm <- decomp_fixed_notdecomp + decomp_varslopes + decomp_varmeans
+#     R2_v <- decomp_varslopes
+#     R2_m <- decomp_varmeans
+#   }
+#   if(clustermeancentered==TRUE){
+#     decomp_table <- matrix(c(decomp_fixed_within,decomp_fixed_between,decomp_varslopes,decomp_varmeans,decomp_sigma,
+#                              decomp_fixed_within_w,"NA",decomp_varslopes_w,"NA",decomp_sigma_w,
+#                              "NA",decomp_fixed_between_b,"NA",decomp_varmeans_b,"NA"),ncol=3)
+#     rownames(decomp_table) <- c("fixed, within","fixed, between","slope variation","mean variation","sigma2")
+#     colnames(decomp_table) <- c("total","within","between")
+#     R2_table <- matrix(c(R2_f1,R2_f2,R2_v,R2_m,R2_f,R2_fv,R2_fvm,
+#                          R2_f_w,"NA",R2_v_w,"NA","NA",R2_fv_w,"NA",
+#                          "NA",R2_f_b,"NA",R2_m_b,"NA","NA","NA")
+#                        ,ncol=3)
+#     rownames(R2_table) <- c("f1","f2","v","m","f","fv","fvm")
+#     colnames(R2_table) <- c("total","within","between")
+#   }
+#   ##barchart
+#   if(clustermeancentered==TRUE){
+#     contributions_stacked <- matrix(c(decomp_fixed_within,decomp_fixed_between,decomp_varslopes,decomp_varmeans,decomp_sigma,
+#                                       decomp_fixed_within_w,0,decomp_varslopes_w,0,decomp_sigma_w,
+#                                       0,decomp_fixed_between_b,0,decomp_varmeans_b,0),5,3)
+#     colnames(contributions_stacked) <- c("total","within","between")
+#     rownames(contributions_stacked) <- c("fixed slopes (within)",
+#                                          "fixed slopes (between)",
+#                                          "slope variation (within)",
+#                                          "intercept variation (between)",
+#                                          "residual (within)")
+#     barplot(contributions_stacked, main="Decomposition", horiz=FALSE,
+#             ylim=c(0,1),col=c("darkred","steelblue","darkred","midnightblue","white"),ylab="proportion of variance",
+#             density=c(NA,NA,30,40,NA),angle=c(0,45,0,135,0),xlim=c(0,1),width=c(.3,.3))
+#     legend(.30,-.1,legend=rownames(contributions_stacked),fill=c("darkred","steelblue","darkred","midnightblue","white"),
+#            cex=.7, pt.cex = 1,xpd=T,density=c(NA,NA,30,40,NA),angle=c(0,45,0,135,0))
+#   }
+#   if(clustermeancentered==FALSE){
+#     decomp_table <- matrix(c(decomp_fixed_notdecomp,decomp_varslopes,decomp_varmeans,decomp_sigma),ncol=1)
+#     rownames(decomp_table) <- c("fixed","slope variation","mean variation","sigma2")
+#     colnames(decomp_table) <- c("total")
+#     R2_table <- matrix(c(R2_f,R2_v,R2_m,R2_fv,R2_fvm),ncol=1)
+#     rownames(R2_table) <- c("f","v","m","fv","fvm")
+#     colnames(R2_table) <- c("total")
+#     ##barchar
+#     contributions_stacked <- matrix(c(decomp_fixed_notdecomp,decomp_varslopes,decomp_varmeans,decomp_sigma),4,1)
+#     colnames(contributions_stacked) <- c("total")
+#     rownames(contributions_stacked) <- c("fixed slopes",
+#                                          "slope variation",
+#                                          "intercept variation",
+#                                          "residual")
+#     barplot(contributions_stacked, main="Decomposition", horiz=FALSE,
+#             ylim=c(0,1),col=c("darkblue","darkblue","darkblue","white"),ylab="proportion of variance",
+#             density=c(NA,30,40,NA),angle=c(0,0,135,0),xlim=c(0,1),width=c(.6))
+#     legend(.30,-.1,legend=rownames(contributions_stacked),fill=c("darkblue","darkblue","darkblue","white"),
+#            cex=.7, pt.cex = 1,xpd=TRUE,density=c(NA,30,40,NA),angle=c(0,0,135,0))
+#   }
+#   Output <- list(noquote(decomp_table),noquote(R2_table))
+#   names(Output) <- c("Decompositions","R2s")
+#   return(Output)
+# }
+#
+#
+# ###example input
+#
+# data <- matrix(NA,100,4)
+# xs <- mvrnorm(n=100,mu=c(0,0),Sigma=matrix(c(2,.75,.75,1.5),2,2))
+# ws <- mvrnorm(n=10,mu=c(0,2),Sigma=matrix(c(1,.5,.5,2),2,2))
+# data[,1:2] <- xs
+# for (i in seq(10)){
+#   data[(10*(i-1)+1):(i*10),3] <- ws[i,1]
+#   data[(10*(i-1)+1):(i*10),4] <- ws[i,2]
+#   data[(10*(i-1)+1):(i*10),1] <- data[(10*(i-1)+1):(i*10),1] - mean(data[(10*(i-1)+1):(i*10),1])
+#   data[(10*(i-1)+1):(i*10),2] <- data[(10*(i-1)+1):(i*10),2] - mean(data[(10*(i-1)+1):(i*10),2])
+# }
+# r2MLM(data,within_covs=c(1,2),between_covs=c(3,4),random_covs=c(1,2),
+#       gamma_w=c(2.5,-1),gamma_b=c(1,.25,1.5),Tau=matrix(c(4,1,.75,1,1,.25,.75,.25,.5),3,3),sigma2=10)
+
+
+
+#' mplus skeleton
+#'
+#' @param d2 Data frame to extract variable names
+#'
+#' @example cat(mplus_skeleton(cars), file = "mplus1.inp")
+#' @export
+mplus_skeleton<- function(d2) {
+  var.names<- paste(gsub("\\.", "_", abbreviate(names(d2), 8)), " ! ", names(d2), "\n", collapse = " ")
+  if(sum(duplicated(gsub("\\.", "_", abbreviate(names(d2), 8))))>0) warning("Some abbreviated variable names are duplicated!!")
+  paste0(c("DATA:","\n",
+           "   file = 'mplus_temp.tab';", "\n",
+           " VARIABLE:", "\n",
+           "   names =",
+
+           paste(var.names),
+
+
+           ";\n",
+           "   missing = .;", "\n",
+           "   usevariables = ",
+           "\n\n\n\n",
+           "ANALYSIS:\n",
+           "  type = twolevel random;\n",
+           "  estimator = mlr;\n\n\n\n",
+
+           "MODEL:\n\n\n\n",
+
+           "OUTPUT:  tech6;"
+
+  ), collapse = "")
 }

@@ -7,7 +7,7 @@
 \usage{
 good_table(models, fit.stats = c("ICC", "random", "random.p", "R2",
   "fit", "LRT", "REML", "VIF"), mod.names = "", show.viewer = TRUE,
-  ...)
+  silent = TRUE, ...)
 }
 \arguments{
 \item{models}{List of the fitted lmer objects}

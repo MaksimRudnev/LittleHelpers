@@ -1,6 +1,6 @@
 #' Get more comprehensible output from lavTestScore
 #'
-#' Simply applies \code{\link{lavTestScore}} and attached group labels and parameter names to the output.
+#' Simply applies \code{\link{lavTestScore}} and attaches group labels and parameter names to the output.
 #'
 #' @param lavaan.fit Model fitted with lavaan
 #' @param ... Arguments passed to lavTestScore
@@ -248,6 +248,7 @@ measurementInvariance <- function(lavaan.model, ...) {
 #' @description Converts lavaan syntax or object to graphviz code. Requires 'DiagrammeR' package.
 #' @param m character, following lavaan syntax model conventions (see examples), or fitted lavaan object.
 #' @param file character, file name to save svg code, usually with 'svg' extension.
+#' @param rmarkdown Logical. If the function used in the context of Rmarkdown.
 #' @param ... arguments passed to DiagrammeR::grViz function.
 #'
 #' @examples lav_to_graph("F =~ a1 + a2 + a3 + a4")
@@ -255,18 +256,16 @@ measurementInvariance <- function(lavaan.model, ...) {
 #' @return The function invisibly returns the dot code which can be edited to make more customized diagrams. You can use package \pkg{DiagrammeR} or any other graphviz engine, e.g. \url{http://graphviz.it}. It will most likely to be useful with large and complex models.
 #'
 #' @export
-lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, ...) {
+lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, rmarkdown=FALSE, ...) {
   require("DiagrammeR")
 
-  if(class(m)=="lavaan") m <- paste0(m@ParTable$lhs,
-                                     " ",
-                                     m@ParTable$op,
-                                     " ",
-                                     sprintf("%1.2f", m@ParTable$est),
-                                     "*",
-                                     m@ParTable$rhs,
-
-                                     collapse=";\n")
+  if(class(m)=="lavaan") {
+    pt <- lavaan::parameterTable(m)
+    pt <- pt[pt$rhs!="",]
+    message("Currently, intercepts are not supported.")
+    m <- paste0(pt$lhs, " ", pt$op, " ", sprintf("%1.2f",pt$est), "*", pt$rhs,
+                collapse=";\n")
+  }
 
     # m <- "F =~ a1 + a2 + a3 ;
     #                      F2 =~ b1 + b3 + NA*hh;
@@ -546,7 +545,7 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, ...) {
                  "}",
                  sep="\n")
 
-
+if(!rmarkdown) {
   trash<- capture.output(DiagrammeR::grViz(lines, ...))
   #cat(lines)
   if(!is.na(file)) {
@@ -554,6 +553,9 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, ...) {
     cat(DiagrammeRsvg::export_svg(DiagrammeR::grViz(lines, ...)), file=file)
   }
   invisible(lines)
+} else {
+  DiagrammeR::grViz(lines, ...)
+  }
 
 }
 # a=Sys.time()
@@ -601,3 +603,30 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, ...) {
 #     a1~~ 0.5*a2;
 #     a1 ~~ 5*a1;
 #     G ~ 1*F2;', adds="splines=false;")
+
+
+#' Combine fit measures form several models and compare
+#' @details  Extracts select fit measures from lavaan objects and lists it in the tables.
+#' @param ... lavaan fitted objects
+#'
+#' @examples lav_compare(fit1, fit2, fit3)
+#'
+#'
+#' @export
+lav_compare <- function(...) {
+
+
+  out <- lavaan::lavTestLRT(..., model.names = as.character(substitute(...()) ) )
+
+  out2<-t(sapply(list(...),   fitmeasures)[c("cfi", "tli", "rmsea", "srmr", "bic"),])
+  rownames(out2)<-as.character(substitute(...()) )
+
+
+  print(out)
+  cat("\n")
+  print(round(out2, 3), digits=3, row.names = TRUE, na.print = "" )
+
+  invisible(list(LRT=out, Other.fit=out2))
+}
+
+

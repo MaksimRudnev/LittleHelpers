@@ -5,7 +5,8 @@
 \title{Plot cross-level interactions for mer objects}
 \usage{
 random_interaction(x, real = TRUE, z.levels = c("1SD", "2SD", "1.2SD",
-  "all"), scatter = TRUE, labs = NULL, x.levels = NULL, ...)
+  "all"), scatter = TRUE, labs = NULL, x.levels = NULL, silent = T,
+  ...)
 }
 \arguments{
 \item{x}{A mer object produced by \code{lmer} function}

@@ -4,12 +4,15 @@
 \alias{lav_to_graph}
 \title{Create a path diagram using lavaan syntax}
 \usage{
-lav_to_graph(m, layout = "dot", adds = NULL, file = NA, ...)
+lav_to_graph(m, layout = "dot", adds = NULL, file = NA,
+  rmarkdown = FALSE, ...)
 }
 \arguments{
 \item{m}{character, following lavaan syntax model conventions (see examples), or fitted lavaan object.}
 
 \item{file}{character, file name to save svg code, usually with 'svg' extension.}
+
+\item{rmarkdown}{Logical. If the function used in the context of Rmarkdown.}
 
 \item{...}{arguments passed to DiagrammeR::grViz function.}
 }
