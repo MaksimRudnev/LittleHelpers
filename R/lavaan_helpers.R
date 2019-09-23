@@ -452,7 +452,7 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, rmarkdown=FALSE,
              if(!is.na(co$pars)) {
                if(co$pars!=0)
                paste(co$lhs, "->", co$rhs,
-                     '[ dir = "both" splines=curved constraint=false label=', co$pars, ' fontsize = 10 ];\n')
+                     '[ dir = "both" splines=curved constraint=false label="', co$pars, '" fontsize = 10 ];\n')
              } else {
                paste(co$lhs, "->", co$rhs,
                      '[ dir = "both" splines=curved constraint=false];\n')
