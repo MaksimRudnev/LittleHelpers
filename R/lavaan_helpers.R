@@ -263,7 +263,10 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, rmarkdown=FALSE,
     pt <- lavaan::parameterTable(m)
     pt <- pt[pt$rhs!="",]
     message("Currently, intercepts are not supported.")
-    m <- paste0(pt$lhs, " ", pt$op, " ", sprintf("%1.2f",pt$est), "*", pt$rhs,
+    st<-pt$est/pt$se>1.96
+    st[st==T]<-"^^"
+    st[st=="FALSE"]<-""
+    m <- paste0(pt$lhs, " ", pt$op, " ", sprintf("%1.2f",pt$est), st, "*", pt$rhs,
                 collapse=";\n")
   }
 
@@ -484,7 +487,7 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, rmarkdown=FALSE,
          reg.otp <- append(reg.otp, c(
               paste(dep, "[label=", paste0('"', names(dep), '"'), "];\n"),
               paste(indep, "[label=", paste0('"', names(indep), '"'), "];\n"),
-              paste0(indep, " -> ",  dep, ' [style=bold ', paste0('label=',cof)[cof!=""],'];\n'),
+              paste0(indep, " -> ",  dep, ' [style=bold ', paste0('label="',cof)[cof!=""],'"];\n'),
               paste(paste0("Resid_",dep), ' [shape = circle style = filled color=lightgrey',
                     'fontsize=10 width=0.2, label = "&epsilon;"];\n'),
               paste0(paste0("Resid_",dep), " -> ", dep, " [color=grey];\n")
@@ -544,6 +547,8 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, rmarkdown=FALSE,
                  ifelse(is.null(adds), "", paste("// code added manually \n", paste(adds, collapse="\n" ))),
                  "}",
                  sep="\n")
+
+  lines <- gsub("^^", "*", lines, fixed = T)
 
 if(!rmarkdown) {
   trash<- capture.output(DiagrammeR::grViz(lines, ...))
