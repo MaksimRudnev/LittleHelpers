@@ -263,7 +263,7 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, rmarkdown=FALSE,
     pt <- lavaan::parameterTable(m)
     pt <- pt[pt$rhs!="",]
     message("Currently, intercepts are not supported.")
-    st<-pt$est/pt$se>1.96
+    st<-abs(pt$est/pt$se)>1.96
     st[st==T]<-"^^"
     st[st=="FALSE"]<-""
     m <- paste0(pt$lhs, " ", pt$op, " ", sprintf("%1.2f",pt$est), st, "*", pt$rhs,
