@@ -230,7 +230,7 @@ measurementInvariance <- function(lavaan.model, ...) {
   #out <- out[,names(out)[c(4, 1, 5, 6)]]
   out2<-t(sapply(list(r.conf, r.metric, r.scalar, r.means),   fitmeasures)[c("cfi", "tli", "rmsea", "srmr"),])
   out2.2 <- apply(out2, 2, function(x) (c(NA, x[2]-x[1], x[3]-x[2], x[4]-x[3] )))
-  colnames(out2.2)<- paste("∆", toupper(colnames(out2.2)), sep="")
+  colnames(out2.2)<- paste("D", toupper(colnames(out2.2)), sep="")
   out2.3 <- t(Reduce("rbind", lapply(1:ncol(out2), function(x) rbind(out2[,x], out2.2[,x]))))
   colnames(out2.3)<-toupper(as.vector(sapply(1:length(colnames(out2)), function(i) c(colnames(out2)[i], colnames(out2.2)[i]) )))
   rownames(out2.3)<-c("Configural", "Metric", "Scalar", "Means")
