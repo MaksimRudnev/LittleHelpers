@@ -13,7 +13,8 @@ Imports:
     effects (>= 3.1),
     stats (>= 3.1),
     utils (>= 3.1),
-    lavaan (>= 0.6)
+    lavaan (>= 0.6),
+    DiagrammeR (>= 1.0)
 Suggests: knitr,
     rmarkdown,
     haven,

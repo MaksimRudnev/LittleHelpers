@@ -257,11 +257,11 @@ measurementInvariance <- function(lavaan.model, ...) {
 #'
 #' @export
 lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, rmarkdown=FALSE, ...) {
-  require("DiagrammeR")
 
   if(class(m)=="lavaan") {
     pt <- lavaan::parameterTable(m)
     pt <- pt[pt$rhs!="",]
+    pt<-pt[pt$op==":=", ]
     message("Currently, intercepts are not supported.")
     st<-abs(pt$est/pt$se)>1.96
     st[st==T]<-"^^"
