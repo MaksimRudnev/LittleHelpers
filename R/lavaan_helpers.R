@@ -263,7 +263,7 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, rmarkdown=FALSE,
     pt <- pt[pt$rhs!="",]
     pt <- pt[pt$op!=":=", ]
     message("Currently, intercepts are not supported.")
-    st<-abs(pt$est/pt$se)>1.96
+    st<-abs(pt$est/pt$se)>1.96 & pt$free != 0
     st[st==T]<-"^^"
     st[st=="FALSE"]<-""
     m <- paste0(pt$lhs, " ", pt$op, " ", sprintf("%1.2f",pt$est), st, "*", pt$rhs,
@@ -382,7 +382,7 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, rmarkdown=FALSE,
 
         params = gsub("\\*.*$", "", indicators[grep("\\*", indicators)])
         params = gsub("NA", "", params)
-        params[params!=""] <- paste0("[label=",params,"]")[params!=""]
+        params[params!=""] <- paste0('[label="',params,'"]')[params!=""]
 
         indicators <- gsub("^.*\\*", "", indicators)
         indicators <- `names<-`(gsub("\\.|-", "_", indicators), indicators) #values are dotless, names are original varnames
