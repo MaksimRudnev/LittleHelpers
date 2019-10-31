@@ -37,7 +37,8 @@ download_ess <- function(round, country="all", user, version = NULL, clean = FAL
                   `5` = "03_4",
                   `6` = "02_4",
                   `7` = "02_2",
-                  `8` = "02_1")[round] }
+                  `8` = "02_1",
+                  `9` = "01")[round] }
     download.url <- paste("http://www.europeansocialsurvey.org/file/download?f=ESS", round, "e", version, ".spss.zip&c=&y=", round*2+2000, sep="")
   }
 
