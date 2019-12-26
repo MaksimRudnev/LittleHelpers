@@ -4,7 +4,7 @@
 \alias{theme_mr}
 \title{Clean and precise theme}
 \usage{
-theme_mr()
+theme_mr(...)
 }
 \description{
 Clean and precise theme

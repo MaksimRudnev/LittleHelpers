@@ -185,7 +185,7 @@ good_table <- function(models,
               Nparameters = extractAIC(x)[1],
               AIC = comma(round(AIC(x),0)),
               BIC = comma(round(BIC(x),0)),
-              Ngroups = ngrps(x)[[1]],
+              Ngroups = lme4::ngrps(x)[[1]],
               Nobservations = comma(nobs(x)),
               Convergence = is.null(x@optinfo$conv$lme4$code)
               ))
@@ -657,18 +657,19 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
   }
 
   tb<-data.frame(group=unique(Gr),
-                 Corr=sapply(unique(Gr),   function(x) {
-                   cor(V1[Gr==x], V2[Gr==x], use=use, ...)
-                   # b<-cor.test(V1[Gr==x], V2[Gr==x], use="complete.obs")
-                   # c(b[["estimate"]], b[["p.value"]])
-                 },
-                 simplify=T),
+                 Corr=t(sapply(unique(Gr),   function(x) {
+                   #cor(V1[Gr==x], V2[Gr==x], use=use, ...)
+                   r = cor.test(V1[Gr==x], V2[Gr==x], use=use, conf.level = 0.95)
+                   c(r$estimate, r$conf.int)
+                 })),
                  stringsAsFactors = F)
+  names(tb)[2:4] <-  c("Corr", "hiCI", "loCI")
+
 
   tb$group<-factor(tb$group, levels=tb$group[order(tb$Corr)])
   if(plot==T) {
-    g<-ggplot(tb,aes(x=group, y=Corr))+
-      geom_point(colour="red")+
+    g<-ggplot(tb,aes(x=group, y=Corr, ymin = loCI, ymax= hiCI))+
+      geom_errorbar(width=.4, colour="grey")+geom_point(colour="red")+
       coord_flip()+theme_minimal()
     if(labs) g<-g+geom_text_repel(aes(label=(round(Corr, 2))), size=3)
 
@@ -912,34 +913,3 @@ search_random <- function(lmerfit, terms=NA, boot=F) {
 
 
 
-#' mplus skeleton
-#'
-#' @param d2 Data frame to extract variable names
-#'
-#' @example cat(mplus_skeleton(cars), file = "mplus1.inp")
-#' @export
-mplus_skeleton<- function(d2) {
-  var.names<- paste(gsub("\\.", "_", abbreviate(names(d2), 8)), " ! ", names(d2), "\n", collapse = " ")
-  if(sum(duplicated(gsub("\\.", "_", abbreviate(names(d2), 8))))>0) warning("Some abbreviated variable names are duplicated!!")
-  paste0(c("DATA:","\n",
-           "   file = 'mplus_temp.tab';", "\n",
-           " VARIABLE:", "\n",
-           "   names =",
-
-           paste(var.names),
-
-
-           ";\n",
-           "   missing = .;", "\n",
-           "   usevariables = ",
-           "\n\n\n\n",
-           "ANALYSIS:\n",
-           "  type = twolevel random;\n",
-           "  estimator = mlr;\n\n\n\n",
-
-           "MODEL:\n\n\n\n",
-
-           "OUTPUT:  tech6;"
-
-  ), collapse = "")
-}

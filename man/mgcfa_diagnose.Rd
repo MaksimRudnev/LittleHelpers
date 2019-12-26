@@ -4,8 +4,10 @@
 \alias{mgcfa_diagnose}
 \title{Quick diagnostics for multiple-group lavaan models}
 \usage{
-mgcfa_diagnose(lavaan.model, output = c("overall", "neg.var", "mi",
-  "constraints"))
+mgcfa_diagnose(
+  lavaan.model,
+  output = c("overall", "neg.var", "mi", "constraints")
+)
 }
 \arguments{
 \item{lavaan.model}{Fitted lavaan multiple group model.}

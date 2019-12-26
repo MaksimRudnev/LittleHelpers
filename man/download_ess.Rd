@@ -4,8 +4,7 @@
 \alias{download_ess}
 \title{Downaload ESS data directly from website to R object with labels}
 \usage{
-download_ess(round, country = "all", user, version = NULL,
-  clean = FALSE)
+download_ess(round, country = "all", user, version = NULL, clean = FALSE)
 }
 \arguments{
 \item{round}{Number of round - from 1 to 8.}

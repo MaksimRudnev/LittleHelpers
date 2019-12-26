@@ -4,8 +4,12 @@
 \alias{potential_interactions}
 \title{Potential cross-level interactions}
 \usage{
-potential_interactions(random.terms, group.level.terms, lmer.fit,
-  measure = c("correlation", "interaction"))
+potential_interactions(
+  random.terms,
+  group.level.terms,
+  lmer.fit,
+  measure = c("correlation", "interaction")
+)
 }
 \arguments{
 \item{random.terms}{Individual predictors  that should be made random and associated with predictors (mediators) at group level}

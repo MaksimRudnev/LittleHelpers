@@ -4,9 +4,16 @@
 \alias{brmsea}
 \title{Hoot's BRMSEA}
 \usage{
-brmsea(file = "bayesian.gh5", file_sel = "Chi-square values",
-  ms = TRUE, cil = 0.05, ciu = 0.95, allout = FALSE, Min1 = TRUE,
-  Ngr = 4)
+brmsea(
+  file = "bayesian.gh5",
+  file_sel = "Chi-square values",
+  ms = TRUE,
+  cil = 0.05,
+  ciu = 0.95,
+  allout = FALSE,
+  Min1 = TRUE,
+  Ngr = 4
+)
 }
 \description{
 Adapted from Hoots et al., 2017, https://journals.sagepub.com/doi/suppl/10.1177/0013164417709314

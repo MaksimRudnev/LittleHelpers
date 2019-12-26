@@ -4,8 +4,16 @@
 \alias{cor_within}
 \title{Within-group correlations}
 \usage{
-cor_within(var1, var2, group, data, plot = TRUE, labs = TRUE,
-  use = "pairwise", ...)
+cor_within(
+  var1,
+  var2,
+  group,
+  data,
+  plot = TRUE,
+  labs = TRUE,
+  use = "pairwise",
+  ...
+)
 }
 \arguments{
 \item{var1}{String. Name of variable to correlate.}

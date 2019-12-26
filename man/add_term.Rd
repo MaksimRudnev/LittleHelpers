@@ -4,8 +4,13 @@
 \alias{add_term}
 \title{Add or remove terms to a lmer formula string}
 \usage{
-add_term(lmer.formula, fixed = NULL, random = NULL, drop = NULL,
-  drop.random = NULL)
+add_term(
+  lmer.formula,
+  fixed = NULL,
+  random = NULL,
+  drop = NULL,
+  drop.random = NULL
+)
 }
 \arguments{
 \item{lmer.formula}{Formula object or string containing formula.}

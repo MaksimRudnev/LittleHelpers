@@ -4,9 +4,18 @@
 \alias{stacked_bar}
 \title{Quick stacked bar plot}
 \usage{
-stacked_bar(variable, group, sort.cat = 1, colors = NA,
-  include.na = FALSE, labs = TRUE, label.col = NA,
-  format.label = "2\%", weight = NA, label_col = NA)
+stacked_bar(
+  variable,
+  group,
+  sort.cat = 1,
+  colors = NA,
+  include.na = FALSE,
+  labs = TRUE,
+  label.col = NA,
+  format.label = "2\%",
+  weight = NA,
+  label_col = NA
+)
 }
 \arguments{
 \item{variable}{Variable to be plotted.}

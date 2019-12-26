@@ -4,8 +4,16 @@
 \alias{ess_values}
 \title{Compute basic values indices as measured in European Social Survey}
 \usage{
-ess_values(data, v2 = TRUE, v4 = TRUE, v10 = TRUE, v21 = FALSE,
-  center = TRUE, abbr = FALSE, suffix = "")
+ess_values(
+  data,
+  v2 = TRUE,
+  v4 = TRUE,
+  v10 = TRUE,
+  v21 = FALSE,
+  center = TRUE,
+  abbr = FALSE,
+  suffix = ""
+)
 }
 \arguments{
 \item{data}{ESS dataset of any other dataset with the same 21 value indicator variable names}

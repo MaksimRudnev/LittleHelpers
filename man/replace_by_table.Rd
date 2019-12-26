@@ -4,9 +4,13 @@
 \alias{replace_by_table}
 \title{Replace by table}
 \usage{
-replace_by_table(variable = all.data$cntry, lookup.table = recodes2,
-  matching.column = "cntry", replacement.column = "WDIcode",
-  save.levels.order = T)
+replace_by_table(
+  variable = all.data$cntry,
+  lookup.table = recodes2,
+  matching.column = "cntry",
+  replacement.column = "WDIcode",
+  save.levels.order = T
+)
 }
 \arguments{
 \item{variable}{Variable to recode.}
