@@ -4,7 +4,17 @@
 \alias{grand_center}
 \title{Grand mean centering of one or more variables}
 \usage{
-grand_center(variables, prefix = "gm.")
+grand_center(variables, data, prefix = "gc.")
+}
+\arguments{
+\item{variables}{Character vector of variables names}
+
+\item{data}{Data frame}
+
+\item{prefix}{Character, added to the befinning of centered variable name.}
+}
+\value{
+Returns an original data frame binded with the new centered variables
 }
 \description{
 Grand mean centering of one or more variables

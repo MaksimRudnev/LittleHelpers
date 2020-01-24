@@ -4,7 +4,7 @@
 \alias{crosstab}
 \title{Easy cross-tabulation with labels}
 \usage{
-crosstab(rows, cols, data, margin = "row", useNA = "always")
+crosstab(rows, cols, data, margin = "row", useNA = "always", drop.empty = T)
 }
 \arguments{
 \item{rows}{Character, variable name to put in rows}
@@ -16,6 +16,8 @@ crosstab(rows, cols, data, margin = "row", useNA = "always")
 \item{margin}{If any proportions should be computed, might be `row`, `col`, or `none`.}
 
 \item{useNA}{How to deal with NAs, passed to `table`.}
+
+\item{drop.empty}{Remove empty categories?}
 }
 \description{
 Easy cross-tabulation with labels

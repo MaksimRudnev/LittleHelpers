@@ -6,6 +6,18 @@
 \usage{
 group_center(variables, group, data, prefix = "g.")
 }
+\arguments{
+\item{variables}{Character vector of variables names}
+
+\item{group}{Character of length 1,name of grouping variable}
+
+\item{data}{Data frame}
+
+\item{prefix}{Character, added to the befinning of centered variable name.}
+}
+\value{
+Returns an original data frame binded with the new centered variables
+}
 \description{
 Group-centering of one or more variables
 }

@@ -184,7 +184,7 @@ label_book <- function(df, max.vals=25, vars="all", view=TRUE) {
 #' @param data Data.frame containing variables
 #' @param margin If any proportions should be computed, might be `row`, `col`, or `none`.
 #' @param useNA How to deal with NAs, passed to `table`.
-#'
+#' @param drop.empty Remove empty categories?
 #' @examples
 #'\dontrun{
 #'    crosstab("country", "frequency", wvs6, "row")
@@ -193,11 +193,18 @@ label_book <- function(df, max.vals=25, vars="all", view=TRUE) {
 
 #'
 #' @export
-crosstab <- function(rows, cols, data, margin="row", useNA="always") {
+crosstab <- function(rows, cols, data, margin="row", useNA="always", drop.empty = T) {
 
-  tb <- table(lab_to_fac(data[,rows]),
-              lab_to_fac(data[,cols]),
-              useNA=useNA)
+  row = lab_to_fac(data[,rows])
+  col = lab_to_fac(data[,cols])
+
+  if(drop.empty) {
+    row <- droplevels(row)
+    col <- droplevels(col)
+  }
+
+
+  tb <- table(row,col, useNA=useNA)
 
   if(margin=="col") {
     tb <- prop.table(tb, 2)
@@ -212,7 +219,7 @@ crosstab <- function(rows, cols, data, margin="row", useNA="always") {
                  ,
                  title=paste("[", rows, "]",  attr(lab_to_fac(data[,rows]), "header"), " BY ",
                              "[", cols, "]", attr(lab_to_fac(data[,cols]), "header"), sep="")
-                 )
+    )
 
 }
 
@@ -240,6 +247,8 @@ lab_to_fac <- function(var.labelled, print = F) {
     out<- sapply(var.labelled, function(x)  {
       do.call("switch", append( list( as.character(x)), append(labs, NA) ))
     }, USE.NAMES = F   )
+
+    labs <- labs[!duplicated(labs)]
     out <- factor(out, levels = labs)
 
     if(print) table(out, var.labelled)
@@ -287,6 +296,24 @@ untibble <- function(tibble) {
     tibble
   }
 
+}
+#' Drop the structure added by haven package
+#'
+#'@param haven.df Data.frame or tibble with columns of class haven_labelled. If the class of the variables is different, they will be just copied as they are. Tibble (list-like) structure is also removed if present.
+#' @export
+unhaven <- function(haven.df) {
+  d <- data.frame(dummy=rep(NA, nrow(haven.df)))
+  for(i in 1:ncol(haven.df)) {
+    if("data.frame" %in% class(haven.df[,i])) {
+      d[,i] <- haven.df[[i]]
+    } else {
+      d[,i] <- haven.df[,i]
+    }
+    if("haven_labelled" %in% class(d[,i])) d[,i] <- unclass(d[,i])
+  }
+  rm(i)
+  names(d) <- names(haven.df)
+  return(d)
 }
 
 

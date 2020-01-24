@@ -7,10 +7,11 @@
 \usage{
 good_table(
   models,
-  fit.stats = c("ICC", "random", "random.p", "R2", "fit", "LRT", "REML", "VIF"),
+  fit.stats = c("fit", "random"),
   mod.names = "",
   show.viewer = TRUE,
   silent = TRUE,
+  digits = 2,
   ...
 )
 }
