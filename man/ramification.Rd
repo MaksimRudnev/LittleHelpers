@@ -23,7 +23,7 @@ harvest(., ram.id = 1, clear = TRUE)
 \item{clear}{Logical, TRUE by default. Clear the buffer (delete hidden object from Global Environment).}
 }
 \description{
-Three little functions that allow for branching pipes. It is against Hadley's idea, as pipes are in principle linear, and in general I agree, but sometimes it would be comfy to ramify pipes away. It overcomes native \emph{magrittr}'s \emph{\%T>\%} by allowing more than one step after cutting the pipe.
+
 }
 \details{
 Imagine you need to create a list with means, correlations, and regression results. And you like to do it in one single pipe. In general, it is not possible, and you'll have to start a second pipe, probably doing some redundant computations.

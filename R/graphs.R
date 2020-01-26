@@ -529,16 +529,22 @@ mean_se_lower_upper<-function(x) {
 #' @param var1 Variable to plot on x axis
 #' @param var2 Variable to plot on y axis
 #' @param group Grouping variable
+#' @param data Data frame
 #' @param plot Logical. Should the plot be created?
 #' @param print Logical. Should the result be printed in the console?
 #'
 #'
 #' @details Recommended to use with `with` function, as in example.
-#' @examples scatter_means_ci(ess$alcfreq, ess$HE, ess$cntry, plot=T, print=TRUE)
+#' @examples scatter_means_ci('alcfreq', 'HE', 'cntry', ESS, plot=T, print=TRUE)
 #'
 #' @export
-scatter_means_ci <- function(var1, var2, group, plot=TRUE, print=TRUE) {
+scatter_means_ci <- function(variable1, variable2, group, data, plot=TRUE, print=TRUE, smooth.method = "lm", drop.groups = NULL) {
   require(ggrepel)
+
+  var1 = data[,variable1]
+  var2 = data[,variable2]
+  grp =  data[,group]
+
   if(!is.null(attr(var1, "labels"))) {
     lbl.tbl1<-  data.frame(codes= attr(var1, "labels"),
                            labels= names(attr(var1, "labels")),
@@ -554,21 +560,30 @@ scatter_means_ci <- function(var1, var2, group, plot=TRUE, print=TRUE) {
 
   }
 
+  if(!is.null(drop.groups)) {
+    var1 <- var1[!grp %in% drop.groups]
+    var2 <- var2[!grp %in% drop.groups]
+    grp<- grp[!grp %in% drop.groups]
+    if(any(class(grp) %in% "factor")) grp<- droplevels(grp)
+  }
 
 
   dt<-data.frame(
-    mean1=tapply(var1, lab_to_fac(group), function(x) mean(x, na.rm=T), simplify = T),
-    mean2=tapply(var2, lab_to_fac(group), function(x) mean(x, na.rm=T), simplify = T)
+    mean1=tapply(as.vector(var1), lab_to_fac(grp), function(x) mean(x, na.rm=T), simplify = T),
+    mean2=tapply(as.vector(var2), lab_to_fac(grp), function(x) mean(x, na.rm=T), simplify = T)
   )
-  names.dt<-c(deparse(substitute(var1)),deparse(substitute(var2)))
-  dt1<-dt; names(dt1) <- names.dt;
+  #names.dt<-c(deparse(substitute(var1)),deparse(substitute(var2)))
+  dt1<-dt
+
+ # colnames(dt1) <- names.dt
+  colnames(dt1) <- c(variable1, variable2)
   if(print)  print(dt1)
 
   if(plot) {
 
     ggplot(dt, aes(mean1, mean2, label=row.names(dt)))+
       geom_point()+geom_text_repel()+
-      labs(x=names.dt[1], y=names.dt[2])+geom_smooth(method = "lm", se = FALSE)+
+      labs(x=variable1, y=variable2)+geom_smooth(method = smooth.method, se = FALSE)+
       labs(caption=c(round(cor(dt$mean1, dt$mean2, use="pairwise.complete.obs"),2), "n=", nrow(na.omit(cbind(dt$mean1, dt$mean2))) ))+
       theme_mr()
     } else {

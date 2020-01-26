@@ -4,18 +4,29 @@
 \alias{scatter_means_ci}
 \title{Computes means by group and plots them in as a scatterplot}
 \usage{
-scatter_means_ci(var1, var2, group, plot = TRUE, print = TRUE)
+scatter_means_ci(
+  variable1,
+  variable2,
+  group,
+  data,
+  plot = TRUE,
+  print = TRUE,
+  smooth.method = "lm",
+  drop.groups = NULL
+)
 }
 \arguments{
-\item{var1}{Variable to plot on x axis}
-
-\item{var2}{Variable to plot on y axis}
-
 \item{group}{Grouping variable}
+
+\item{data}{Data frame}
 
 \item{plot}{Logical. Should the plot be created?}
 
 \item{print}{Logical. Should the result be printed in the console?}
+
+\item{var1}{Variable to plot on x axis}
+
+\item{var2}{Variable to plot on y axis}
 }
 \description{
 Computes means by group and plots them in as a scatterplot
@@ -24,6 +35,6 @@ Computes means by group and plots them in as a scatterplot
 Recommended to use with `with` function, as in example.
 }
 \examples{
-scatter_means_ci(ess$alcfreq, ess$HE, ess$cntry, plot=T, print=TRUE)
+scatter_means_ci('alcfreq', 'HE', 'cntry', ESS, plot=T, print=TRUE)
 
 }

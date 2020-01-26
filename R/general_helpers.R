@@ -121,3 +121,20 @@ match_named_vectors <- function(...) {
 
 
 
+#' Prints the number and percent of NAs in a dataframe
+#'@param data Data.frame
+#'@param viewer If `TRUE``, show in Rstudio viewer, if FALSE returns a data.frame
+#'
+#'
+#'
+#'@export
+na_tab <- function(data, viewer = T) {
+  lst <- apply(data, 2, function(x) data.frame(NA_total=sum(is.na(x)),  NA_percent = scales::percent(sum(is.na(x))/length(x))  ))
+  nms <- names(lst)
+  lst <-  Reduce("rbind", lst)
+  rownames(lst)<-nms
+  if(viewer) df_to_viewer(lst) else return(lst)
+}
+
+
+

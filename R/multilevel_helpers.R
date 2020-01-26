@@ -654,19 +654,8 @@ potential_interactions_ind <- function(variables, modelfit) {
 #'
 #' @export
 group_center <- function(variables, group, data, prefix="g.") {
+
   new.data <- data[,c(group,variables)]
-  # l<- sapply(unique(data[,group]),
-  #            function(g) sapply(variables,
-  #                               function(v)  {
-  #                                 new.data[new.data[,group]==g, v]<- data[data[,group]==g, v] - mean(data[data[,group]==g, v], na.rm=T)
-  #                               })  )
-  # names(new.data) <- paste(prefix, names(new.data), sep="")
-  # new.data[, -1]
-
-  # new <- merge(data[,c(group, variables)],
-  #              aggregate(as.data.frame(data[,variables]), list(data[,group]), mean, na.rm=T),
-  #              by.x=group, by.y="Group.1", all.x=T, suffixes = c("", ".a"))
-
 
   for(v in variables)  {
     ag<- tapply(new.data[,v], list(new.data[,group]), mean, na.rm = T)
@@ -675,14 +664,6 @@ group_center <- function(variables, group, data, prefix="g.") {
   new.data[,group]<-NULL
   names(new.data)<-paste(prefix, variables, sep="")
 
-  # for(x in variables) {
-  #   new$new <- rep(NA, nrow(new))
-  #   new$new <- new[,x] - new[,paste(x,"a", sep=".")]
-  #   names(new)[length(new)]<-paste(prefix, x, sep="")
-  #   new[,paste(x,"a", sep=".")]<-NULL
-  #   new[,x]<-NULL
-  # }
-  # new[,group]<-NULL
   cbind(data, new.data)
 
 
@@ -693,13 +674,13 @@ group_center <- function(variables, group, data, prefix="g.") {
 #'@param variables Character vector of variables names
 #'@param data Data frame
 #'@param prefix Character, added to the befinning of centered variable name.
-#'
+#'@param std Logical. Should the variable be standardized (divided by its std. deviation)?
 #' @return Returns an original data frame binded with the new centered variables
 #' @export
-grand_center <- function(variables, data, prefix="gc.") {
+grand_center <- function(variables, data, prefix="gc.", std = F) {
 
   new.data <- data[,variables]
-  for(v in variables) new.data[,v] = scale(new.data[,v], center = T, scale = F)
+  for(v in variables) new.data[,v] = scale(new.data[,v], center = T, scale = std)
   names(new.data)<-paste(prefix, variables, sep="")
   cbind(data, new.data)
 
