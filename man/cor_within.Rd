@@ -12,7 +12,7 @@ cor_within(
   plot = TRUE,
   labs = TRUE,
   use = "pairwise",
-  ...
+  highlight.group = NA
 )
 }
 \arguments{
@@ -26,7 +26,9 @@ cor_within(
 
 \item{plot}{Logical. Should the plot be created?}
 
-\item{labs}{Logical. Should value labels be used?
+\item{labs}{Logical. Should value labels be used?}
+
+\item{highlight.group}{Characater. What group should be highlighted on graph?
 
 Prints correlations in console, and plots in a graph.}
 }

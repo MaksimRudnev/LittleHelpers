@@ -450,7 +450,7 @@ vif_mer <- function (fit) {
 
 #' Add or remove terms to a lmer formula string
 #'
-#' @param lmer.formula Formula object or string containing formula.
+#' @param x Either mer formula object, string containing formula, lmer object. If latter is the case, the updated object will be returned instead of a new formula.
 #' @param fixed List of character strings containing variable names or terms to include in the formula as fixed terms.
 #' @param random List of character strings containing variable names or terms to include in the formula as random terms.
 #' @param drop List of character strings containing variable names or fixed terms to exclude from the formula.
@@ -465,13 +465,20 @@ vif_mer <- function (fit) {
 #'
 #' @export
 
-add_term <- function (lmer.formula, fixed=NULL, random=NULL, drop=NULL, drop.random=NULL) {
+add_term <- function (x, fixed=NULL, random=NULL, drop=NULL, drop.random=NULL) {
 
 require(stringr)
 require(stats)
 require(lme4)
 
-  if(class(lmer.formula)=="formula") lmer.formula<-Reduce(paste, deparse((as.formula(lmer.formula))))
+  if(class(x)=="formula") {
+    lmer.formula<-Reduce(paste, deparse((as.formula(x))))
+  } else if (class(x)=="character") {
+    lmer.formula <- x
+  } else if ( any("lmerMod" %in% class(x) )) {
+    lmer.formula <-Reduce(paste, deparse(formula(x)))
+  }
+
   f<-paste(
     gsub("\\|", paste(ifelse(!is.null(random),  "+", ""),
                       paste(random, collapse="+"), "|"),
@@ -495,7 +502,16 @@ require(lme4)
   f<-gsub("\\s+", " ",f)
   #verb("nospaces", f)
   f<-gsub("\\+\\s\\|", "\\|", f)
-  f
+
+
+  if(class(x)=="formula"|class(x)=="character") {
+    return(f)
+  }
+  if ( any("lmerMod" %in% class(x) )) {
+    m <- update(x, f)
+    return(m)
+  }
+
 }
 
 
@@ -695,10 +711,11 @@ grand_center <- function(variables, data, prefix="gc.", std = F) {
 #' @param data Data.framer containing var1, var2, and group.
 #' @param plot Logical. Should the plot be created?
 #' @param labs Logical. Should value labels be used?
+#' @param highlight.group Characater. What group should be highlighted on graph?
 #'
 #' Prints correlations in console, and plots in a graph.
 #' @export
-cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pairwise", ...) {
+cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pairwise", highlight.group=NA) {
 
   #require(sjmisc);
   #require(sjlabelled);
@@ -727,10 +744,19 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
 
   tb$group<-factor(tb$group, levels=tb$group[order(tb$Corr)])
   if(plot==T) {
+
+
+
+      tb$group.highlighted <- as.character(tb$group %in% highlight.group)
+
     g<-ggplot(tb,aes(x=group, y=Corr, ymin = loCI, ymax= hiCI))+
       geom_errorbar(width=.4, colour="grey")+geom_point(colour="red")+
+      geom_point(aes(colour=group.highlighted, size = group.highlighted),
+                 show.legend = F, alpha=1 )+
+      scale_color_manual(values = c("red", "black"))+
+      scale_size_manual(values = c(1, 3))+ylab(paste("Corr", var1, "with", var2))+xlab("")+
       coord_flip()+theme_minimal()
-    if(labs) g<-g+geom_text_repel(aes(label=(round(Corr, 2))), size=3)
+    if(labs) g<-g+ggrepel::geom_text_repel(aes(label=(round(Corr, 2))), size=3)
 
     print(g)
   }
