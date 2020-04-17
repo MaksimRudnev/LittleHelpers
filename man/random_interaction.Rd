@@ -43,7 +43,7 @@ Returns one or several ggplots. In case one plot is returned it can be appended 
 Takes object produced by lme4::lmer() function, and returns interaction plot(s).
 }
 \details{
-It somehow repeats functionality of \link[sjPlot:sjp.int]{sjPlot::sjp.int}, but differs in being able to select real groups close to +/- 1 sd and mean of moderating variable; makes prettier and customizable plots.
+It somehow repeats functionality of 'sjPlot::sjp.int', but differs in being able to select real groups close to +/- 1 sd and mean of moderating variable; makes prettier and customizable plots.
 }
 \examples{
 random_interaction(lmr, "model.1SD.2SD")

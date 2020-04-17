@@ -6,6 +6,13 @@
 \usage{
 search_random(lmerfit, terms = NA, boot = F)
 }
+\arguments{
+\item{lmerfit}{lmer fit}
+
+\item{terms}{terms, if NA (default) uses each variable from fixed effects}
+
+\item{boot}{Apply bootstrap?}
+}
 \value{
 
 }

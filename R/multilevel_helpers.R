@@ -735,8 +735,13 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
   tb<-data.frame(group=unique(Gr),
                  Corr=t(sapply(unique(Gr),   function(x) {
                    #cor(V1[Gr==x], V2[Gr==x], use=use, ...)
+                   if(all(rowSums(cbind(!is.na(V1[Gr==x]), !is.na(V2[Gr==x])))<2)) {
+                     warning(paste("There no valid cases in", x))
+                     c(0, 0, 0)
+                   } else {
                    r = cor.test(V1[Gr==x], V2[Gr==x], use=use, conf.level = 0.95)
                    c(r$estimate, r$conf.int)
+                   }
                  })),
                  stringsAsFactors = F)
   names(tb)[2:4] <-  c("Corr", "hiCI", "loCI")
@@ -822,9 +827,9 @@ if(print == T) {
 
 # What fixed should be turned to random ####
 #' Find random effects across fixed
-#'
-#'
-#'
+#'@param lmerfit lmer fit
+#'@param terms terms, if NA (default) uses each variable from fixed effects
+#'@param boot Apply bootstrap?
 #' @return
 #'
 #'@export

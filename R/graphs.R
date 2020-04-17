@@ -17,7 +17,6 @@ verb <- function(...) {
 
 
 ##Stacked Bars ####
-
 #' Quick stacked bar plot
 #'
 #' @details Computes proportions cross-table and plots it in a nice way. ggplot-based, so `+theme()` and other arguments can be added directly to transform the plot.
@@ -598,13 +597,13 @@ scatter_means_ci <- function(variable1, variable2, group, data, plot=TRUE, print
 #'Takes object produced by lme4::lmer() function, extracts random effects and interactions, and returns ggplot2-based plots to examine.
 #'
 #' @param lmer.fit A mer object
-#' @param optional.names A named vector of random effects, where names are used as titles of the output plots. The length  should be equal to a number of random effects. Usually it includes "(Intercepts)" and names of variables whose effects are made random.
+#' @param optional.names A named vector of random effects, where names indicate terms and values are used as axis x labels in correspomding plot. The length  should be equal to a number of random effects. Usually it includes "(Intercepts)" and names of variables whose effects are made random.
 #' @param facets Logical. Should the random effects be plotted in facets or as a series of single plots?
 #' @param scatter Logical. Should the scatterplots of the cross-level interactions be plotted? If TRUE, `facets` argument corresponds to scatterplots. This option is under development...
 #' @param print If the plots should be actually printed, valid only if facets = F
 #' @return Returns one or several ggplots. In case one plot is returned it can be appended with `theme`, `geom_`, etc.
-#' @examples random_plot(lmr, optional.names=c(Intercept="(Intercepts)", Female="gndr"), facets=TRUE)
-#' @export
+#' @examples random_plot(lmr, optional.names=c(`(Intercepts)`="Intercepts", gndr="Female", s.Age = "Effects of age"), facets=TRUE)
+#'@export
 #'
 random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { #optional.names should be a named vector
 
@@ -613,7 +612,7 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { 
 
   ses<-as.data.frame(arm::se.coef(lmer.fit)[[group.name]])
   #dt<-subset(coef(lmer.fit)[[group.name]], select=names(ses))
-  dt<-coef(lmer.fit)[[group.name]][,names(ses)]
+  dt<-coef(lmer.fit)[[group.name]][names(ses)]
 
   if(length(optional.names)==1 && is.na(optional.names)) {
     optional.names<-names(ses)
@@ -687,7 +686,7 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { 
 #' @param x.levels desired x-axis coordinates, individual-level term. If NULL (default) are defined automatically.
 #' @return Returns one or several ggplots. In case one plot is returned it can be appended with `+theme()`, `+geom_()`, etc.
 #' @examples random_interaction(lmr, "model.1SD.2SD")
-#' @details It somehow repeats functionality of [sjPlot::sjp.int], but differs in being able to select real groups close to +/- 1 sd and mean of moderating variable; makes prettier and customizable plots.
+#' @details It somehow repeats functionality of 'sjPlot::sjp.int', but differs in being able to select real groups close to +/- 1 sd and mean of moderating variable; makes prettier and customizable plots.
 #' @seealso \link{random_plot} \link{good_table}
 #' @md
 #'

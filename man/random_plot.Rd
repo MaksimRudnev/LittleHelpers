@@ -9,7 +9,7 @@ random_plot(lmer.fit, optional.names = NA, facets = FALSE, print = T)
 \arguments{
 \item{lmer.fit}{A mer object}
 
-\item{optional.names}{A named vector of random effects, where names are used as titles of the output plots. The length  should be equal to a number of random effects. Usually it includes "(Intercepts)" and names of variables whose effects are made random.}
+\item{optional.names}{A named vector of random effects, where names indicate terms and values are used as axis x labels in correspomding plot. The length  should be equal to a number of random effects. Usually it includes "(Intercepts)" and names of variables whose effects are made random.}
 
 \item{facets}{Logical. Should the random effects be plotted in facets or as a series of single plots?}
 
@@ -24,5 +24,5 @@ Returns one or several ggplots. In case one plot is returned it can be appended 
 Takes object produced by lme4::lmer() function, extracts random effects and interactions, and returns ggplot2-based plots to examine.
 }
 \examples{
-random_plot(lmr, optional.names=c(Intercept="(Intercepts)", Female="gndr"), facets=TRUE)
+random_plot(lmr, optional.names=c(`(Intercepts)`="Intercepts", gndr="Female", s.Age = "Effects of age"), facets=TRUE)
 }
