@@ -7,7 +7,7 @@
 convergencePlotsMplus(
   x,
   is.file = F,
-  pdffile = "",
+  pdffile = NULL,
   gg = T,
   param.id = NULL,
   raster = F,
@@ -17,24 +17,35 @@ convergencePlotsMplus(
 )
 }
 \arguments{
-\item{x}{Either a model read by *MplusAutomation::readModels*, OR a gh5 file produced by Mplus (in Mplus it should be stated PLOTS: TYPE IS PLOT2;)}
+\item{x}{Either a model read by \code{\link[MplusAutomation]{readModels}}, OR a gh5 file produced by Mplus (in Mplus it should be stated PLOTS: TYPE IS PLOT2;)}
 
-\item{is.file}{Logical, if x argument is file name. Default is FALSE, (i.e. it's an R object, a model read by *MplusAutomation::readModels*)}
+\item{is.file}{Logical, if x argument is file name. Default is FALSE, (i.e. it's an R object, a model read by \code{\link[MplusAutomation]{readModels}})}
 
-\item{pdffile}{File name of the pdf report to export all the plots. Defaults to value of x argument with  a '.pdf' extension.}
+\item{pdffile}{File name of the pdf report to export all the plots. Defaults to an of x argument with  a '.pdf' extension when is.file == TRUE, and extracts the original filename of the out file if x is a readModels object.}
 
-\item{gg}{Logical. Whether ggplot  or base R graphics should be used. Default is ggplot which is slower.}
+\item{gg}{Logical. Whether ggplot  or base R graphics should be used. Default is ggplot which is slower but more flexible, e.g. with many chains.}
 
 \item{param.id}{Single interger or a vector. Single intterger shows 1:param.id  parameters to plot, a vector shows parameters by their order id. If NULL (default), all the parameters are used.}
 
-\item{raster}{Logical. Currently not used. It was an option to convert vector plots to  raster plot to save space and produce smaller pdfs.}
+\item{raster}{Logical. Currently not used. It was an option to convert vector plots to raster plots to save space and produce smaller pdfs.}
 
-\item{niter}{How many iteractions should be shown on a traceplot. NULL (defaults) is all iterations. However, traceplots for long chains may result in highly overplotted graphics which are slow and take a lot of space on hard drive.}
+\item{niter}{How many iterations should be shown on a traceplot. NULL (default) refers to all iterations. However, traceplots for long chains may result in highly overplotted graphics which are slow and take a lot of space on disk.}
 
-\item{PSR}{If PSR (R-hat) should be printed for each parameter.}
+\item{PSR}{If PSR (R-hat) should be printed for each parameter. See \code{\link{eachParamPSRMplus}}.}
 
 \item{PSR.version}{Version of PSR; default is "Rstan" - the most up-to-date, provided by the Rstan::Rhat function (Vehtari et al., 2019). Other possible values: "Gelman" (Gelman et al. (2004)); or "Mplus" (Asparouhov and  Muthen, 2010), and "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.}
 }
 \description{
 The function exports all the available plots for each parameter and every chain. Therefore it can take a long time and the resulting pdf file can be large. Each page in pdf is for a specific parameter.
+}
+\examples{
+
+\dontrun{
+m <- MplusAutomation::readModels("mybayes.out")
+convergencePlotsMplus(m, niter = 5000, PSR.version = "Mplus")
+
+# or directly from gh5 file:
+convergencePlotsMplus("mybayes.gh5", param.id = 1, PSR.version = "Rstan", gg=F)
+}
+
 }

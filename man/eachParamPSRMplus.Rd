@@ -7,7 +7,7 @@
 eachParamPSRMplus(parameters, id.parameter, iterations.range = NULL)
 }
 \arguments{
-\item{parameters}{Array typically taken from plus-produced gh5 file in gh5$bayesian_data$parameters_autocorr   or from any other, where first dimension is parameters, second dimension is iterations, and third dimension is chains}
+\item{parameters}{A 3-dimensional array (typically taken from Mplus-produced gh5 file in gh5$bayesian_data$parameters_autocorr$parameters or from any other), where first dimension is parameters, second dimension is iterations, and third dimension is chains}
 
 \item{id.parameter}{Integer id of parameter}
 
@@ -15,4 +15,21 @@ eachParamPSRMplus(parameters, id.parameter, iterations.range = NULL)
 }
 \description{
 Various versions of PSR
+}
+\details{
+Returns a vector of different versions of PSR:
+\itemize{
+    \item  "Rstan" the most up-to-date, provided by the  \code{\link[Rstan]{Rhat}} function (Vehtari et al., 2019).
+    \item  "Gelman" (Gelman et al. (2004)).
+    \item  "Mplus" (Asparouhov and  Muthen, 2010),
+    \item  "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.
+}
+}
+\examples{
+
+\dontrun{
+m <- MplusAutomation::readModels("mybayes.out")
+eachParamPSRMplus(a$gh5$bayesian_data$parameters_autocorr$parameters, 1)
+}
+
 }

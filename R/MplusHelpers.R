@@ -1,26 +1,37 @@
 
 #' Extract and export Mplus trace and autocorrelation plots into pdf
 #'
-#' @param x Either a model read by *MplusAutomation::readModels*, OR a gh5 file produced by Mplus (in Mplus it should be stated PLOTS: TYPE IS PLOT2;)
-#' @param is.file Logical, if x argument is file name. Default is FALSE, (i.e. it's an R object, a model read by *MplusAutomation::readModels*)
-#' @param pdffile File name of the pdf report to export all the plots. Defaults to value of x argument with  a '.pdf' extension.
-#' @param gg Logical. Whether ggplot  or base R graphics should be used. Default is ggplot which is slower.
+#' @param x Either a model read by \code{\link[MplusAutomation]{readModels}}, OR a gh5 file produced by Mplus (in Mplus it should be stated PLOTS: TYPE IS PLOT2;)
+#' @param is.file Logical, if x argument is file name. Default is FALSE, (i.e. it's an R object, a model read by \code{\link[MplusAutomation]{readModels}})
+#' @param pdffile File name of the pdf report to export all the plots. Defaults to an of x argument with  a '.pdf' extension when is.file == TRUE, and extracts the original filename of the out file if x is a readModels object.
+#' @param gg Logical. Whether ggplot  or base R graphics should be used. Default is ggplot which is slower but more flexible, e.g. with many chains.
 #' @param param.id Single interger or a vector. Single intterger shows 1:param.id  parameters to plot, a vector shows parameters by their order id. If NULL (default), all the parameters are used.
-#' @param niter How many iteractions should be shown on a traceplot. NULL (defaults) is all iterations. However, traceplots for long chains may result in highly overplotted graphics which are slow and take a lot of space on hard drive.
-#' @param raster Logical. Currently not used. It was an option to convert vector plots to  raster plot to save space and produce smaller pdfs.
-#' @param PSR If PSR (R-hat) should be printed for each parameter.
+#' @param niter How many iterations should be shown on a traceplot. NULL (default) refers to all iterations. However, traceplots for long chains may result in highly overplotted graphics which are slow and take a lot of space on disk.
+#' @param raster Logical. Currently not used. It was an option to convert vector plots to raster plots to save space and produce smaller pdfs.
+#' @param PSR If PSR (R-hat) should be printed for each parameter. See \code{\link{eachParamPSRMplus}}.
 #' @param PSR.version Version of PSR; default is "Rstan" - the most up-to-date, provided by the Rstan::Rhat function (Vehtari et al., 2019). Other possible values: "Gelman" (Gelman et al. (2004)); or "Mplus" (Asparouhov and  Muthen, 2010), and "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.
 #'
 #' @description The function exports all the available plots for each parameter and every chain. Therefore it can take a long time and the resulting pdf file can be large. Each page in pdf is for a specific parameter.
+#' @examples
+#'
+#' \dontrun{
+#' m <- MplusAutomation::readModels("mybayes.out")
+#' convergencePlotsMplus(m, niter = 5000, PSR.version = "Mplus")
+#'
+#' # or directly from gh5 file:
+#' convergencePlotsMplus("mybayes.gh5", param.id = 1, PSR.version = "Rstan", gg=F)
+#' }
 #'
 #' @export
-convergencePlotsMplus <- function(x, is.file=F, pdffile = "", gg=T, param.id=NULL, raster=F, niter=NULL, PSR=TRUE, PSR.version="Rstan") {
+convergencePlotsMplus <- function(x, is.file=F, pdffile = NULL, gg=T, param.id=NULL, raster=F, niter=NULL, PSR=TRUE, PSR.version="Rstan") {
 
   require(reshape2)
 
-   if(pdffile=="") pdffile = ifelse(is.file,
+   if(is.null(pdffile)) pdffile = ifelse(is.file,
                                     paste0(x, ".pdf"),
-                                    paste0(deparse(substitute(x)),".pdf)"))
+                                    paste0(x$summaries$Filename,".pdf"))
+
+   print(pdffile)
 
   if(is.file) {
     print(paste("Reading file ", x ,"..."))
@@ -42,9 +53,6 @@ convergencePlotsMplus <- function(x, is.file=F, pdffile = "", gg=T, param.id=NUL
   parnames <- gsub("\\s\\s*", " ", parnames)
   parnames <- data.frame(id= 1:length(parnames), parnames)
 
-  #subsetting
-  if(!is.null(param.id)) parnames <-  parnames[if(length(param.id)>1) param.id else 1:param.id,]
-
 
 
 
@@ -62,6 +70,9 @@ convergencePlotsMplus <- function(x, is.file=F, pdffile = "", gg=T, param.id=NUL
   )
 
 
+  #subsetting
+  if(!is.null(param.id)) parnames <-  parnames[if(length(param.id)>1) param.id else 1:param.id,]
+
 
   dimnames(params)<-list(NULL, 1:niterations, NULL)
   if(!is.null(niter)) params = params[,sort(sample(1:niterations, niter)),]
@@ -77,13 +88,16 @@ convergencePlotsMplus <- function(x, is.file=F, pdffile = "", gg=T, param.id=NUL
   # dir.create(t.dir)
   # if(!raster) pdf(file=pdffile) else png(file = paste0(t.dir, "/Rplot%03d.png"), res=72)
 
+  pdf(file=pdffile)
   totaltime=0
 
   if(gg) {
     require(ggplot2); require(gridExtra, quietly = T)
+    cntr=0; pb = txtProgressBar(0, length(parnames$id), style = 3)
 
     for(i in parnames$id) {
       begin.time = Sys.time()
+
 
 
       gridExtra::grid.arrange(
@@ -103,14 +117,19 @@ convergencePlotsMplus <- function(x, is.file=F, pdffile = "", gg=T, param.id=NUL
           facet_wrap(~chain),
         nrow=2,ncol=1)
 
+      cntr=1+cntr; setTxtProgressBar(pb, cntr)
+
       timetaken = Sys.time()-begin.time
       totaltime = timetaken + totaltime
-      print(paste0("Plotting ", i, " out of ",length(parnames$id), ". It took ", round(timetaken,1)," ",
-                   attr(timetaken, "units")))
+      # print(paste0("Plotting ", i, " out of ",length(parnames$id), ". It took ", round(timetaken,1)," ",
+      #              attr(timetaken, "units")))
 
     }
+    close(pb)
 
   } else { # base R graphics option
+
+    cntr=0; pb = txtProgressBar(0, length(parnames$id), style = 3)
 
     for(i in parnames$id) {
       begin.time = Sys.time()
@@ -143,38 +162,42 @@ convergencePlotsMplus <- function(x, is.file=F, pdffile = "", gg=T, param.id=NUL
              xlab = "lag", ylab = "autocorrelation")
         abline(h=.1, col="black", lty = "dashed")
       }
+
+      cntr=1+cntr; setTxtProgressBar(pb, cntr)
+
       timetaken = Sys.time()-begin.time
       totaltime = timetaken + totaltime
-      print(paste0("Plotting ", i, " out of ",length(parnames$id),
-                   ". It took ", round(timetaken,1)," ",
-                   attr(timetaken, "units")))
+      # print(paste0("Plotting ", i, " out of ",length(parnames$id),
+      #              ". It took ", round(timetaken,1)," ",
+      #              attr(timetaken, "units")))
 
     }
+    close(pb)
   }
 
 
+dev.off()
 
-  print(paste("Total time taken:", round(totaltime,1), attr(totaltime, "units")))
-  dev.off()
+  message(paste("Total time taken:", round(totaltime,1), attr(totaltime, "units")))
+
 
 
   #disfunctional piece
-  if(raster) {
-    print("Compiling pdf...")
-    png.files = paste0(t.dir, "/",list.files(t.dir))
-
-    pdf(pdffile)
-
-    for(f in png.files) {
-      grid::grid.raster(png::readPNG(f, native = FALSE), interpolate = F)
-    }
-    dev.off()
-    rm(f)
-  }
-
+  # if(raster) {
+  #   print("Compiling pdf...")
+  #   png.files = paste0(t.dir, "/",list.files(t.dir))
+  #
+  #   pdf(pdffile)
+  #
+  #   for(f in png.files) {
+  #     grid::grid.raster(png::readPNG(f, native = FALSE), interpolate = F)
+  #   }
+  #   dev.off()
+  #   rm(f)
+  # }
 
   if(file.exists(pdffile)) {
-    message(paste("The file", pdffile,  "has been saved."))
+    message(paste("The file '", pdffile,  "' has been saved to working directory."))
   } else {
     warning("Something went wrong.")
   }
@@ -182,10 +205,23 @@ convergencePlotsMplus <- function(x, is.file=F, pdffile = "", gg=T, param.id=NUL
 }
 
 #' Various versions of PSR
-#' @param parameters Array typically taken from plus-produced gh5 file in gh5$bayesian_data$parameters_autocorr   or from any other, where first dimension is parameters, second dimension is iterations, and third dimension is chains
+#' @param parameters A 3-dimensional array (typically taken from Mplus-produced gh5 file in gh5$bayesian_data$parameters_autocorr$parameters or from any other), where first dimension is parameters, second dimension is iterations, and third dimension is chains
 #' @param id.parameter Integer id of parameter
 #' @param iterations.range Range of iterations to use. All available are used by default (NULL).
 #'
+#' @details Returns a vector of different versions of PSR:
+#' \itemize{
+#'     \item  "Rstan" the most up-to-date, provided by the  \code{\link[Rstan]{Rhat}} function (Vehtari et al., 2019).
+#'     \item  "Gelman" (Gelman et al. (2004)).
+#'     \item  "Mplus" (Asparouhov and  Muthen, 2010),
+#'     \item  "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.
+#'}
+#' @examples
+#'
+#' \dontrun{
+#' m <- MplusAutomation::readModels("mybayes.out")
+#' eachParamPSRMplus(a$gh5$bayesian_data$parameters_autocorr$parameters, 1)
+#' }
 #'
 #' @export
 eachParamPSRMplus <- function(parameters, id.parameter, iterations.range=NULL) {
@@ -194,6 +230,8 @@ eachParamPSRMplus <- function(parameters, id.parameter, iterations.range=NULL) {
   niterations.total = dim(parameters)[[2]]
   n = niterations.total/2 #burnin removed, niterations
   if(is.null(iterations.range)) iterations.range=n:niterations.total
+
+  # Bahavior in case there's a single chain (fold it and pretent there are two)
   if(m==1) {
     folded.range1 =  iterations.range[1]:(iterations.range[1]+round(length(iterations.range)/2))
     folded.range2 = (iterations.range[1]+round(length(iterations.range)/2)):iterations.range[length(iterations.range)]
@@ -201,10 +239,14 @@ eachParamPSRMplus <- function(parameters, id.parameter, iterations.range=NULL) {
     theta_ij = cbind(parameters[id.parameter, folded.range1, 1],
                      parameters[id.parameter, folded.range2, 1])
     m=2
+
   } else {
 
     theta_ij = parameters[id.parameter, iterations.range, ]
   }
+
+  # Mplus PSR
+
   theta.j = colMeans(theta_ij)
   theta.. = mean(theta.j)
   B = sum( (theta.j - theta..)^2)/(m-1)  # or var(theta.j)
@@ -229,9 +271,9 @@ eachParamPSRMplus <- function(parameters, id.parameter, iterations.range=NULL) {
   within.var =  mean(apply(theta_ij, 2, var))
   Naive = sqrt((within.var + between.var)/within.var)
 
-  # rstan PSR
+  # Rstan PSR
 
   Rstan = rstan::Rhat(theta_ij)
 
-  return(c(Mplus=Mplus, Gelman=Gelman, Naive=Naive, Rstan = Rstan))
+  return(c(Mplus=Mplus, Gelman=Gelman, Rstan = Rstan, Naive=Naive))
 }
