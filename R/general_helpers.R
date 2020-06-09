@@ -138,3 +138,58 @@ na_tab <- function(data, viewer = T) {
 
 
 
+#' Easy cross-tabulation with labels
+#' @param rows Character, variable name to put in rows
+#' @param cols Character, variable name to put in columns
+#' @param data Data.frame containing variables
+#' @param margin If any proportions should be computed, might be `row`, `col`, or `none`.
+#' @param useNA How to deal with NAs, passed to `table`.
+#' @param drop.empty Remove empty categories?
+#' @examples
+#'\dontrun{
+#'    crosstab("country", "frequency", wvs6, "row")
+#' }
+#'
+
+#'
+#' @export
+crosstab <- function(rows, cols, data, margin="row", useNA="always", drop.empty = T) {
+
+  row = lab_to_fac(data[,rows])
+  col = lab_to_fac(data[,cols])
+
+  if(drop.empty) {
+    if(is.factor(row)) row <- droplevels(row)
+    if(is.factor(col)) col <- droplevels(col)
+  }
+
+
+  tb <- table(row,col, useNA=useNA)
+
+  if(margin=="col") {
+    tb <- prop.table(tb, 2)
+  } else if (margin == "row") {
+    tb <- prop.table(tb, 1)
+  }
+
+  rownames(tb)[is.na(rownames(tb))]<-".NA"
+
+
+  if("tbl_df" %in% class(data)) {
+    title = paste("[", rows, "]",  attr(lab_to_fac(data[,rows]), "header"), " BY ",
+                  "[", cols, "]", attr(lab_to_fac(data[,cols]), "header"), sep="")
+
+  } else {
+    title = paste("[", rows, "]",  "[", cols, "]")
+  }
+
+  print(title)
+  print(tb)
+
+    df_to_viewer(
+      as.data.frame.matrix(tb),
+       digits=2,
+       title=title)
+
+
+}

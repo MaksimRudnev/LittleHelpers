@@ -11,17 +11,21 @@
 #' @aliases to_viewer
 #' @export
 
-df_to_viewer <- function(df, rownames = TRUE, summ=F, kable = FALSE, ...) {
+df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, html = FALSE, ...) {
   if(!kable) {
       library(stargazer, quietly=T)
       tempDir <- tempfile()
       dir.create(tempDir)
       htmlFile <- file.path(tempDir, "index.html")
-      a<-capture.output(stargazer(df, summary = summ,
+
+      if(!html) {
+      a<-capture.output(stargazer(x, summary = summ,
                                              #out=htmlFile,
                                              type="html",
                                              rownames = rownames, style="ajs", ...))
-
+      } else {
+        a = x
+      }
       cat("<head>
       <meta charset='UTF-8'>
           </head>", file=htmlFile)
@@ -31,6 +35,6 @@ df_to_viewer <- function(df, rownames = TRUE, summ=F, kable = FALSE, ...) {
       viewer(htmlFile)
       #rm(this,b,viewer)
   } else {
-    knitr::kable(df, format  = "html") %>% kableExtra::kable_styling(...)
+    knitr::kable(x, format  = "html") %>% kableExtra::kable_styling(...)
   }
 }

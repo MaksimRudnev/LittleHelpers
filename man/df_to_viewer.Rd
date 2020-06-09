@@ -5,11 +5,9 @@
 \alias{to_viewer}
 \title{Shows data.frame in RStudio viewer}
 \usage{
-df_to_viewer(df, rownames = TRUE, summ = F, kable = FALSE, ...)
+df_to_viewer(x, rownames = TRUE, summ = F, kable = FALSE, html = FALSE, ...)
 }
 \arguments{
-\item{df}{data.frame to show. Also works with a list of fitted lm() models.}
-
 \item{rownames}{Logical, if rownames should be shown.}
 
 \item{summ}{Passed to `summary` argument of stargazer.}
@@ -17,6 +15,8 @@ df_to_viewer(df, rownames = TRUE, summ = F, kable = FALSE, ...)
 \item{kable}{logical, if data.frame should be passed to kable. If true, ... will be passed to function kableExtra::kable_styling}
 
 \item{...}{Other arguments passed to stargazer.}
+
+\item{df}{data.frame to show. Also works with a list of fitted lm() models.}
 }
 \description{
 via stargazer
