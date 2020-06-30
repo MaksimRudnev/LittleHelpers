@@ -4,7 +4,9 @@
 \name{values}
 \alias{values}
 \title{List of Schwartz values}
-\format{An object of class \code{list} of length 9.}
+\format{
+An object of class \code{list} of length 9.
+}
 \usage{
 values
 }
