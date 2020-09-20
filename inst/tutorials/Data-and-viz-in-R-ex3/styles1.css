@@ -1,0 +1,191 @@
+html {
+  font-size: 14px;
+  font-family: tahoma;
+}
+
+
+body {
+  background: #fff;
+  margin: 6em 0; 
+  
+}
+
+#header {
+   background: #fff;
+   /*margin-bottom: 500px;*/
+   display: block;
+   border: 1px solid #000;
+   padding: 50px;
+   border-radius: 10px;
+   text-align: center;
+   
+}
+
+/* section, .top, .container {
+  display: flex;
+} 
+
+section {
+  height: 100vw;
+  justify-content: center;
+  align-items: center;
+}*/
+
+#header:before {
+  content: url("images/hse_en_logo.svg");
+}
+
+#header:after {
+ content: url("images/20070530_1.jpg");
+}
+
+#header.fluid-row.website:before {
+  content: none;
+}
+
+#header.fluid-row.website:after {
+   content: url("images/znak.png");
+}
+
+#header.fluid-row.website h1 {
+  font-size: 20px;
+  font-weight: bold;
+  padding: 5px;
+  display: block;
+}
+
+#header.fluid-row.website h4 {
+  font-size:14px;
+  padding: 5px;
+  
+}
+
+#header.fluid-row.website {
+  border:0;
+  text-align: left;
+  padding: 0;
+}
+
+.openNavbar {
+  display: none;
+}
+
+.inactive {
+  color:#ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
+  font-style: italic;
+  padding-left: 0.5;
+}
+ 
+#TOC {
+   font-size: 12px;
+ }
+
+
+h1 {
+    font-family: verdana;
+    color: #1b0a48;
+    
+  }
+  
+.section.level1 {
+   /*background: #f5f5f5; */
+   display: block;
+   /*border: 1px solid #f5f5f5; */
+   padding: 10px 10px 10px 10px;
+   border-radius: 5px;
+   font-size: 20px;
+   color: #000;
+   
+ }
+ 
+ .section.level1 h1 {
+  margin-top: 20px;
+}  
+
+ .section.level1.website h1 {
+  margin: 0;
+  font-size: 18px;
+}  
+
+ 
+pre {
+  font-family: "Courier", "Courier New", "Andale Mono", "Monaco";
+  font-size: 16px;
+  background: #fff;
+}
+
+  .section.level2, .section.level1 {
+   padding: 0 1px 1px 1px;
+   border-radius: 5px;
+   display: block;
+   margin-top: 500px;  
+  }
+ 
+ 
+.section.level2.website, .section.level1.website {
+     display: inline;
+     font-size: 14px;
+     padding: 1px;
+     background: #fff;
+     border: 0;
+ } 
+
+.website pre  {
+  font-size: 12px;
+  font-family: "Courier", "Courier New", "Andale Mono";
+}
+ 
+.section.level2.website h2 {
+     display: block;
+     font-size: 16px;
+ } 
+ 
+
+ 
+ /* Tabsets */ 
+ 
+ .nav {
+   font-size: 14px;
+ } 
+ 
+ .caption {
+   font-size: 12px;
+   color: #ccc;
+   text-align: right;
+ }
+ 
+/* Input R code */
+.r { background: #FFEFDB; } 
+ 
+ .alert {
+   /*display: block; */
+   background: #ff9f9f;
+ }
+
+ .green{
+   /*display: block;*/
+   background: #dffadb;
+ }
+ 
+.greenblock{
+   display: block;
+   background: #dffadb;
+ }
+
+ 
+
+.tocify-header.list-group {
+  font-weight: bold;
+}
+
+.tocify-subheader.list-group {
+  font-weight: normal;
+}
+
+del {
+  color: red;
+  text-decoration: none;
+}
+

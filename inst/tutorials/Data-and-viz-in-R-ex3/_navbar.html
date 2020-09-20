@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script async="" defer="" src="https://buttons.github.io/buttons.js"></script> -->
+    <script src="https://www.w3schools.com/lib/w3.js"></script>
+<!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
+
+<script>
+w3.show('.navbar');
+w3.hide('.openNavbar');
+</script>
+ 
+<a onclick="w3.show('.navbar'); 
+            w3.hide('.openNavbar'); ">
+  <div class="openNavbar  navbar-fixed-top navbar-inverse" role="navigation">
+    <span class="fa fa-angle-double-down" aria-hidden="true"
+          style="color:#ccc;
+                display: block; 
+                text-align: center;
+                padding: 2px;">
+    </span>
+  </div>
+</a>
+
+<div class="navbar navbar-default  navbar-fixed-top navbar-inverse" 
+     role="navigation">
+<!--       style="display: none;"-->
+
+  <div class="container">
+    <div class="navbar-header">
+      <!-- NOTE: add "navbar-inverse" class for an alternate navbar background -->
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">
+        <img alt="HSE" src="images/znak.png">
+      </a>
+      <a class="navbar-brand" href="#">Анализ и визуализация данных в R</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="index.html"><span class="fa fa-sun-o"></span> Обзор курса</a></li>
+ 
+         
+          
+          <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    <span class="fa fa-bullhorn" aria-hidden="true"></span>
+     
+    Лекции
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+          <a href="Lecture1.html">1. Введение в R</a>
+    </li>
+<!--     <li role="separator" class="divider"></li> -->
+    <li>
+       <a href="Lecture2.html">2. Регрессии, атрибуты объектов, пропущенные значения</a> 
+       <!--  <span class="inactive">2. Регрессии, атрибуты объектов, пропущенные значения</span>  -->
+    </li>
+
+    <li>
+      <a href="Lecture3.html">3. Структурное моделирование: введение</a>  
+      <!--  <p class="inactive">3. Структурное моделирование: введение </p>-->
+    </li>
+    <li>
+      <!--  <a href="Lecture4.html">4. Структурное моделирование: КФА </a>   -->
+        <p class="inactive">4. Структурное моделирование: КФА </p>
+    </li>
+        <li>
+      <!--  <a href="Lecture5.html">5. Визуализация и коммуникация результатов </a>  --> 
+       <p class="inactive">5. Визуализация и коммуникация результатов</p> 
+    </li>
+    
+  </ul>
+</li>
+
+  <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+   <span class="fa fa-code" aria-hidden="true"></span>
+     
+     Практика
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+       <a href="ex1.html">1. Чтение и чистка данных</a>
+       <!--<span class="inactive">1. Чтение, чистка данных и описательная статистика</span>-->
+    </li>
+
+    <li>
+       <a href="ex2.html">2. Описательная статистика, регрессионный анализ</a> 
+       <!--   <span class="inactive">2. Регрессионный анализ</span> -->
+    </li>
+
+    <li>
+       <!--    <a href="ex3.html">3. Путевые модели, lavaan</a> -->  
+      <span class="inactive">3. Путевые модели, lavaan </span> 
+    </li>
+        <li>
+           <!--  <a href="ex4.html">4. Конфирматорный факторный анализ и структурные модели </a>  -->
+           <span class="inactive">4. Конфирматорный факторный анализ</span> 
+    </li>
+    
+      <li>
+         <!-- <a href="ex5.html">5. Графики, ggplot2  и отчеты</a>   -->
+         <span class="inactive">5. Графики, ggplot2  и отчеты</span> 
+      </li>
+      
+    <li>
+        <!--  <a href="ex6.html">6. Дэшборды </a> -->
+       <span class="inactive">6. Дэшборды </span> 
+    </li>
+    
+  </ul>
+</li>
+
+
+<li><a href="dz.html"><span class="fa fa-hand-o-right"></span> Домашние задания</a></li> 
+
+      </ul>
+      
+      
+      
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+        <a 
+        onclick=" w3.toggleClass('.section.level2','website');
+                  w3.toggleClass('.section.level1','website');
+                  w3.toggleClass('pre','pre.website');
+                  w3.toggleClass('#header','website');
+                  w3.toggleShow('#pres');
+                  w3.toggleShow('#webs')">
+<span style="display: none;" id="pres" class="fa fa-television"  aria-hidden="true"></span>
+<span style="display: block;" id="webs" class="fa fa-file-text"   aria-hidden="true"></span>
+      </a>
+    </li>
+
+
+
+  
+  <li><a 
+        onclick="w3.hide('.navbar'); 
+        w3.show('.openNavbar'); ">
+  
+  <span style="display: block;" class="fa fa-angle-double-up" aria-hidden="true"></span></a>
+  
+  </li>
+  
+<!--   <li><a class="viewButton"
+        onclick="w3.hide('.navbar')">
+  
+  <span class="fa fa-times-circle" aria-hidden="true"style="color:red"></span></a>
+  
+  </li>-->
+  
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+
+
