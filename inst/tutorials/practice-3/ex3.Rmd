@@ -36,7 +36,7 @@ library("haven")
 library("semPlot")
 library("DiagrammeR")
 
-ess7 <- read_sav("www/ESS7e02_1.sav")
+ess7 <- read_sav("www/ESS7e02_1.sav.zip")
 Austria <- ess7[ess7$cntry == "AT",]
 
 Austria$impfree <- LittleHelpers::reverse(Austria$impfree)
