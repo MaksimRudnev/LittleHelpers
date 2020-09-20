@@ -456,28 +456,41 @@ lavTestLRT(path1, path2, path3)
 DiagrammeR::grViz(diagram = '
    digraph world {
    size="7,7";
+ 
    rankdir=LR;
    node [shape = box];
-   edge [color=invis];
-   	{rank=min; 
-   	  agea[label="возраст"]
-   	  gndr [label="гендер"]
-   	  eduyrs [label="образование"]
-   	}
-      
-         impfun[label="гедонизм"]
-         sclmeet[label="встречи с друзьями"];
-         
-    	
-         alcohol[label="Кол-во упоребляемого \nалкоголя"]
    
-         eduyrs -> alcohol
-         gndr-> alcohol
-         agea-> alcohol
-         impfun-> alcohol
-         sclmeet-> alcohol
+   subgraph cluster_1 {
+ label = "B"
+   	  edu [label=education]
+   	  edu_f [label=edu_father]
+   	  edu_m[label=edu_mother]
+   	  value_f[label=value_freedom]
 
-      }
+edu_m -> value_f
+edu_f -> edu
+edu_m -> edu
+edu -> value_f
+
+}
+   
+subgraph cluster_0 {
+ label = "A"
+   	  education
+   	  edu_father 
+   	  edu_mother
+   	  value_freedom
+
+edu_father -> value_freedom
+edu_father -> education
+edu_mother -> education
+education -> value_freedom
+
+}
+
+
+
+   }
 ')
 
 

@@ -357,8 +357,8 @@ semPaths(path1,
 
 lav_to_graph(path1)
 </code></pre>
-<div id="htmlwidget-67274c16eb66e5acd6bd" style="width:624px;height:384px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-67274c16eb66e5acd6bd">{"x":{"diagram":"digraph lav_to_graph {\n node [shape=rect];\n rankdir=LR;\n layout=dot;\n forcelabels=true;\n// Regressions and intercepts \nimpfree [label= \"impfree\" ];\neduyrs [label= \"eduyrs\" ];\neduyrs -> impfree [style=bold label=\"0.03*\"];\nResid_impfree  [shape = circle style = filled color=lightgrey fontsize=10 width=0.2, label = \"&epsilon;\"];\nResid_impfree -> impfree [color=grey];\neiscedf [label= \"eiscedf\" ];\neiscedf -> eduyrs [style=bold label=\"0.36*\"];\nResid_eduyrs  [shape = circle style = filled color=lightgrey fontsize=10 width=0.2, label = \"&epsilon;\"];\nResid_eduyrs -> eduyrs [color=grey];\neiscedm [label= \"eiscedm\" ];\neiscedm -> eduyrs [style=bold label=\"0.26*\"];\nimpfree[xlabel=\"&sigma;&sup2;&#61;0.92*\"];\n eduyrs[xlabel=\"&sigma;&sup2;&#61;9.19*\"];\n eiscedf[xlabel=\"&sigma;&sup2;&#61;5.46\"];\n eiscedf -> eiscedm [ dir = \"both\" splines=curved constraint=false label=\" 1.55 \" fontsize = 10 ];\neiscedm[xlabel=\"&sigma;&sup2;&#61;8.28\"];\n \n\n// Add covariances of all exog variables\n\n\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-79f9bbf291e0596dde34" style="width:624px;height:384px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-79f9bbf291e0596dde34">{"x":{"diagram":"digraph lav_to_graph {\n node [shape=rect];\n rankdir=LR;\n layout=dot;\n forcelabels=true;\n// Regressions and intercepts \nimpfree [label= \"impfree\" ];\neduyrs [label= \"eduyrs\" ];\neduyrs -> impfree [style=bold label=\"0.03*\"];\nResid_impfree  [shape = circle style = filled color=lightgrey fontsize=10 width=0.2, label = \"&epsilon;\"];\nResid_impfree -> impfree [color=grey];\neiscedf [label= \"eiscedf\" ];\neiscedf -> eduyrs [style=bold label=\"0.36*\"];\nResid_eduyrs  [shape = circle style = filled color=lightgrey fontsize=10 width=0.2, label = \"&epsilon;\"];\nResid_eduyrs -> eduyrs [color=grey];\neiscedm [label= \"eiscedm\" ];\neiscedm -> eduyrs [style=bold label=\"0.26*\"];\nimpfree[xlabel=\"&sigma;&sup2;&#61;0.92*\"];\n eduyrs[xlabel=\"&sigma;&sup2;&#61;9.19*\"];\n eiscedf[xlabel=\"&sigma;&sup2;&#61;5.46\"];\n eiscedf -> eiscedm [ dir = \"both\" splines=curved constraint=false label=\" 1.55 \" fontsize = 10 ];\neiscedm[xlabel=\"&sigma;&sup2;&#61;8.28\"];\n \n\n// Add covariances of all exog variables\n\n\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="section-изучим-статистики-согласия." class="section level3">
 <h3>Изучим статистики согласия.</h3>
@@ -609,8 +609,8 @@ path3 &lt;- sem(&#39;
 </div>
 <div id="section-являются-ли-эти-две-модели-вложенными" class="section level3">
 <h3>Являются ли эти две модели вложенными?</h3>
-<div id="htmlwidget-c0da0788f98d04294963" style="width:624px;height:384px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-c0da0788f98d04294963">{"x":{"diagram":"\n   digraph world {\n   size=\"7,7\";\n   rankdir=LR;\n   node [shape = box];\n   edge [color=invis];\n   \t{rank=min; \n   \t  agea[label=\"возраст\"]\n   \t  gndr [label=\"гендер\"]\n   \t  eduyrs [label=\"образование\"]\n   \t}\n      \n         impfun[label=\"гедонизм\"]\n         sclmeet[label=\"встречи с друзьями\"];\n         \n    \t\n         alcohol[label=\"Кол-во упоребляемого \nалкоголя\"]\n   \n         eduyrs -> alcohol\n         gndr-> alcohol\n         agea-> alcohol\n         impfun-> alcohol\n         sclmeet-> alcohol\n\n      }\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-4ff939aedb5b4a01066e" style="width:624px;height:384px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4ff939aedb5b4a01066e">{"x":{"diagram":"\n   digraph world {\n   size=\"7,7\";\n \n   rankdir=LR;\n   node [shape = box];\n   \n   subgraph cluster_1 {\n label = \"B\"\n   \t  edu [label=education]\n   \t  edu_f [label=edu_father]\n   \t  edu_m[label=edu_mother]\n   \t  value_f[label=value_freedom]\n\nedu_m -> value_f\nedu_f -> edu\nedu_m -> edu\nedu -> value_f\n\n}\n   \nsubgraph cluster_0 {\n label = \"A\"\n   \t  education\n   \t  edu_father \n   \t  edu_mother\n   \t  value_freedom\n\nedu_father -> value_freedom\nedu_father -> education\nedu_mother -> education\neducation -> value_freedom\n\n}\n\n\n\n   }\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="section-возможны-ли-эквавивалентные-модели" class="section level3">
 <h3>Возможны ли эквавивалентные модели?</h3>
@@ -751,8 +751,8 @@ path3 &lt;- sem(&#39;
 <li>Это модель полной или частичной медиации?</li>
 <li>Все ли гипотезы проходят четыре условия каузальности?</li>
 </ul>
-<div id="htmlwidget-68d5c121de10b5f700bf" style="width:624px;height:384px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-68d5c121de10b5f700bf">{"x":{"diagram":"\n   digraph world {\n   size=\"7,7\";\n   rankdir=LR;\n   node [shape = box];\n   edge [color=invis];\n   \t{rank=min; \n   \t  agea[label=\"возраст\"]\n   \t  gndr [label=\"гендер\"]\n   \t  eduyrs [label=\"образование\"]\n   \t}\n      \n         impfun[label=\"гедонизм\"]\n         sclmeet[label=\"встречи с друзьями\"];\n         \n    \t\n         alcohol[label=\"Кол-во упоребляемого \nалкоголя\"]\n   \n         eduyrs -> alcohol\n         gndr-> alcohol\n         agea-> alcohol\n         impfun-> alcohol\n         sclmeet-> alcohol\n\n      }\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-266a560c5322d27a23b8" style="width:624px;height:384px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-266a560c5322d27a23b8">{"x":{"diagram":"\n   digraph world {\n   size=\"7,7\";\n   rankdir=LR;\n   node [shape = box];\n   edge [color=invis];\n   \t{rank=min; \n   \t  agea[label=\"возраст\"]\n   \t  gndr [label=\"гендер\"]\n   \t  eduyrs [label=\"образование\"]\n   \t}\n      \n         impfun[label=\"гедонизм\"]\n         sclmeet[label=\"встречи с друзьями\"];\n         \n    \t\n         alcohol[label=\"Кол-во упоребляемого \nалкоголя\"]\n   \n         eduyrs -> alcohol\n         gndr-> alcohol\n         agea-> alcohol\n         impfun-> alcohol\n         sclmeet-> alcohol\n\n      }\n","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="section-модификационные-индексы" class="section level3">
 <h3>Модификационные индексы</h3>
@@ -1442,13 +1442,13 @@ learnr:::store_exercise_cache("alcohol1", list(setup = NULL, chunks = list(list(
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "letter-a", question = structure("Подтвердилась ли Гипотеза 1?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_2a6757c", 
+"character")), answers = list(structure(list(id = "lnr_ans_ff79389", 
     option = "да", value = "да", label = structure("да", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = NULL), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_2027369", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_89f9028", 
     option = "нет", value = "нет", label = structure("нет", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = NULL), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_e14cbc2", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_2bb35b", 
     option = "частично", value = "частично", 
     label = structure("частично", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = NULL), class = c("tutorial_question_answer", 
@@ -1460,7 +1460,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "letter-a-answer", question = "letter-a"), loading = structure("<strong>Loading:<\u002fstrong> \nПодтвердилась ли Гипотеза 1?\n<br/><br/><br/>", html = TRUE, class = c("html", 
 "character")), random_answer_order = FALSE, allow_retry = FALSE, 
-    seed = 1359704377.86684, options = list()), class = c("learnr_radio", 
+    seed = 100221492.953331, options = list()), class = c("learnr_radio", 
 "tutorial_question")))
 </script>
  
@@ -1502,13 +1502,13 @@ learnr:::store_exercise_cache("alcohol2", list(setup = NULL, chunks = list(list(
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "letter-b", question = structure("Подтвердилась ли Гипотеза 2?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_76ebbb0", 
+"character")), answers = list(structure(list(id = "lnr_ans_4691065", 
     option = "да", value = "да", label = structure("да", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = NULL), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_db66f0b", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_1ee0f7b", 
     option = "нет", value = "нет", label = structure("нет", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = NULL), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_c2e52e2", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_7759372", 
     option = "частично", value = "частично", 
     label = structure("частично", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = NULL), class = c("tutorial_question_answer", 
@@ -1520,7 +1520,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "letter-b-answer", question = "letter-b"), loading = structure("<strong>Loading:<\u002fstrong> \nПодтвердилась ли Гипотеза 2?\n<br/><br/><br/>", html = TRUE, class = c("html", 
 "character")), random_answer_order = FALSE, allow_retry = FALSE, 
-    seed = 1633044231.73955, options = list()), class = c("learnr_radio", 
+    seed = 1136054549.97098, options = list()), class = c("learnr_radio", 
 "tutorial_question")))
 </script>
  
@@ -1562,13 +1562,13 @@ learnr:::store_exercise_cache("alcohol3", list(setup = NULL, chunks = list(list(
  
 <script type="application/shiny-prerendered" data-context="server">
 learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label = "letter-c", question = structure("Подтвердилась ли Гипотеза 3?", html = TRUE, class = c("html", 
-"character")), answers = list(structure(list(id = "lnr_ans_a6d691f", 
+"character")), answers = list(structure(list(id = "lnr_ans_6de082", 
     option = "да", value = "да", label = structure("да", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = NULL), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_74bdb66", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_f334f57", 
     option = "нет", value = "нет", label = structure("нет", html = TRUE, class = c("html", 
     "character")), correct = TRUE, message = NULL), class = c("tutorial_question_answer", 
-"tutorial_quiz_answer")), structure(list(id = "lnr_ans_50c089d", 
+"tutorial_quiz_answer")), structure(list(id = "lnr_ans_874f269", 
     option = "частично", value = "частично", 
     label = structure("частично", html = TRUE, class = c("html", 
     "character")), correct = FALSE, message = NULL), class = c("tutorial_question_answer", 
@@ -1580,7 +1580,7 @@ learnr:::question_prerendered_chunk(structure(list(type = "learnr_radio", label 
 "character")), message = NULL, post_message = NULL), ids = list(
     answer = "letter-c-answer", question = "letter-c"), loading = structure("<strong>Loading:<\u002fstrong> \nПодтвердилась ли Гипотеза 3?\n<br/><br/><br/>", html = TRUE, class = c("html", 
 "character")), random_answer_order = FALSE, allow_retry = FALSE, 
-    seed = 1483551320.80917, options = list()), class = c("learnr_radio", 
+    seed = 1610406066.7501, options = list()), class = c("learnr_radio", 
 "tutorial_question")))
 </script>
  
