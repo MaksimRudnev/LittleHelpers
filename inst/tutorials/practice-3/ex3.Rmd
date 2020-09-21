@@ -17,6 +17,7 @@ output:
     df_print: paged
     #code_folding: show
     progressive: true
+    allow_skip: true
     theme: "flatly"
     inline_exec: true
     #include:

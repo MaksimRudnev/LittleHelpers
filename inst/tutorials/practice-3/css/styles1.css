@@ -67,7 +67,7 @@ section {
 }
 
 .openNavbar {
-  display: block;
+  display: none;
 }
 
 .inactive {
@@ -150,10 +150,6 @@ pre {
    font-size: 14px;
  } 
  
- .navbar {
-     display: none;
- }
- 
  .caption {
    font-size: 12px;
    color: #ccc;
@@ -161,7 +157,7 @@ pre {
  }
  
 /* Input R code */
-.r { background: #FFEFDB; }
+.r { background: #FFEFDB; } 
  
  .alert {
    /*display: block; */

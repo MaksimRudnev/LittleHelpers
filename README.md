@@ -5,7 +5,7 @@
 Continuously updated collection of little helpers (tm) that facilitates my life in analyzing data (mostly comparative datasets) with R.
 
 
-Use `devtools::install_github("maksimrudnev/LittleHelpers")` to install.
+Use `remotes::install_github("maksimrudnev/LittleHelpers")` to install.
 
 # Overview
 
