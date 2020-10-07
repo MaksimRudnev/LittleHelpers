@@ -151,7 +151,7 @@ schwartz_circle <- function() {
           "Openness to Change",
           "Self-Enhancement",
           "Conservation")
-  v2_1 <- c("Person Focus", "Social Focus")
+  v2_1 <- c("Social Focus", "Person Focus")
   v2_2 <- c("Growth", "Self-Protection")
 
 
