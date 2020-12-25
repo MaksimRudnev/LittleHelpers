@@ -23,7 +23,17 @@
 #' }
 #'
 #' @export
-convergencePlotsMplus <- function(x, is.file=F, pdffile = NULL, gg=T, param.id=NULL, raster=F, niter=NULL, PSR=TRUE, PSR.version="Rstan") {
+convergencePlotsMplus <- function(x,
+                                  is.file=F,
+                                  pdffile = NULL,
+                                  gg=T,
+                                  param.id=NULL,
+                                  raster=F,
+                                  niter=NULL,
+                                  chains = NULL,
+                                  PSR=TRUE,
+                                  PSR.version="Rstan",
+                                  ESS = T) {
 
   require(reshape2)
 
@@ -49,36 +59,58 @@ convergencePlotsMplus <- function(x, is.file=F, pdffile = NULL, gg=T, param.id=N
   niterations = dim(params)[[2]]
   nchains     = dim(params)[[3]]
 
+  # use all chains if 'chains' is null
+  if(is.null(chains)) chains <- 1:nchains
+
   #clean parnames
   parnames <- gsub("\\s\\s*", " ", parnames)
   parnames <- data.frame(id= 1:length(parnames), parnames)
 
 
 
+  #subsetting
+  if(!is.null(param.id))
+    if(length(param.id)>1)
+      param.ids = param.id else param.ids = 1:param.id
 
-  headers = sapply(parnames$id, function(i)
+  parnames <-  parnames[param.ids,]
+
+
+  headers = sapply(parnames$id, function(i) {
+    PSR_ESS = eachParamPSRMplus(params, i)
     paste(parnames[parnames$id==i, 2], "\n",
           ifelse(PSR,paste("PSR=",
-                           round(
-                             eachParamPSRMplus(params, i)[[PSR.version]],
-                             3)),
+                           round(PSR_ESS[[PSR.version]],3)),
+                 ""),
+          ifelse(ESS,paste("ESS_bulk=",
+                           round(PSR_ESS[["ESS_bulk"]], 3)),
+
+                 ""),
+          ifelse(ESS,paste("ESS_tail=",
+                           round(PSR_ESS[["ESS_tail"]], 3)),
                  ""),
           "Est=", paste0(round(median(params[i,  (niterations/2):niterations, ]),3),
                          "(",round(sd(params[i,  (niterations/2):niterations, ]),3), ")"
           )
     )
-  )
+  })
+
+  names(headers)<-parnames$id
 
 
-  #subsetting
-  if(!is.null(param.id)) parnames <-  parnames[if(length(param.id)>1) param.id else 1:param.id,]
+ # dimnames(params)<-list(NULL, 1:niterations, NULL)
+ # if(!is.null(niter)) params = params[,sort(sample(1:niterations, niter)),]
+  if(!is.null(niter))
+    iterations = sort(sample(1:niterations, niter)) else iterations = 1:niterations
 
+  params <- params[param.ids,iterations,chains]
+  dimnames(params)<-list(param.ids,NULL,chains)
 
-  dimnames(params)<-list(NULL, 1:niterations, NULL)
-  if(!is.null(niter)) params = params[,sort(sample(1:niterations, niter)),]
   a=reshape2::melt(params)
   colnames(a) <- c("parameter", "iteration", "chain", "value")
 
+  autocor <- autocor[,param.ids,chains]
+  dimnames(autocor) <- list(NULL,param.ids,chains)
   b = reshape2::melt(autocor)
   colnames(b) <- c("lag", "parameter", "chain", "autocorrelation")
 
@@ -95,20 +127,24 @@ convergencePlotsMplus <- function(x, is.file=F, pdffile = NULL, gg=T, param.id=N
     require(ggplot2); require(gridExtra, quietly = T)
     cntr=0; pb = txtProgressBar(0, length(parnames$id), style = 3)
 
-    for(i in parnames$id) {
+    for(i in as.character(parnames$id) ) {
       begin.time = Sys.time()
 
 
 
       gridExtra::grid.arrange(
-        ggplot(a[a$parameter==i,], aes(iteration, value, color = as.factor(chain) ))+
+        ggplot(a[a$parameter==i #& a$chain %in% chains
+                 ,],
+               aes(iteration, value, color = as.factor(chain) ))+
           geom_line(alpha=.5)+
-          geom_vline(xintercept = niterations/2, col = "black", linetype = "dashed")+
+          geom_vline(xintercept = length(iterations)/2, col = "black", linetype = "dashed")+
           scale_color_brewer(palette=2, type = "qual")+
           labs(col="Chain", title=headers[i])+
           theme_minimal(),
 
-        ggplot(b[b$parameter==i,], aes(lag, autocorrelation, fill = as.factor(chain) ))+
+        ggplot(b[b$parameter==i  # & b$chain %in% chains
+                 ,],
+               aes(lag, autocorrelation, fill = as.factor(chain) ))+
           geom_col(alpha=.8)+
           scale_fill_brewer(palette=2, type = "qual")+
           ylim(0,1)+
@@ -197,12 +233,25 @@ dev.off()
   # }
 
   if(file.exists(pdffile)) {
-    message(paste("The file '", pdffile,  "' has been saved to working directory."))
+    message(paste0("The file '", pdffile,  "' has been saved to working directory."))
   } else {
     warning("Something went wrong.")
   }
 
 }
+
+# a <- readModels("/Users/maksimrudnev/Library/Mobile Documents/com~apple~CloudDocs/STAT/political efficacy/participation outputs/OSF/Bayes/B2-random-effects-Bayes.out")
+
+# convergencePlotsMplus(x=a,
+#                       param.id = 90:95,
+#                       pdffile = "1.pdf",
+#                       niter=1000,
+#                       chains = 2:4,
+#                       ESS=T, gg=T,
+#                       is.file=F
+#                      )
+
+
 
 #' Various versions of PSR
 #' @param parameters A 3-dimensional array (typically taken from Mplus-produced gh5 file in gh5$bayesian_data$parameters_autocorr$parameters or from any other), where first dimension is parameters, second dimension is iterations, and third dimension is chains
@@ -275,5 +324,12 @@ eachParamPSRMplus <- function(parameters, id.parameter, iterations.range=NULL) {
 
   Rstan = rstan::Rhat(theta_ij)
 
-  return(c(Mplus=Mplus, Gelman=Gelman, Rstan = Rstan, Naive=Naive))
+
+  # ESS
+
+  ESS_bulk = rstan::ess_bulk(theta_ij)
+  ESS_tail = rstan::ess_tail(theta_ij)
+
+  return(c(Mplus=Mplus, Gelman=Gelman, Rstan = Rstan, Naive=Naive,
+           ESS_bulk = ESS_bulk, ESS_tail = ESS_tail))
 }

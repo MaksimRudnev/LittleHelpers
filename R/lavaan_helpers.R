@@ -4,6 +4,10 @@
 #' @param m character, following lavaan syntax model conventions (see examples), or fitted lavaan object.
 #' @param file character, file name to save svg code, usually with 'svg' extension.
 #' @param rmarkdown Logical. If the function used in the context of Rmarkdown.
+#' @param adds Any graphviz code to be added to the graph.
+#' @param try.labels Try extracting labels from the data.
+#' @param label.wrap Number of character to wrap a label
+#' @param layout Can be 'dot', 'neato', 'twopi', 'circo', or 'fdp'
 #' @param ... arguments passed to DiagrammeR::grViz function.
 #'
 #' @examples lav_to_graph("F =~ a1 + a2 + a3 + a4")
@@ -11,10 +15,24 @@
 #' @return The function invisibly returns the dot code which can be edited to make more customized diagrams. You can use package \pkg{DiagrammeR} or any other graphviz engine, e.g. \url{http://graphviz.it}. It will most likely to be useful with large and complex models.
 #'
 #' @export
-lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, rmarkdown=FALSE, ...) {
+lav_to_graph <- function(m, layout = "dot",
+                         adds=NULL,
+                         file=NA,
+                         rmarkdown=FALSE,
+                         code.only = F,
+                         try.labels = T,
+                         label.wrap = 15,
+                         ...) {
 
+  m.original <- m
   if(class(m)=="lavaan") {
     pt <- lavaan::parameterTable(m)
+
+    # remove thresholds
+    pt <- pt[pt$op!="|",]
+    # remove scaling factors
+    pt <- pt[pt$op!="~*~",]
+
     pt <- pt[pt$rhs!="",]
     pt <- pt[pt$op!=":=", ]
     message("Currently, intercepts are not supported.")
@@ -140,7 +158,35 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, rmarkdown=FALSE,
         params[params!=""] <- paste0('[label="',params,'"]')[params!=""]
 
         indicators <- gsub("^.*\\*", "", indicators)
-        indicators <- `names<-`(gsub("\\.|-", "_", indicators), indicators) #values are dotless, names are original varnames
+
+        # assign labels to OVs
+        if (class(m.original) == "lavaan" & try.labels) {
+          message("Trying variable labels")
+          d <- eval(lavInspect(m.original, "call")$data, .GlobalEnv)
+          ind.labels <- sapply(indicators,
+                               function(v)
+                                 ifelse(is.null(attr(d[, v], "label", exact = T)),
+                                        v,
+                                        attr(d[, v], "label", exact = T)
+                                        )
+                               )
+          ind.labels <- gsub("'", "&#39;", ind.labels) #000A new line &#94;
+          ind.labels <- stringr::str_wrap(ind.labels, label.wrap)
+          rm(d)
+
+
+        } else {
+          message("Not even trying")
+          ind.labels <- indicators
+
+        }
+
+        #values are dotless
+        indicators <- gsub("\\.|-", "_", indicators)
+
+        #names are original varnames/original labels
+        names(indicators) <- ind.labels
+
 
         c(paste0("\n\nsubgraph cluster_", factr, '  {\n  color = white;\n'),
           paste0("\t", factr, ' [shape = ellipse label = ', paste0('"', names(factr), '"'), '];\n'),
@@ -207,7 +253,7 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, rmarkdown=FALSE,
              if(!is.na(co$pars)) {
                if(co$pars!=0)
                paste(co$lhs, "->", co$rhs,
-                     '[ dir = "both" splines=curved constraint=false label="', co$pars, '" fontsize = 10 ];\n')
+                     '[ dir = "both" splines=curved constraint=false label="', co$pars, '" fontsize = 10 color="grey" ];\n')
              } else {
                paste(co$lhs, "->", co$rhs,
                      '[ dir = "both" splines=curved constraint=false];\n')
@@ -305,17 +351,21 @@ lav_to_graph <- function(m, layout = "dot", adds=NULL, file=NA, rmarkdown=FALSE,
 
   lines <- gsub("^^", "*", lines, fixed = T)
 
-if(!rmarkdown) {
-  trash<- capture.output(DiagrammeR::grViz(lines, ...))
-  #cat(lines)
-  if(!is.na(file)) {
-    require("DiagrammeRsvg")
-    cat(DiagrammeRsvg::export_svg(DiagrammeR::grViz(lines, ...)), file=file)
-  }
-  invisible(lines)
+if(!code.only) {
+      if(!rmarkdown) {
+        trash<- capture.output(DiagrammeR::grViz(lines, ...))
+        #cat(lines)
+        if(!is.na(file)) {
+          require("DiagrammeRsvg")
+          cat(DiagrammeRsvg::export_svg(DiagrammeR::grViz(lines, ...)), file=file)
+        }
+        invisible(lines)
+      } else {
+        DiagrammeR::grViz(lines, ...)
+      }
 } else {
-  DiagrammeR::grViz(lines, ...)
-  }
+  return(lines)
+}
 
 }
 # a=Sys.time()

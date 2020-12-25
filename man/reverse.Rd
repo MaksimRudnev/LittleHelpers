@@ -4,14 +4,13 @@
 \alias{reverse}
 \title{Reverse values and value labels}
 \usage{
-reverse(var)
+reverse(var, preserve.labels = T)
 }
 \arguments{
 \item{var}{variable to reverse.}
+
+\item{preserve.labels}{Attempt saving labels.}
 }
 \description{
-I don't know why it wasn't developed before. Returns same variable with reversed values.
-}
-\details{
-Reversing makes use of observed values rather than stored factor levels or attributes.
+Returns same variable with reversed values. Reversing makes use of observed values rather than stored factor levels or attributes.
 }

@@ -4,14 +4,32 @@
 \alias{lav_to_graph}
 \title{Create a path diagram using lavaan syntax}
 \usage{
-lav_to_graph(m, layout = "dot", adds = NULL, file = NA, rmarkdown = FALSE, ...)
+lav_to_graph(
+  m,
+  layout = "dot",
+  adds = NULL,
+  file = NA,
+  rmarkdown = FALSE,
+  code.only = F,
+  try.labels = T,
+  label.wrap = 15,
+  ...
+)
 }
 \arguments{
 \item{m}{character, following lavaan syntax model conventions (see examples), or fitted lavaan object.}
 
+\item{layout}{Can be 'dot', 'neato', 'twopi', 'circo', or 'fdp'}
+
+\item{adds}{Any graphviz code to be added to the graph.}
+
 \item{file}{character, file name to save svg code, usually with 'svg' extension.}
 
 \item{rmarkdown}{Logical. If the function used in the context of Rmarkdown.}
+
+\item{try.labels}{Try extracting labels from the data.}
+
+\item{label.wrap}{Number of character to wrap a label}
 
 \item{...}{arguments passed to DiagrammeR::grViz function.}
 }
