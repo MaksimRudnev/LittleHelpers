@@ -1,4 +1,3 @@
-
 #' Extract and export Mplus trace and autocorrelation plots into pdf
 #'
 #' @param x Either a model read by \code{\link[MplusAutomation]{readModels}}, OR a gh5 file produced by Mplus (in Mplus it should be stated PLOTS: TYPE IS PLOT2;)
@@ -23,7 +22,7 @@
 #' }
 #'
 #' @export
-convergencePlotsMplus <- function(x,
+traceplots_mplus <- function(x,
                                   is.file=F,
                                   pdffile = NULL,
                                   gg=T,
@@ -69,9 +68,12 @@ convergencePlotsMplus <- function(x,
 
 
   #subsetting
-  if(!is.null(param.id))
+  if(!is.null(param.id)) {
     if(length(param.id)>1)
       param.ids = param.id else param.ids = 1:param.id
+  } else {
+      param.ids = 1:nrow(parnames)
+  }
 
   parnames <-  parnames[param.ids,]
 
@@ -147,7 +149,7 @@ convergencePlotsMplus <- function(x,
                aes(lag, autocorrelation, fill = as.factor(chain) ))+
           geom_col(alpha=.8)+
           scale_fill_brewer(palette=2, type = "qual")+
-          ylim(0,1)+
+          ylim(min(b[b$parameter==i,"autocorrelation"]),1)+
           geom_hline(yintercept = .1, linetype = "dashed", col = "black")+
           labs(fill="Chain")+theme_minimal()+
           facet_wrap(~chain),
@@ -254,6 +256,7 @@ dev.off()
 
 
 #' Various versions of PSR
+#'
 #' @param parameters A 3-dimensional array (typically taken from Mplus-produced gh5 file in gh5$bayesian_data$parameters_autocorr$parameters or from any other), where first dimension is parameters, second dimension is iterations, and third dimension is chains
 #' @param id.parameter Integer id of parameter
 #' @param iterations.range Range of iterations to use. All available are used by default (NULL).
@@ -333,3 +336,111 @@ eachParamPSRMplus <- function(parameters, id.parameter, iterations.range=NULL) {
   return(c(Mplus=Mplus, Gelman=Gelman, Rstan = Rstan, Naive=Naive,
            ESS_bulk = ESS_bulk, ESS_tail = ESS_tail))
 }
+
+
+#' Loglikelihood test for MLR
+#'
+#' @description Adapted from http://www.statmodel.com/chidiff.shtml
+#' @param L0  loglikelihood values of reduced model
+#' @param L1  loglikelihood values of full model
+#' @param c0 scaling correction factors of reduced model
+#' @param c1 scaling correction factors of full model
+#' @param p0 number of parameters, should be p0 < p1
+#' @param p1 number of parameters, should be p0 < p1
+#' @export
+diffTestMLR <- function(L0, c0, p0,
+                        L1, c1, p1) {
+
+
+
+  # http://www.statmodel.com/chidiff.shtml
+  #
+  # Difference Testing Using the Loglikelihood
+  #
+  # Following are the steps needed to compute a chi-square difference test based on loglikelihood values and scaling correction factors obtained with the MLR estimator.
+  #
+  # Estimate the nested and comparison models using MLR. The printout gives loglikelihood values L0 and L1 for the H0 and H1 models, respectively, as well as scaling correction factors c0 and c1 for the H0 and H1 models, respectively. For example,
+  # L0 = -2,606, c0 = 1.450 with 39 parameters (p0 = 39)
+  # L1 = -2,583, c1 = 1.546 with 47 parameters (p1 = 47)
+  # Compute the difference test scaling correction where p0 is the number of parameters in the nested model and p1 is the number of parameters in the comparison model.
+  cd = (p0 * c0 - p1*c1)/(p0 - p1)
+  # = (39*1.450 - 47*1.546)/(39 - 47) = 2.014
+  # Compute the chi-square difference test (TRd) as follows:
+  TRd = -2*(L0 - L1)/cd
+  # = -2*(-2606 + 2583)/2.014 = 22.840
+  #
+
+  return(list(
+    TRd=TRd,
+    df = p1 - p0,
+    p.value = 1 - pchisq(TRd, p1 - p0, lower.tail = T)
+    )
+    )
+
+}
+
+
+#' Summarize parameters from several Mplus models read by 'readModels'
+#'
+#' @description Creates a table (dataframe) of parameters extacted from Mplus
+#' @param models A list of models read by MplusAutomation::readModels
+#' @param std If stdyx standardized coefs should be reported.
+#' @param se If SEs should be included.
+#' @return Returns a single data frame with unstandardized parameters.
+#' @export
+partable_mplus <- function(models, std=FALSE, se=T) {
+
+  par.list <- lapply(1:length(models),
+                     function(i) {
+                       x<-models[[i]]
+
+                       if(std) {
+                         p <- x$parameters$stdyx.standardized
+                       } else {
+                         p <- x$parameters$unstandardized
+                       }
+
+                       se.lab =
+                         ifelse(
+                           grepl("bayes", models[[i]]$summaries$Estimator, ignore.case=T),
+                            "posterior_sd", "se")
+
+
+                       p.fotmatted <-
+                         t(apply(p, 1,
+                                 function(eachrow)
+                                   c(eachrow[1:2],
+                                     est=paste0( sprintf("%.2f",
+                                                         as.numeric(eachrow["est"])),
+                                                 ifelse(se,
+                                                        paste0(
+                                                          "(", sprintf("%.2f",
+                                                                       as.numeric(eachrow[se.lab]
+                                                                       )
+                                                          ),
+                                                          ")"), ""),
+                                                 LittleHelpers:::pvalue_to_stars(as.numeric(eachrow["pval"])
+                                                 )
+                                     )
+                                   )))
+                       colnames(p.fotmatted)[3] <- names(models)[[i]]
+                       return(p.fotmatted)
+                     })
+
+ out <- Reduce(function(a, b)
+    merge(a, b, by = c("paramHeader", "param"), all=T),
+    par.list)
+
+return(out)
+
+}
+
+
+
+
+
+
+
+
+
+

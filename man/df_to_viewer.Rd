@@ -5,7 +5,15 @@
 \alias{to_viewer}
 \title{Shows data.frame in RStudio viewer}
 \usage{
-df_to_viewer(x, rownames = TRUE, summ = F, kable = FALSE, html = FALSE, ...)
+df_to_viewer(
+  x,
+  rownames = TRUE,
+  summ = F,
+  kable = FALSE,
+  by = NULL,
+  html = FALSE,
+  ...
+)
 }
 \arguments{
 \item{rownames}{Logical, if rownames should be shown.}
@@ -13,6 +21,10 @@ df_to_viewer(x, rownames = TRUE, summ = F, kable = FALSE, html = FALSE, ...)
 \item{summ}{Passed to `summary` argument of stargazer.}
 
 \item{kable}{logical, if data.frame should be passed to kable. If true, ... will be passed to function kableExtra::kable_styling}
+
+\item{by}{The name of variable to group the rows by. Used only when `kable=TRUE`}
+
+\item{html}{If viewer should be ignored and just html code returned (useful to embed in Rmarkdown outputs)}
 
 \item{...}{Other arguments passed to stargazer.}
 

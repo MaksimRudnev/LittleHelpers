@@ -423,12 +423,14 @@ if(!code.only) {
 #'
 #'
 #' @export
-lav_compare <- function(...) {
+lav_compare <- function(..., what = c("cfi", "tli", "rmsea", "srmr", "bic", "df")) {
 
 
   out <- lavaan::lavTestLRT(..., model.names = as.character(substitute(...()) ) )
 
-  out2<-t(sapply(list(...),   fitmeasures)[c("cfi", "tli", "rmsea", "srmr", "bic"),])
+  out2<-t(sapply(list(...),   fitmeasures)[what,])
+  diffs <- apply(out2, 2, function(v) v - c(NA, v[-length(v)]))
+  out2 <- cbind(out2, diffs)
   rownames(out2)<-as.character(substitute(...()) )
 
 
@@ -438,5 +440,43 @@ lav_compare <- function(...) {
 
   invisible(list(LRT=out, Other.fit=out2))
 }
+
+
+
+#' Append lavaan syntax with group-specific covariances
+#'
+#' @param model character, lavaan syntax model
+#' @param group character, grouping variable
+#' @param data data frame
+#' @param cov character, covariance to add,e.g. "variable1 ~~ variable2"
+#' @param focal.groups Character vector for the groups to add the cov.
+#' @examples cov.model <-  "swb =~ swb1 + swb2 swb3 + swb4 + swb5"
+#' cov.model.custom.covs <-
+#' cov.model %>%
+#'   addCustomCovs("country", dat1,
+#'                 "swb1 ~~ swb3", c("China", "Indonesia")) %>%
+#'
+#'   addCustomCovs("country.f", dat1,
+#'                 "swb2 ~~ swb4", c("Israel"))
+#'
+#' @export
+add_custom_covs <- function(model, group, data, cov, focal.groups) {
+
+  vector.zeros.nas <- paste(collapse="",
+                            capture.output(
+                              dput(
+                                sapply(unique(data[,group]),function(x) ifelse(x %in% focal.groups , NA, 0)))
+                            ))
+  new.synt <- paste("\n  ",
+                    strsplit(cov, "~~")[[1]][1],
+                    " ~~ ",
+                    vector.zeros.nas,
+                    "*",
+                    strsplit(cov, "~~")[[1]][2])
+
+  paste(model,  new.synt, collapse = ";\n  ")
+
+}
+
 
 
