@@ -114,8 +114,9 @@ match_named_vectors <- function(...) {
 
   all.nmz <-  unlist(sapply(l, names))
   all.nmz <-all.nmz[!duplicated(all.nmz)]
-  sapply(l, function(x) unlist(x)[all.nmz])
-
+  out <- sapply(l, function(x) unlist(x)[all.nmz])
+  rownames(out)<- all.nmz
+  return(out)
 }
 
 

@@ -9,6 +9,7 @@
 #' @param raster Logical. Currently not used. It was an option to convert vector plots to raster plots to save space and produce smaller pdfs.
 #' @param PSR If PSR (R-hat) should be printed for each parameter. See \code{\link{eachParamPSRMplus}}.
 #' @param PSR.version Version of PSR; default is "Rstan" - the most up-to-date, provided by the Rstan::Rhat function (Vehtari et al., 2019). Other possible values: "Gelman" (Gelman et al. (2004)); or "Mplus" (Asparouhov and  Muthen, 2010), and "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.
+#' @param ESS Logical. If effective sample size should be printed on the plots. See \code{\link[rstan]{ess_bulk}}
 #'
 #' @description The function exports all the available plots for each parameter and every chain. Therefore it can take a long time and the resulting pdf file can be large. Each page in pdf is for a specific parameter.
 #' @examples
@@ -135,6 +136,7 @@ traceplots_mplus <- function(x,
 
 
       gridExtra::grid.arrange(
+        # traceplot
         ggplot(a[a$parameter==i #& a$chain %in% chains
                  ,],
                aes(iteration, value, color = as.factor(chain) ))+
@@ -144,12 +146,16 @@ traceplots_mplus <- function(x,
           labs(col="Chain", title=headers[i])+
           theme_minimal(),
 
+       # autocorrelations
         ggplot(b[b$parameter==i  # & b$chain %in% chains
                  ,],
                aes(lag, autocorrelation, fill = as.factor(chain) ))+
           geom_col(alpha=.8)+
           scale_fill_brewer(palette=2, type = "qual")+
-          ylim(min(b[b$parameter==i,"autocorrelation"]),1)+
+          ylim( ifelse(min(b[b$parameter==i,"autocorrelation"])<0,
+                       min(b[b$parameter==i,"autocorrelation"]),
+                       0),
+                1)+
           geom_hline(yintercept = .1, linetype = "dashed", col = "black")+
           labs(fill="Chain")+theme_minimal()+
           facet_wrap(~chain),

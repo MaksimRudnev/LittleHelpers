@@ -7,13 +7,44 @@
 #' @param summ Passed to `summary` argument of stargazer.
 #' @param kable logical, if data.frame should be passed to kable. If true, ... will be passed to function kableExtra::kable_styling
 #' @param by The name of variable to group the rows by. Used only when `kable=TRUE`
-#' @param html If viewer should be ignored and just html code returned (useful to embed in Rmarkdown outputs)
-#' @param ... Other arguments passed to stargazer.
+#' @param html If viewer should be ignored and just html code returned (useful to embed in Rmarkdown outputs
+#' @param colformat Formats each column using `sprintf`. If numeric, applies rounding only, if character, is passed to `sprintf` directly. Can be named to match x's column names. If not named, must have the same length as there are columns in x.
+#' @param ... Other arguments passed to `stargazer` or `kableStyling()`.
+#' @param style 'style' argument of `stargazer`.
 #'
 #' @aliases to_viewer
 #' @export
 
-df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, html = FALSE, ...) {
+df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, html = FALSE, colformat = NULL, style = "ajs", ...) {
+
+  if(!is.null(colformat)) {
+    #colformat <- c(NA, 1,1,0,1,1,1,1,2,0,3)
+    warning("we're going to format the numbers")
+
+    if(!is.null(names(colformat)))  {
+      colformat <- colformat[colnames(x)]
+      names(colformat) <- colnames(x)
+      it = colnames(x)
+    } else {
+      it = 1:ncol(table4)
+    }
+
+    x_ <- sapply(it, function(y) {
+      if(is.character(x[,y]))
+        x[,y]
+      else
+        switch(class(colformat),
+               numeric= sprintf(paste0("%.", colformat[[y]], "f"), x[,y]),
+               character= sprintf(colformat[[y]], x[,y])
+        )
+
+    })
+
+    dimnames(x_) <- dimnames(x)
+    x<-x_
+  }
+
+
   if(!kable) {
       library(stargazer, quietly=T)
       tempDir <- tempfile()
@@ -24,7 +55,7 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
       a<-capture.output(stargazer(x, summary = summ,
                                              #out=htmlFile,
                                              type="html",
-                                             rownames = rownames, style="ajs", ...))
+                                             rownames = rownames, style=style, ...))
       } else {
         a = x
       }

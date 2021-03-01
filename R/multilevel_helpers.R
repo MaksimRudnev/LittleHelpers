@@ -455,6 +455,7 @@ vif_mer <- function (fit) {
 #' @param random List of character strings containing variable names or terms to include in the formula as random terms.
 #' @param drop List of character strings containing variable names or fixed terms to exclude from the formula.
 #' @param drop.random List of character strings containing variable names or random terms to exclude from the formula.
+#'@param ... Extra arguments passed to `update`. Works only if `x` is a lmer object.
 #'
 #' @examples f1 <- "a ~ b + c + (1| group)"
 #' add_term(f1, , "Conservation")
@@ -465,7 +466,7 @@ vif_mer <- function (fit) {
 #'
 #' @export
 
-add_term <- function (x, fixed=NULL, random=NULL, drop=NULL, drop.random=NULL) {
+add_term <- function (x, fixed=NULL, random=NULL, drop=NULL, drop.random=NULL, ...) {
 
 require(stringr)
 require(stats)
@@ -490,12 +491,30 @@ require(lme4)
   if(!is.null(drop)) f<-update(as.formula(f), paste(".~.", paste("-", drop, collapse=" ")))
   if(!is.null(drop.random)) {
     if(class(f)=="formula") f<-Reduce(paste, deparse((as.formula(f))))
-    #verb("f", f)
-    rf<- grep("\\|", str_extract_all(f, "\\([^()]+\\)")[[1]], value = TRUE)
-    #verb("rf", rf)
-    rf.new<- gsub(drop.random, "", grep("\\|", str_extract_all(f, "\\([^()]+\\)")[[1]], value = TRUE))
-    #verb("rf.new", rf.new)
-    f<-sub(rf, rf.new, f, fixed=T)
+
+    # rf<- grep("\\|", str_extract_all(f, "\\([^()]+\\)")[[1]], value = TRUE)
+    # rf.new<- gsub(drop.random, "", grep("\\|", str_extract_all(f, "\\([^()]+\\)")[[1]], value = TRUE))
+    # f<-sub(rf, rf.new, f, fixed=T)
+
+    all.terms <- attr(terms.formula(as.formula(f)),"term.labels")
+    fixed.terms <- all.terms[-grep("\\|", all.terms)]
+    random.terms <- all.terms[grep("\\|", all.terms)]
+    group <- str_split(random.terms, "\\|")[[1]][2]
+    random.terms <- str_split(random.terms, "\\|")[[1]][1]
+    random.terms <- gsub("\\s", "", str_split(random.terms, "\\+")[[1]])
+    n.dropped.term <- grep( paste0("^",drop.random, "$"), random.terms)
+    if(length(n.dropped.term)!=0) {
+      random.terms <- random.terms[-n.dropped.term]
+    } else {
+      message("drop.random wasn't found in the formula")
+    }
+
+    f<-
+      paste(as.formula(f)[[2]],
+            paste("~", paste(fixed.terms, collapse=" + "),
+                  "+ (", paste(random.terms, collapse=" + "),  "|", group, ")"
+            ))
+
   }
 
   if(class(f)=="formula") f<-Reduce(paste, deparse((as.formula(f))))
@@ -508,7 +527,7 @@ require(lme4)
     return(f)
   }
   if ( any("lmerMod" %in% class(x) )) {
-    m <- update(x, f)
+    m <- update(x, f, ...)
     return(m)
   }
 
@@ -669,13 +688,18 @@ potential_interactions_ind <- function(variables, modelfit) {
 #'@return Returns an original data frame binded with the new centered variables
 #'
 #' @export
-group_center <- function(variables, group, data, prefix="g.") {
+group_center <- function(variables, group, data, std=FALSE, prefix="g.") {
 
   new.data <- data[,c(group,variables)]
 
   for(v in variables)  {
     ag<- tapply(new.data[,v], list(new.data[,group]), mean, na.rm = T)
     for(g in unique(new.data[,group])) new.data[new.data[,group]==g, v]<- new.data[new.data[,group]==g, v] -ag[g]
+
+    if(std) {
+      ag.sd<- tapply(new.data[,v], list(new.data[,group]), sd, na.rm = T)
+      for(g in unique(new.data[,group])) new.data[new.data[,group]==g, v]<- new.data[new.data[,group]==g, v]/ag.sd[g]
+    }
   }
   new.data[,group]<-NULL
   names(new.data)<-paste(prefix, variables, sep="")
@@ -696,7 +720,7 @@ group_center <- function(variables, group, data, prefix="g.") {
 grand_center <- function(variables, data, prefix="gc.", std = F) {
 
   new.data <- data[,variables]
-  for(v in variables) new.data[,v] = scale(new.data[,v], center = T, scale = std)
+  for(v in variables) new.data[,v] = as.vector(scale(new.data[,v], center = T, scale = std))
   names(new.data)<-paste(prefix, variables, sep="")
   cbind(data, new.data)
 
