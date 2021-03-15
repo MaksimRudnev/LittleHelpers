@@ -448,16 +448,16 @@ lav_compare <- function(..., what = c("cfi", "tli", "rmsea", "srmr", "bic", "df"
 #' @param model character, lavaan syntax model
 #' @param group character, grouping variable
 #' @param data data frame
-#' @param cov character, covariance to add,e.g. "variable1 ~~ variable2"
+#' @param cov character, covariance to add, e.g. "variable1 ~~ variable2"
 #' @param focal.groups Character vector for the groups to add the cov.
-#' @examples cov.model <-  "swb =~ swb1 + swb2 swb3 + swb4 + swb5"
+#' @examples cov.model <-  "F =~ v1 + v2 v3 + v4 + v5"
 #' cov.model.custom.covs <-
-#' cov.model %>%
-#'   addCustomCovs("country", dat1,
-#'                 "swb1 ~~ swb3", c("China", "Indonesia")) %>%
+#'    lav.mod %>%
+#'      add_custom_covs("country", dat1,
+#'                      "v1 ~~ v3", c("China", "Indonesia")) %>%
 #'
-#'   addCustomCovs("country.f", dat1,
-#'                 "swb2 ~~ swb4", c("Israel"))
+#'      add_custom_covs("country.f", dat1,
+#'                      "v2 ~~ v3", c("Israel"))
 #'
 #' @export
 add_custom_covs <- function(model, group, data, cov, focal.groups) {
