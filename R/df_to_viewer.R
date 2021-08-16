@@ -26,11 +26,11 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
       names(colformat) <- colnames(x)
       it = colnames(x)
     } else {
-      it = 1:ncol(table4)
+      it = 1:ncol(x)
     }
 
     x_ <- sapply(it, function(y) {
-      if(is.character(x[,y]))
+      if(is.character(x[,y]) | is.na(colformat[[y]]))
         x[,y]
       else
         switch(class(colformat),

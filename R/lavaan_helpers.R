@@ -478,5 +478,27 @@ add_custom_covs <- function(model, group, data, cov, focal.groups) {
 
 }
 
+#' Plot latent means
+#' @param fit lavaan object containing an MGCFA with latent means
+#' @return Returns a list of ggplot objects
+#' @export
+plot_latent_means <- function(fit) {
+  ov.names <- colnames(lavInspect(fit, "data")[[1]])
+  ests <- parameterEstimates(fit)
+  mean.tbl <- ests[ests$op=="~1" & !ests$lhs  %in% ov.names,]
 
+  mean.tbl$country <-  lavInspect(fit, "group.label")[mean.tbl$group]
+
+  lapply(unique(mean.tbl$lhs), function(lat.var) {
+    d.gg <- mean.tbl[mean.tbl$lhs==lat.var,]
+    d.gg$country <- factor(d.gg$country, levels= d.gg$country[order(d.gg$est)])
+    ggplot(d.gg, aes(country, est))+
+      geom_point()+
+      geom_errorbar(aes(ymin= est - 1.96*se, ymax = est + 1.96*se), width=.3)+
+      coord_flip()+
+      theme_minimal()+labs(x="", y=lat.var)
+
+  })
+
+}
 
