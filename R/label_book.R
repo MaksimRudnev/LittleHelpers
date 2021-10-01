@@ -183,37 +183,38 @@ label_book <- function(df, max.vals=25, vars="all", view=TRUE) {
 #' @param var.labelled Labelled variable or tibble with a single variable
 #'
 #' @export
-lab_to_fac <- function(var.labelled, print = F) {
-
-  if(any(class(var.labelled)=="tbl")) {
-    #convert from tibble
+lab_to_fac <- function (var.labelled, print = F)
+{
+  if (any(class(var.labelled) == "tbl")) {
     var.labelled <- var.labelled[[1]]
   }
-
-  if(is.null(attr(var.labelled, "labels"))) {
+  if (is.null(attr(var.labelled, "labels"))) {
     return(var.labelled)
     message("No labels in variable. Returning the same variable.")
-
-  } else {
-
-    #Exchange places of codes and labels in attribute
-    labs<- names(attr(var.labelled, "labels"))
+  }
+  else {
+    labs <- names(attr(var.labelled, "labels"))
     names(labs) <- attr(var.labelled, "labels")
+    if(any(unique(var.labelled) %in% names(labs))) {
+      observed.levels <- na.omit(unique(var.labelled)[!unique(var.labelled) %in% names(labs)])
+      names(observed.levels)<-observed.levels
+      labs <- append(labs, observed.levels)
+    }
 
-    out<- sapply(var.labelled, function(x)  {
-      do.call("switch", append( list( as.character(x)), append(labs, NA) ))
-    }, USE.NAMES = F   )
-
+    out <- sapply(var.labelled, function(x) {
+      do.call("switch", append(list(as.character(x)),
+                               append(labs, NA)))
+    }, USE.NAMES = F)
     labs <- labs[!duplicated(labs)]
     out <- factor(out, levels = labs)
-
-    if(print) table(out, var.labelled)
-
+    if (print)
+      table(out, var.labelled)
   }
-  if(!is.null(attr(var.labelled, "label")))  attr(out, "label") <- attr(var.labelled, "label")
+  if (!is.null(attr(var.labelled, "label")))
+    attr(out, "label") <- attr(var.labelled, "label")
   out
-
 }
+
 
 #' Get rid of the labels
 #'
