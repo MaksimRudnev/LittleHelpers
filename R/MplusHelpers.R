@@ -5,8 +5,8 @@
 #' @param pdffile File name of the pdf report to export all the plots. Defaults to an of x argument with  a '.pdf' extension when is.file == TRUE, and extracts the original filename of the out file if x is a readModels object.
 #' @param gg Logical. Whether ggplot  or base R graphics should be used. Default is ggplot which is slower but more flexible, e.g. with many chains.
 #' @param param.id Single interger or a vector. Single intterger shows 1:param.id  parameters to plot, a vector shows parameters by their order id. If NULL (default), all the parameters are used.
-#' @param niter How many iterations should be shown on a traceplot. NULL (default) refers to all iterations. However, traceplots for long chains may result in highly overplotted graphics which are slow and take a lot of space on disk.
-#' @param raster Logical. Currently not used. It was an option to convert vector plots to raster plots to save space and produce smaller pdfs.
+#' @param niter How many iterations should be shown on a traceplot. NULL (default) refers to all iterations.  However, traceplots for long chains may result in highly overplotted graphics which are slow and take a lot of space on disk. A specified number will take a random sample of values from the iterations.
+#' @param raster Logical. Currently not used. It was an option to convert vector plots to raster plots to save space and produce smaller pdfs. Currently not used.
 #' @param PSR If PSR (R-hat) should be printed for each parameter. See \code{\link{eachParamPSRMplus}}.
 #' @param PSR.version Version of PSR; default is "Rstan" - the most up-to-date, provided by the Rstan::Rhat function (Vehtari et al., 2019). Other possible values: "Gelman" (Gelman et al. (2004)); or "Mplus" (Asparouhov and  Muthen, 2010), and "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.
 #' @param ESS Logical. If effective sample size should be printed on the plots. See \code{\link[rstan]{ess_bulk}}
@@ -142,7 +142,7 @@ traceplots_mplus <- function(x,
                aes(iteration, value, color = as.factor(chain) ))+
           geom_line(alpha=.5)+
           geom_vline(xintercept = length(iterations)/2, col = "black", linetype = "dashed")+
-          scale_color_brewer(palette=2, type = "qual")+
+          #scale_color_brewer(palette=2, type = "qual")+
           labs(col="Chain", title=headers[i])+
           theme_minimal(),
 
@@ -151,7 +151,7 @@ traceplots_mplus <- function(x,
                  ,],
                aes(lag, autocorrelation, fill = as.factor(chain) ))+
           geom_col(alpha=.8)+
-          scale_fill_brewer(palette=2, type = "qual")+
+          #scale_fill_brewer(palette=2, type = "qual")+
           ylim( ifelse(min(b[b$parameter==i,"autocorrelation"])<0,
                        min(b[b$parameter==i,"autocorrelation"]),
                        0),

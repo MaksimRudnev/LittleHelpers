@@ -349,41 +349,7 @@ random <-lapply(1:nrow(random.variances), function(x) unname(c(random.variances[
 }
 
 
-# Creates country level variables####
-#' Creates country level variables by aggregating individual level variables
-#'
-#'
-#'
-#' @param ind_data A dataset with individual-level data.
-#' @param ind_var Variable to be aggregated.
-#' @param country_var Grouping variable.
-#' @param FUN Aggregation function, mean by default.
-#' @param suffix Character string, what should be added to the aggregated names of variables.
-#'
-#'
-#' @export
-#' @aliases aggr.and.merge
-aggr_and_merge <- function(ind_data, ind_var, group_var, FUN="mean", suffix=NULL) {
 
-  if(length(group_var)==1) {
-  c.x<-with(ind_data, tapply(get(ind_var), get(group_var),
-                             function(x) eval(call(FUN, x, na.rm=T)), simplify = T))
-  c.y<-data.frame(c.x, grp=rownames(c.x))
-
-  names(c.y)[1] <- paste(ind_var, ifelse(is.null(suffix), group_var, suffix),  sep=".")
-
-  appended_data<-merge(x=ind_data, c.y, by.x=group_var, by.y="grp", all.x=TRUE)
-
-  } else {
-    aggs <- tapply(ind_data[,ind_var], ind_data[,group_var],
-                   function(x) eval(call(FUN, x, na.rm=T)), simplify = T)
-
-    aggs <-reshape2::melt(aggs)
-    names(aggs)[names(aggs)=="value"]<-paste(ind_var, ifelse(is.null(suffix), paste0(group_var, collapse="."), suffix),  sep=".")
-    appended_data<-merge(ind_data, aggs, by = group_var, all.x = T)
-  }
-  return(appended_data)
-}
 
 #' Computes pseudo-R2 by subtracting residual variances
 #'
@@ -725,6 +691,50 @@ grand_center <- function(variables, data, prefix="gc.", std = F) {
   cbind(data, new.data)
 
 }
+
+# Creates country level variables####
+#' Creates country level variables by aggregating individual level variables
+#'
+#'
+#' @param variables Variable to be aggregated.
+#' @param group Grouping variable.
+#' @param data A dataset with individual-level data.
+#' @param FUN Aggregation function, mean by default.
+#' @param prefix Character string, what should be added to the  names of aggregated variables.
+#'
+#'
+#' @export
+#' @aliases aggr.and.merge
+aggr_and_merge <- function(variables, group, data, FUN="mean", prefix="") {
+
+  if(length(group)==1) {
+    c.x<-with(data, tapply(get(variables), get(group),
+                               function(x) eval(call(FUN, x, na.rm=T)), simplify = T))
+    c.y<-data.frame(c.x, grp=rownames(c.x))
+
+    names(c.y)[1] <- paste(ifelse(prefix=="", group, prefix), variables, sep="")
+
+    appended_data<-merge(x=data, c.y, by.x=group, by.y="grp", all.x=TRUE)
+
+  } else {
+    aggs <- tapply(data[,variables], data[,group],
+                   function(x) eval(call(FUN, x, na.rm=T)), simplify = T)
+
+    aggs <-reshape2::melt(aggs)
+    names(aggs)[names(aggs)=="value"]<-
+      paste(
+        ifelse(prefix=="",
+               paste0(group, collapse=""),
+               prefix),
+        variables,
+        sep=".")
+    appended_data<-merge(data, aggs, by = group, all.x = T)
+  }
+  return(appended_data)
+}
+
+
+
 
 #Corr by country#####
 #' Within-group correlations

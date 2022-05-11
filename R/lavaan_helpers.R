@@ -418,8 +418,8 @@ if(!code.only) {
 #' Combine fit measures form several models and compare
 #' @details  Extracts select fit measures from lavaan objects and lists it in the tables.
 #' @param ... lavaan fitted objects
-#'
-#' @examples lav_compare(fit1, fit2, fit3)
+#' @param what Character vector of fit indices as given in \pkg{lavaan} `fitMeasures()`
+#' @examples lav_compare(fit1, fit2, fit3, what = c("cfi.scaled", "rmsea.scaled") )
 #'
 #'
 #' @export
@@ -443,40 +443,7 @@ lav_compare <- function(..., what = c("cfi", "tli", "rmsea", "srmr", "bic", "df"
 
 
 
-#' Append lavaan syntax with group-specific covariances
-#'
-#' @param model character, lavaan syntax model
-#' @param group character, grouping variable
-#' @param data data frame
-#' @param cov character, covariance to add, e.g. "variable1 ~~ variable2"
-#' @param focal.groups Character vector for the groups to add the cov.
-#' @examples cov.model <-  "F =~ v1 + v2 v3 + v4 + v5"
-#' cov.model.custom.covs <-
-#'    lav.mod %>%
-#'      add_custom_covs("country", dat1,
-#'                      "v1 ~~ v3", c("China", "Indonesia")) %>%
-#'
-#'      add_custom_covs("country.f", dat1,
-#'                      "v2 ~~ v3", c("Israel"))
-#'
-#' @export
-add_custom_covs <- function(model, group, data, cov, focal.groups) {
 
-  vector.zeros.nas <- paste(collapse="",
-                            capture.output(
-                              dput(
-                                sapply(unique(data[,group]),function(x) ifelse(x %in% focal.groups , NA, 0)))
-                            ))
-  new.synt <- paste("\n  ",
-                    strsplit(cov, "~~")[[1]][1],
-                    " ~~ ",
-                    vector.zeros.nas,
-                    "*",
-                    strsplit(cov, "~~")[[1]][2])
-
-  paste(model,  new.synt, collapse = ";\n  ")
-
-}
 
 #' Plot latent means
 #' @param fit lavaan object containing an MGCFA with latent means

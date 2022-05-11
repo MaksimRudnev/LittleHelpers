@@ -201,10 +201,13 @@ lab_to_fac <- function (var.labelled, print = F)
       labs <- append(labs, observed.levels)
     }
 
-    out <- sapply(var.labelled, function(x) {
-      do.call("switch", append(list(as.character(x)),
-                               append(labs, NA)))
-    }, USE.NAMES = F)
+    # out <- sapply(var.labelled, function(x) {
+    #   do.call("switch", append(list(as.character(x)),
+    #                            append(labs, NA)))
+    # }, USE.NAMES = F)
+
+    out <- labs[match(var.labelled, attr(var.labelled, "labels"))]
+
     labs <- labs[!duplicated(labs)]
     out <- factor(out, levels = labs)
     if (print)
