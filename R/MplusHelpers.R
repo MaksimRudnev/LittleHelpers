@@ -412,7 +412,7 @@ partable_mplus <- function(models, std=FALSE, se=T) {
                             "posterior_sd", "se")
 
 
-                       p.fotmatted <-
+                       p.formatted <-
                          t(apply(p, 1,
                                  function(eachrow)
                                    c(eachrow[1:2],
@@ -429,8 +429,8 @@ partable_mplus <- function(models, std=FALSE, se=T) {
                                                  )
                                      )
                                    )))
-                       colnames(p.fotmatted)[3] <- names(models)[[i]]
-                       return(p.fotmatted)
+                       colnames(p.formatted)[3] <- names(models)[[i]]
+                       return(p.formatted)
                      })
 
  out <- Reduce(function(a, b)
@@ -442,6 +442,56 @@ return(out)
 }
 
 
+
+
+#' Check NDP related to residuals and correlations of models read by 'readModels'
+#'
+#' @description Prints if any variance is negative oand whether there are correlations above 1 (OUTPUT: stdyx; is required in the Mplus input)
+#' @param model A single model read by MplusAutomation::readModels
+#' @return Returns a single data frame with unstandardized parameters.
+#' @export
+checkMplusModel <- function(model) {
+
+  mgml.pars.nonstd <- model$parameters$unstandardized
+  mgml.pars.std <- model$parameters$stdyx.standardized
+
+  cat("Are there any negative residual variances?\n")
+  if(any(mgml.pars.nonstd[mgml.pars.nonstd$paramHeader=="Residual.Variances","est"]<0)) {
+    cat("Yes\n")
+
+    cat("Unstandardized parameters:\n")
+    resid.nonstd <- mgml.pars.nonstd[mgml.pars.nonstd$paramHeader=="Residual.Variances",]
+    print(resid.nonstd[resid.nonstd$est<0,])
+
+  } else {
+    cat("No\n")
+  }
+
+
+  cat("Are there any correlations above 1?\n")
+
+
+  if(any(mgml.pars.std[grep("\\.WITH", mgml.pars.std$paramHeader),"est"]>1)) {
+    cat("Yes\n")
+
+  } else {
+    cat("No\n")
+  }
+
+  cat("Additional. close to zero standardized residual variances\n")
+  resid.std <- mgml.pars.std[mgml.pars.std$paramHeader=="Residual.Variances",]
+  resid.std <- resid.std[resid.std$est<.01,]
+  print(resid.std[order(resid.std$est),])
+  cat("Correlations >0.9:\n")
+  mgml.pars.cors <- mgml.pars.std[grep("\\.WITH", mgml.pars.std$paramHeader),]
+  print(mgml.pars.cors[mgml.pars.cors$est>.9,])
+
+  cat("Covariances corresponding to correlations >.0.9\n")
+  mgml.pars.covs <- mgml.pars.nonstd[grep("\\.WITH", mgml.pars.nonstd$paramHeader),]
+  print(mgml.pars.covs[mgml.pars.cors$est>.9,])
+
+
+}
 
 
 

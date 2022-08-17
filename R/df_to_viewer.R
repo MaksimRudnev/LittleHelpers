@@ -10,12 +10,29 @@
 #' @param html If viewer should be ignored and just html code returned (useful to embed in Rmarkdown outputs
 #' @param colformat Formats each column using `sprintf`. If numeric, applies rounding only, if character, is passed to `sprintf` directly. Can be named to match x's column names. If not named, must have the same length as there are columns in x.
 #' @param ... Other arguments passed to `stargazer` or `kableStyling()`.
-#' @param style 'style' argument of `stargazer`.
+#' @param sg.style 'style' argument of `stargazer`.
+#' @param k.style Applies custom kableStyling style, might take two values "default", and "custom".
 #'
 #' @aliases to_viewer
 #' @export
 
-df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, html = FALSE, colformat = NULL, style = "ajs", ...) {
+df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, html = FALSE, colformat = NULL, sg.style = "ajs", k.style = "default", ...) {
+
+
+  if( k.style =="default") {
+    kableStyling.arg <- function(kabTab, ...) {
+      list(
+      kable_input = kabTab,
+      full_width = T,
+      html_font = "Times new roman",
+      font_size = 12,
+      bootstrap_options="none",
+      htmltable_class = "lightable-minimal",
+      ...
+      )}
+    } else {
+      kableStyling.arg <- function(kabTab, ...) list(kabTab, ...)
+    }
 
   if(!is.null(colformat)) {
     #colformat <- c(NA, 1,1,0,1,1,1,1,2,0,3)
@@ -55,7 +72,7 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
       a<-capture.output(stargazer(x, summary = summ,
                                              #out=htmlFile,
                                              type="html",
-                                             rownames = rownames, style=style, ...))
+                                             rownames = rownames, style=sg.style, ...))
       } else {
         a = x
       }
@@ -71,8 +88,8 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
 
     if(is.null(by)) {
 
-    knitr::kable(x, format  = "html", rownames = rownames) %>%
-        kableExtra::kable_styling(...)
+    kabTab <- knitr::kable(x, format  = "html", rownames = rownames)
+    do.call(kableExtra::kable_styling, kableStyling.arg(kabTab, ...))
 
     } else {
 
@@ -80,10 +97,11 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
       x <- x[unlist(sapply(unique(x[,by]), function(i) which(x[,by] == i))),]
 
     # save kable code to use in the loop below
-     tbl.out <- kable(x[,-which(names(x)==by)],
+      kabTab <- kable(x[,-which(names(x)==by)],
                       format  = "html",
-                      row.names = rownames) %>%
-       kableExtra::kable_styling(...)
+                      row.names = rownames)
+       tbl.out <- do.call(kableExtra::kable_styling, kableStyling.arg(kabTab, ...))
+
 
      # add packs of the rows
       end.position = 0

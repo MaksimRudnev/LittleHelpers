@@ -29,13 +29,15 @@ traceplots_mplus(
 
 \item{param.id}{Single interger or a vector. Single intterger shows 1:param.id  parameters to plot, a vector shows parameters by their order id. If NULL (default), all the parameters are used.}
 
-\item{raster}{Logical. Currently not used. It was an option to convert vector plots to raster plots to save space and produce smaller pdfs.}
+\item{raster}{Logical. Currently not used. It was an option to convert vector plots to raster plots to save space and produce smaller pdfs. Currently not used.}
 
-\item{niter}{How many iterations should be shown on a traceplot. NULL (default) refers to all iterations. However, traceplots for long chains may result in highly overplotted graphics which are slow and take a lot of space on disk.}
+\item{niter}{How many iterations should be shown on a traceplot. NULL (default) refers to all iterations.  However, traceplots for long chains may result in highly overplotted graphics which are slow and take a lot of space on disk. A specified number will take a random sample of values from the iterations.}
 
 \item{PSR}{If PSR (R-hat) should be printed for each parameter. See \code{\link{eachParamPSRMplus}}.}
 
 \item{PSR.version}{Version of PSR; default is "Rstan" - the most up-to-date, provided by the Rstan::Rhat function (Vehtari et al., 2019). Other possible values: "Gelman" (Gelman et al. (2004)); or "Mplus" (Asparouhov and  Muthen, 2010), and "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.}
+
+\item{ESS}{Logical. If effective sample size should be printed on the plots. See \code{\link[rstan]{ess_bulk}}}
 }
 \description{
 The function exports all the available plots for each parameter and every chain. Therefore it can take a long time and the resulting pdf file can be large. Each page in pdf is for a specific parameter.

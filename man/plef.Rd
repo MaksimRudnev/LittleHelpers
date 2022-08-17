@@ -4,12 +4,14 @@
 \alias{plef}
 \title{Simple interaction plot with nice defaults}
 \usage{
-plef(modl, eff.id = 1, ...)
+plef(modl, eff.id = 1, x.var = 1, ...)
 }
 \arguments{
 \item{modl}{Model fitted with lm or lmer.}
 
 \item{eff.id}{Order number of interaction term, integer.}
+
+\item{x.var}{x.var argument of effect function.}
 
 \item{...}{Arguments passed to effect}
 }

@@ -1053,12 +1053,13 @@ theme_mr <- function(...) {
 #'
 #'@param modl Model fitted with lm or lmer.
 #'@param eff.id Order number of interaction term, integer.
+#'@param x.var x.var argument of effect function.
 #'@param ... Arguments passed to effect
 #'
 #' @export
-plef <-   function(modl, eff.id=1, ...) {
+plef <-   function(modl, eff.id=1, x.var=1,...) {
   predeff<- effects::effect(term=names(fixef(modl))[grepl(":", names(fixef(modl)))][eff.id], mod=modl, ...)
-  plot(predeff, multiline=T, x.var=1, use.splines=T, confint=list(style="bands"), ticks=NULL,
+  plot(predeff, multiline=T, x.var=x.var, use.splines=T, confint=list(style="bands"), ticks=NULL,
        rug=F, colors=c("pink", "red", "black", "blue", "skyblue"))
 }
 

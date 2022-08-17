@@ -13,6 +13,9 @@ lav_to_graph(
   code.only = F,
   try.labels = T,
   label.wrap = 15,
+  std = F,
+  elements = c("obs", "lat.covs", "resid.covs", "resid", "slopes",
+    "intercepts/thresholds"),
   ...
 )
 }

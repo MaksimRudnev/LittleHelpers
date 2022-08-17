@@ -2,21 +2,20 @@
 % Please edit documentation in R/multilevel_helpers.R
 \name{aggr_and_merge}
 \alias{aggr_and_merge}
-\alias{aggr.and.merge}
 \title{Creates country level variables by aggregating individual level variables}
 \usage{
-aggr_and_merge(ind_data, ind_var, group_var, FUN = "mean", suffix = NULL)
+aggr_and_merge(variables, group, data, FUN = "mean", prefix = "")
 }
 \arguments{
-\item{ind_data}{A dataset with individual-level data.}
+\item{variables}{Variable to be aggregated.}
 
-\item{ind_var}{Variable to be aggregated.}
+\item{group}{Grouping variable.}
+
+\item{data}{A dataset with individual-level data.}
 
 \item{FUN}{Aggregation function, mean by default.}
 
-\item{suffix}{Character string, what should be added to the aggregated names of variables.}
-
-\item{country_var}{Grouping variable.}
+\item{prefix}{Character string, what should be added to the  names of aggregated variables.}
 }
 \description{
 Creates country level variables by aggregating individual level variables

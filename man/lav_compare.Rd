@@ -4,10 +4,12 @@
 \alias{lav_compare}
 \title{Combine fit measures form several models and compare}
 \usage{
-lav_compare(...)
+lav_compare(..., what = c("cfi", "tli", "rmsea", "srmr", "bic", "df"))
 }
 \arguments{
 \item{...}{lavaan fitted objects}
+
+\item{what}{Character vector of fit indices as given in \pkg{lavaan} `fitMeasures()`}
 }
 \description{
 Combine fit measures form several models and compare
@@ -16,7 +18,7 @@ Combine fit measures form several models and compare
 Extracts select fit measures from lavaan objects and lists it in the tables.
 }
 \examples{
-lav_compare(fit1, fit2, fit3)
+lav_compare(fit1, fit2, fit3, what = c("cfi.scaled", "rmsea.scaled") )
 
 
 }

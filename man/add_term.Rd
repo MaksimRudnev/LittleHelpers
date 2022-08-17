@@ -4,7 +4,7 @@
 \alias{add_term}
 \title{Add or remove terms to a lmer formula string}
 \usage{
-add_term(x, fixed = NULL, random = NULL, drop = NULL, drop.random = NULL)
+add_term(x, fixed = NULL, random = NULL, drop = NULL, drop.random = NULL, ...)
 }
 \arguments{
 \item{x}{Either mer formula object, string containing formula, lmer object. If latter is the case, the updated object will be returned instead of a new formula.}
@@ -16,6 +16,8 @@ add_term(x, fixed = NULL, random = NULL, drop = NULL, drop.random = NULL)
 \item{drop}{List of character strings containing variable names or fixed terms to exclude from the formula.}
 
 \item{drop.random}{List of character strings containing variable names or random terms to exclude from the formula.}
+
+\item{...}{Extra arguments passed to `update`. Works only if `x` is a lmer object.}
 }
 \description{
 Add or remove terms to a lmer formula string

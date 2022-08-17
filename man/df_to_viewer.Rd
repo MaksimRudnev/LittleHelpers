@@ -12,6 +12,9 @@ df_to_viewer(
   kable = FALSE,
   by = NULL,
   html = FALSE,
+  colformat = NULL,
+  sg.style = "ajs",
+  k.style = "default",
   ...
 )
 }
@@ -24,9 +27,15 @@ df_to_viewer(
 
 \item{by}{The name of variable to group the rows by. Used only when `kable=TRUE`}
 
-\item{html}{If viewer should be ignored and just html code returned (useful to embed in Rmarkdown outputs)}
+\item{html}{If viewer should be ignored and just html code returned (useful to embed in Rmarkdown outputs}
 
-\item{...}{Other arguments passed to stargazer.}
+\item{colformat}{Formats each column using `sprintf`. If numeric, applies rounding only, if character, is passed to `sprintf` directly. Can be named to match x's column names. If not named, must have the same length as there are columns in x.}
+
+\item{sg.style}{'style' argument of `stargazer`.}
+
+\item{k.style}{Applies custom kableStyling style, might take two values "default", and "custom".}
+
+\item{...}{Other arguments passed to `stargazer` or `kableStyling()`.}
 
 \item{df}{data.frame to show. Also works with a list of fitted lm() models.}
 }

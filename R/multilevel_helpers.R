@@ -704,7 +704,6 @@ grand_center <- function(variables, data, prefix="gc.", std = F) {
 #'
 #'
 #' @export
-#' @aliases aggr.and.merge
 aggr_and_merge <- function(variables, group, data, FUN="mean", prefix="") {
 
   if(length(group)==1) {

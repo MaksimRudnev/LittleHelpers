@@ -13,9 +13,6 @@ search_random(lmerfit, terms = NA, boot = F)
 
 \item{boot}{Apply bootstrap?}
 }
-\value{
-
-}
 \description{
 Find random effects across fixed
 }

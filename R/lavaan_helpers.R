@@ -22,11 +22,25 @@ lav_to_graph <- function(m, layout = "dot",
                          code.only = F,
                          try.labels = T,
                          label.wrap = 15,
+                         std=F,
+                         elements = c("obs", "lat.covs", "resid.covs", "resid", "slopes", "intercepts/thresholds"),
                          ...) {
-
+ # elements = c("slopes")
+  resid.prefix <- ifelse("resid" %in% elements, "Resid_", "")
   m.original <- m
+
   if(class(m)=="lavaan") {
-    pt <- lavaan::parameterTable(m)
+   # pt <- lavaan::parameterTable(m)
+
+    if(std) {
+      #pt <- lavaan::parameterEstimates(m, standardized=T)
+      #pt$est= pt$std.all
+      pt <- lavaan::standardizedSolution(m)
+      pt$est= pt$est.std
+
+    } else {
+      pt <- lavaan::parameterEstimates(m)
+    }
 
     # remove thresholds
     pt <- pt[pt$op!="|",]
@@ -35,13 +49,27 @@ lav_to_graph <- function(m, layout = "dot",
 
     pt <- pt[pt$rhs!="",]
     pt <- pt[pt$op!=":=", ]
-    message("Currently, intercepts are not supported.")
-    st<-abs(pt$est/pt$se)>1.96 & pt$free != 0
+    if(any(elements %in% "intercepts/thresholds" )) message("Currently, intercepts/thresholds are not supported.")
+    st<-abs(pt$est/pt$se)>1.96 & pt$se != 0
     st[st==T]<-"^^"
     st[st=="FALSE"]<-""
     m <- paste0(pt$lhs, " ", pt$op, " ", sprintf("%1.2f",pt$est), st, "*", pt$rhs,
                 collapse=";\n")
-  }
+} else {
+
+  pt <- lavaanify(m)
+  pt$est= pt$label
+  # remove thresholds
+  pt <- pt[pt$op!="|",]
+  # remove scaling factors
+  pt <- pt[pt$op!="~*~",]
+
+  pt <- pt[pt$rhs!="",]
+  pt <- pt[pt$op!=":=", ]
+  if(any(elements %in% "intercepts/thresholds" )) message("Currently, intercepts/thresholds are not supported.")
+  m <- paste0(pt$lhs, " ", pt$op, " ", ifelse(pt$free==0, paste0(pt$ustart, "*"), ""), pt$rhs,
+              collapse=";\n")
+}
 
     # m <- "F =~ a1 + a2 + a3 ;
     #                      F2 =~ b1 + b3 + NA*hh;
@@ -56,19 +84,23 @@ lav_to_graph <- function(m, layout = "dot",
 
   m<-strsplit(m, "\n")[[1]]
   m<- gsub("#.*", "", m)
+  m<- m[!grepl(":=",  m)] # remove constructed
   m <- m[!m==""]
+
 
   all.vars <- unname(unlist(sapply(m, strsplit, "=~|~~|~|\\+")))
   all.vars <- gsub(" ", "", all.vars)
   all.vars <- gsub("^.*\\*", "", all.vars)
   all.vars <- all.vars[!duplicated(all.vars)]
-  all.vars <- all.vars[all.vars!=1]
+ # all.vars <- all.vars[all.vars!=1]
+  all.vars <- all.vars[all.vars!=""]
 
   all.factors <- sapply(m[grepl("^.*=~", m)], function(x) strsplit(x, "=~")[[1]][1] )
   all.factors <- unname(gsub(" ", "", all.factors))
 
 
   all.indicators <- sapply(m[grepl("^.*=~", m)], function(x) strsplit(x, "=~")[[1]][2] )
+
   m<-m[!grepl("^.*=~", m)]
   m <- append(unlist(lapply(unique(all.factors), function(x) paste(x, "=~", paste(all.indicators[all.factors==x], collapse=" + ")    ))), m)
 
@@ -148,6 +180,7 @@ lav_to_graph <- function(m, layout = "dot",
         factr <- gsub(" ", "", m0[1])
         factr  <- `names<-`(gsub("\\.|-", "_", factr), factr) #values are dotless, names are original varnames
 
+
         indicators <- strsplit(m0[2], "\\+")[[1]]
         indicators <- gsub(" ", "", indicators)
 
@@ -176,7 +209,7 @@ lav_to_graph <- function(m, layout = "dot",
 
 
         } else {
-          message("Not even trying")
+          #message("Not even trying")
           ind.labels <- indicators
 
         }
@@ -188,30 +221,47 @@ lav_to_graph <- function(m, layout = "dot",
         names(indicators) <- ind.labels
 
 
+
+if( ("obs" %in% elements)| any(names(indicators) %in% all.factors)) {
         c(paste0("\n\nsubgraph cluster_", factr, '  {\n  color = white;\n'),
           paste0("\t", factr, ' [shape = ellipse label = ', paste0('"', names(factr), '"'), '];\n'),
           if(any(!names(indicators) %in% all.factors)) paste0("\t",
                                                       indicators[!names(indicators) %in% all.factors],
                                                       '[shape = rect label = ', paste0('"', names(indicators), '"'), '];\n'),
+          ifelse("resid" %in% elements,
+            paste(paste0("\tResid_", indicators),
+                  '[shape = circle style = filled color=lightgrey',
+                  'fontsize = 10 width= 0.2 label = "&epsilon;"];\n',
+                  collapse = ""),
+             ""
+          ),
 
-          paste(paste0("\tResid_", indicators),
-                '[shape = circle style = filled color=lightgrey',
-                'fontsize = 10 width= 0.2 label = "&epsilon;"];\n',
-                collapse = ""),
-          paste("\t{rank = ", ifelse(names(factr) %in% exogenous.vars, "min", "max"),
-                paste(paste0("Resid_",indicators), collapse = " "), "};\n"),
-          paste("\t{rank = ", ifelse(names(factr) %in% exogenous.vars, "max", "min"),
-                factr, "};\n"),
 
-          paste0("\t",  factr, " -> ",  indicators, params, ";\n"),
+             paste(#paste0("\t", resid.prefix, indicators),
+                   paste("\t{rank = ", ifelse(names(factr) %in% exogenous.vars, "min", "max"),
+                    paste(paste0(resid.prefix,indicators), collapse = " "), "};\n"),
+                   paste("\t{rank = ", ifelse(names(factr) %in% exogenous.vars, "max", "min"),
+                    factr, "};\n"),
 
-          paste0("\t", paste0("Resid_",indicators), " -> ", indicators, "[color=grey];\n"),
-          paste("}\n"),
-          paste(" // end of ", names(factr), "measurement model.",
-                names(factr), " is ", ifelse(names(factr) %in% exogenous.vars, "exogenous.\n\n", "endogenous.\n\n"))
+                   paste0("\t",  factr, " -> ",  indicators, params, collapse=";\n"),
+                   ";\n",
+                   if("resid" %in% elements) {
+                          paste0("\t", paste0(resid.prefix,indicators), " -> ", indicators, "[color=grey];", collapse="\n")
+                   } else {
+                          ""
+                     },
+                   paste("\n}\n"),
+                   paste(" // end of ", names(factr), "measurement model.",
+                    names(factr), " is ", ifelse(names(factr) %in% exogenous.vars,
+                                                 "exogenous.\n\n", "endogenous.\n\n"))
+              )
         )
+} else {
 
-      } else if(grepl("(~~)", i)) {
+  paste0("\t", factr, ' [shape = ellipse label = ', paste0('"', names(factr), '"'), '];\n')
+}
+
+      } else if(grepl("(~~)", i) & any(c("lat.covs","resid.covs") %in% elements )) {
 
         m0  <- strsplit(i, "~~")[[1]]
         lhs <- strsplit(m0[1], "\\+")[[1]]
@@ -233,36 +283,42 @@ lav_to_graph <- function(m, layout = "dot",
         rhs <- `names<-`(gsub("\\.|-", "_", rhs), rhs) #values are dotless, names are original varnames
 
         # turn to residuals if variables are indicators
-        lhs[names(lhs) %in% all.indicators] <- paste0("Resid_", lhs[names(lhs) %in% all.indicators])
-        rhs[names(rhs) %in% all.indicators] <- paste0("Resid_", rhs[names(rhs) %in% all.indicators])
-
+     # if("resid" %in% elements) {
+        lhs[names(lhs) %in% all.indicators] <- paste0(resid.prefix, lhs[names(lhs) %in% all.indicators])
+        rhs[names(rhs) %in% all.indicators] <- paste0(resid.prefix, rhs[names(rhs) %in% all.indicators])
+     # }
 
        covs <- data.frame(lhs=unname(lhs), rhs=unname(rhs), pars, stringsAsFactors = F)
 
        sapply(1:nrow(covs), function(co) {
          co <- covs[co,]
+         #  if it's variance
          if(co$lhs == co$rhs) {
+           if(names(lhs) %in% all.indicators & "obs" %in%  elements) {
            paste(
              paste0(co$rhs, '[xlabel="&sigma;&sup2;&#61;', as.character(co$pars), '"];\n'),
              ifelse(co$pars==0, paste0(co$rhs, '[style=dashed];\n'),"")
-           )
-
+           )}
+         # if it's covariance
          } else  {
-
+if(  (names(lhs) %in% all.indicators & "resid.covs" %in%  elements) |
+     (!(names(lhs) %in% all.indicators) & "lat.covs" %in%  elements) ) {
 
              if(!is.na(co$pars)) {
                if(co$pars!=0)
                paste(co$lhs, "->", co$rhs,
-                     '[ dir = "both" splines=curved constraint=false label="', co$pars, '" fontsize = 10 color="grey" ];\n')
+                     '[ dir = "both" splines=curved constraint=false label="', co$pars, '" fontsize = 10 color=grey ];\n')
              } else {
                paste(co$lhs, "->", co$rhs,
                      '[ dir = "both" splines=curved constraint=false];\n')
 
-               }
+             }
+}
          }
+
        })
 
-      } else if(grepl("~", i) & !grepl("~~|=~", i)) {
+      } else if(grepl("~", i) & !grepl("~~|=~", i) & "slopes" %in% elements) {
 
 
 
@@ -281,6 +337,7 @@ lav_to_graph <- function(m, layout = "dot",
         indep <- gsub("^.*\\*", "", indep)
         indep  <- `names<-`(gsub("\\.|-", "_", indep), indep) #values are dotless, names are original varnames
 
+
         intercepts <- indep[indep == 1]
         indep      <- indep[indep != 1]
         reg.otp<-"// Regressions and intercepts \n"
@@ -288,10 +345,23 @@ lav_to_graph <- function(m, layout = "dot",
          reg.otp <- append(reg.otp, c(
               paste(dep, "[label=", paste0('"', names(dep), '"'), "];\n"),
               paste(indep, "[label=", paste0('"', names(indep), '"'), "];\n"),
-              paste0(indep, " -> ",  dep, ' [style=bold ', paste0('label="',cof)[cof!=""],'"];\n'),
-              paste(paste0("Resid_",dep), ' [shape = circle style = filled color=lightgrey',
-                    'fontsize=10 width=0.2, label = "&epsilon;"];\n'),
-              paste0(paste0("Resid_",dep), " -> ", dep, " [color=grey];\n")
+              paste0(indep, " -> ",  dep, ' [style=bold ', paste0('label="',cof, '"')[cof!=""],
+                     ' color=',
+                         ifelse(grepl("\\^\\^", cof),
+                                ifelse(sub("\\^\\^", "", cof)<0, "red", "black"),
+                                "grey70"),
+                     ' fontcolor=',
+                         ifelse(grepl("\\^\\^", cof),
+                                ifelse(gsub("\\^\\^", "", cof)<0, "red", "black"),
+                                "grey70"),
+                     '];\n'),
+              ifelse("resid" %in% elements,
+                 paste(
+                   paste0("Resid_",dep), ' [shape = circle style = filled color=lightgrey',
+                    'fontsize=10 width=0.2, label = "&epsilon;"];\n',
+                   paste0("Resid_",dep), "->", dep, " [color=grey];\n"
+                   ),
+                 "")
             ))
         }
 
@@ -310,9 +380,9 @@ lav_to_graph <- function(m, layout = "dot",
         reg.otp
 
 
-      } else  { # if(i!="")
-        warning("Unknown operator found in line: ", i)
-      }
+      } #else  { # if(i!="")
+        #warning("Unknown operator found in line: ", i)
+      #}
     })
 
   # Add covariances between exogenous vars
@@ -368,6 +438,7 @@ if(!code.only) {
 }
 
 }
+
 # a=Sys.time()
 # lav_to_graph(mdl, adds = "rankdir='LR'")
 # Sys.time()-a

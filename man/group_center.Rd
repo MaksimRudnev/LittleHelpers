@@ -4,7 +4,7 @@
 \alias{group_center}
 \title{Group-centering of one or more variables}
 \usage{
-group_center(variables, group, data, prefix = "g.")
+group_center(variables, group, data, std = FALSE, prefix = "g.")
 }
 \arguments{
 \item{variables}{Character vector of variables names}
