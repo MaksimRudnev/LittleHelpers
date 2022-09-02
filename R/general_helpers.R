@@ -51,7 +51,7 @@ cor_table <- function(d, method="spearman", star=TRUE) {
 #' @param new.names New name(s). A vector of chatacter names in a same order as 'old.names'.
 #' @param data A data frame.
 #'
-#' @export
+#' #export
 # rename <- function(old.names, new.names, data) {
 #   if(any(!old.names %in% names(data))  ) {
 #
@@ -63,24 +63,24 @@ cor_table <- function(d, method="spearman", star=TRUE) {
 #   data
 # }
 
-rename <- function(old.names, new.names, dat) {
-
-  dat.names  = names(dat)
-
-  if(any(!old.names %in% dat.names)  ) warning(paste(
-    "Can't find variable names:", paste(old.names[!old.names %in% dat.names], collapse="; ")))
-
-
-  for(x in 1:length(old.names))  {
-
-    if(any(dat.names %in% old.names[x] )) dat.names[ dat.names == old.names[x] ] <- new.names[x]
-
-  }
-
-  dat.new = dat
-  names(dat.new) <- dat.names
-  return(dat.new)
-  }
+# rename <- function(old.names, new.names, dat) {
+#
+#   dat.names  = names(dat)
+#
+#   if(any(!old.names %in% dat.names)  ) warning(paste(
+#     "Can't find variable names:", paste(old.names[!old.names %in% dat.names], collapse="; ")))
+#
+#
+#   for(x in 1:length(old.names))  {
+#
+#     if(any(dat.names %in% old.names[x] )) dat.names[ dat.names == old.names[x] ] <- new.names[x]
+#
+#   }
+#
+#   dat.new = dat
+#   names(dat.new) <- dat.names
+#   return(dat.new)
+#   }
 
 
 

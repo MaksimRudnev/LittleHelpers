@@ -2,10 +2,20 @@
 % Please edit documentation in R/general_helpers.R
 \name{se}
 \alias{se}
-\title{St err of mean}
+\title{Rename variables in a data.frame}
 \usage{
 se(variable)
 }
+\arguments{
+\item{old.names}{Old name(s) existing in the data. A vector or a single character value.}
+
+\item{new.names}{New name(s). A vector of chatacter names in a same order as 'old.names'.}
+
+\item{data}{A data frame.
+
+#export
+St err of mean}
+}
 \description{
-St err of mean
+Rename variables in a data.frame
 }

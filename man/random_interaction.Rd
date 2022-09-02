@@ -8,7 +8,7 @@ random_interaction(
   x,
   real = TRUE,
   z.levels = c("1SD", "2SD", "1.2SD", "all"),
-  scatter = F,
+  scatter = FALSE,
   labs = NULL,
   x.levels = NULL,
   silent = T,
@@ -30,7 +30,7 @@ random_interaction(
 
 \item{scatter}{Logical. Should scatterplot be created in addition?}
 
-\item{labs}{List of length equal to a number of cross-level interactions, each element should contain sublist with names "x", "y", "line1", "line2", "line3", optionally "line4", "line5", "caption".}
+\item{labs}{List of arguments passed to \code{+labs()} PLUS elements named  "line1", "line2"... which are used to name lines on the plot. If there are more or less "line" elements than lines on the plot, they are ignored.}
 
 \item{x.levels}{desired x-axis coordinates, individual-level term. If NULL (default) are defined automatically.}
 
@@ -40,7 +40,7 @@ random_interaction(
 Returns one or several ggplots. In case one plot is returned it can be appended with \code{+theme()}, \code{+geom_()}, etc.
 }
 \description{
-Takes object produced by lme4::lmer() function, and returns interaction plot(s).
+Takes an object produced by lme4::lmer() function, and returns interaction plot(s).
 }
 \details{
 It somehow repeats functionality of 'sjPlot::sjp.int', but differs in being able to select real groups close to +/- 1 sd and mean of moderating variable; makes prettier and customizable plots.
@@ -51,5 +51,5 @@ m1 = lmer(distance ~ age*Sex + (age|Subject), data=Orthodont)
 random_interaction2(m1)
 }
 \seealso{
-\link{random_plot} \link{good_table}
+\link{random_plot} \link{lmer_table}
 }

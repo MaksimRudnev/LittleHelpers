@@ -673,7 +673,7 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { 
 # Cross-level interaction plot ####
 #' Plot cross-level interactions for mer objects
 #'
-#'Takes object produced by lme4::lmer() function, and returns interaction plot(s).
+#'Takes an object produced by lme4::lmer() function, and returns interaction plot(s).
 #'
 #' @param x A mer object produced by `lmer` function
 #' @param real Logical. Whether real groups should be used to predict random effects, or extrapolate using means and standard deviations?
@@ -684,21 +684,21 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { 
 #' * "12SD" Computes group-level mean and plots both standard deviation and doubled standard deviation of moderating variable.
 #' @param scatter Logical. Should scatterplot be created in addition?
 #' @param ... Arguments passed to `effect` function of `effects` package.
-#' @param labs List of length equal to a number of cross-level interactions, each element should contain sublist with names "x", "y", "line1", "line2", "line3", optionally "line4", "line5", "caption".
+#' @param labs List of arguments passed to `+labs()` PLUS elements named  "line1", "line2"... which are used to name lines on the plot. If there are more or less "line" elements than lines on the plot, they are ignored.
 #' @param x.levels desired x-axis coordinates, individual-level term. If NULL (default) are defined automatically.
 #' @return Returns one or several ggplots. In case one plot is returned it can be appended with `+theme()`, `+geom_()`, etc.
 #' @examples data("Orthodont",package="nlme")
 #' m1 = lmer(distance ~ age*Sex + (age|Subject), data=Orthodont)
 #' random_interaction2(m1)
 #' @details It somehow repeats functionality of 'sjPlot::sjp.int', but differs in being able to select real groups close to +/- 1 sd and mean of moderating variable; makes prettier and customizable plots.
-#' @seealso \link{random_plot} \link{good_table}
+#' @seealso \link{random_plot} \link{lmer_table}
 #' @md
 #'
 #' @export
 random_interaction <- function( x,
                                 real=TRUE,
                                 z.levels=c("1SD", "2SD", "1.2SD", "all"),
-                                scatter=F,
+                                scatter=FALSE,
                                 labs=NULL,
                                 x.levels=NULL,
                                 silent = T,
@@ -775,16 +775,17 @@ random_interaction <- function( x,
       group.eff.name <- interaction.terms.split[[i]][2]
 
     } else {
-      warning("The interaction '", paste(interaction.terms.split[[i]], collapse=" X "), "' is a first-level interaction. Currently I ignore it.")
+      warning("The interaction '", paste(interaction.terms.split[[i]], collapse=" X "), "' is a first-level interaction. You might use 'effects' package.")
       next
     }
 
     # Check if variables are factors
     possibly.factors <- unlist(sapply(interaction.terms.split[[i]], function(v) v[!v %in% colnames(mf)]))
+    if(length(possibly.factors)>0) {
     possibly.factor <- names(mf)[sapply(names(mf),function(n) grepl(paste0("^",n), possibly.factors))]
     if(length(possibly.factor)>1) stop("Cannot deal with an interaction of two factors.")
     factor.var <- ifelse(class(mf[,possibly.factor])=="factor", possibly.factor, NA)
-    if(length(possibly.factors)>0) {
+
       warning("One of the terms is factor, using all the levels: ", factor.var)
       z.levels = "all"
       if(any(group.eff.name %in% possibly.factors)) group.eff.name = factor.var
@@ -797,17 +798,17 @@ random_interaction <- function( x,
     if( sum( interaction.terms.split[[i]] %in% names(ranef(x)[[group.name]]) )>0 ) {
 
       random.eff.name <- interaction.terms.split[[i]][interaction.terms.split[[i]] %in% names(ranef(x)[[group.name]])]
-      if(!silent) verb("Attempting to plot interaction", random.eff.name, " X ", group.eff.name, ".", sep="")
+      if(!silent) verb("Attempting to plot interaction ", random.eff.name, " X ", group.eff.name, ".", sep="")
 
     } else {
-      warning("Not", paste(interaction.terms.split[[i]], collapse=" nor ") , "is a random effect. Ignore this interaction.")
+      warning("Not ", paste(interaction.terms.split[[i]], collapse=" nor ") , " are random effects. Ignoring this interaction.")
       next
     }
 
     message("Interaction term is ", interaction.terms[[i]],
-      "\n factor variable is ", ifelse(length(factor.var)>0,factor.var,"none"),
+      "\n factor variable is ", ifelse(length(possibly.factors)>0,factor.var,"none"),
       "\n group-level effect is ", group.eff.name,
-      "\n random effect term is", random.eff.name,
+      "\n random effect term is ", random.eff.name,
       "\n ind term is ", ind.eff
        )
 
@@ -892,13 +893,13 @@ random_interaction <- function( x,
 
      # itt <- paste0(c(possibly.factors1,non.fact.term)[c(which.int.1,which.int.2)], collapse=":")
 
-      ploff<-effect(term=interaction.terms[[i]], mod=x, xlevels=moderator.levels.to.plot,...)
+      ploff<-suppressWarnings(effect(term=interaction.terms[[i]], mod=x, xlevels=moderator.levels.to.plot,...))
       db<- data.frame(ploff)
 
     } else {
-      ploff<-effect(term=interaction.terms[[i]],
+      ploff<-suppressWarnings(effect(term=interaction.terms[[i]],
                     mod=x,
-                    xlevels=moderator.levels.to.plot, ...)
+                    xlevels=moderator.levels.to.plot, ...))
       if(!silent) print(ploff)
 
       db<- data.frame(ploff)
@@ -1011,14 +1012,20 @@ random_interaction <- function( x,
 
       l <- labs#[[length(glist)+1]]
       l.nonlines <- l[!grepl("line", names(l))]
+
+
       if(length(l.nonlines)>0)
         g <- g + structure(l.nonlines, class = "labels")
 
+    if(sum(grepl("line", names(l))) != length(noflines) ) {
+      warning("Labels contain less/more 'lines' labels than specified in z.levels argument. Ignoring line labels.")
+    } else {
       if(sum(grepl("line", names(l)))>0)
         g <-
         g + geom_text_repel(data = db[ db[,ind.eff] == max(db[,ind.eff]), ],
                             aes(label = l[grep("line", names(l))]),
                             box.padding = unit(0.5, "lines"))
+    }
     }
 
 
