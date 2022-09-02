@@ -7,16 +7,10 @@
 #' @param ... Arguments passed to stargazer.
 #'
 #'
-#'@examples \donttest{
-#' m1<- lmer(HE ~ age + gender + (1|country), ess.data.d, weights=dweight)
-#' m2<- lmer(HE ~ age + gender + (1+age + gender|country), ess.data.d, weights=dweight)
+#'@examples data("sleepstudy", package="lme4")
+#' m1=lmer(Reaction ~ Days + (1|Subject), sleepstudy)
+#' m2=lmer(Reaction ~ Days + (1+Days|Subject), sleepstudy)
 #' good_table(list(m1, m2))
-#'
-#' # Another option
-#' f1 <- as.formula(HE ~ age + gender + (1|country))
-#' f2 <- as.formula(HE ~ age + gender + (1|country))
-#' good_table(lapply(c(f1, f2), function(x) lmer(x, ess.data.d, weights=dweight)))
-#'}
 #'
 #'
 #' @details  The list of possible fit.stats options:
@@ -46,7 +40,7 @@ good_table <- function(models,
                        #boot.ci = FALSE,
                         ...) {
   loadNamespace("scales")
-  loadNamespace("stargazer")
+  loadNamespace("stargazer", quietly = T)
 
   total.time<-Sys.time()
 
@@ -341,7 +335,7 @@ random <-lapply(1:nrow(random.variances), function(x) unname(c(random.variances[
                                 ...
                                 ))
   viewer	<- getOption("viewer")
-  viewer	(htmlFile)
+  rstudioapi::viewer(htmlFile)
   }
 
   if(!silent) verb("stage2.stargazer", Sys.time()-stage2.stargazer)
@@ -752,7 +746,7 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
 
   #require(sjmisc);
   #require(sjlabelled);
-  library("ggplot2")
+  requireNamespace("ggplot2")
 
 
   if(sum(class(data)=="tbl")>0) {
@@ -863,7 +857,6 @@ if(print == T) {
 #'@param lmerfit lmer fit
 #'@param terms terms, if NA (default) uses each variable from fixed effects
 #'@param boot Apply bootstrap?
-#' @return
 #'
 #'@export
 search_random <- function(lmerfit, terms=NA, boot=F) {

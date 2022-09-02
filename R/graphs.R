@@ -35,14 +35,14 @@ verb <- function(...) {
 #'
 stacked_bar<-function(variable, group, sort.cat=1, colors=NA, include.na=FALSE, labs=TRUE, label.col=NA, format.label="2%", weight=NA,
                       label_col=NA) {
-  library("RColorBrewer")
-  library(ggplot2)
-  library(ggrepel)
-  library(scales)
-  library(reshape2)
-  library(sjmisc)
-  library(magrittr)
-  library(stringr)
+  requireNamespace("RColorBrewer")
+  requireNamespace(ggplot2)
+  requireNamespace(ggrepel)
+  requireNamespace(scales)
+  requireNamespace(reshape2)
+  requireNamespace(sjmisc)
+  requireNamespace(magrittr)
+  requireNamespace(stringr)
 
 
   label_col=label.col
@@ -73,7 +73,7 @@ stacked_bar<-function(variable, group, sort.cat=1, colors=NA, include.na=FALSE, 
       as.data.frame %>% set_colnames(c("var", "group", "Freq"))
   } else {
 
-    library(survey)
+    requireNamespace(survey)
 
     b <-  svydesign(id = ~0,
                     weights = ~ weight,
@@ -111,10 +111,10 @@ stacked_bar<-function(variable, group, sort.cat=1, colors=NA, include.na=FALSE, 
        (length(labs)==1 && labs) ) {
 
     b$label<- paste( format(round(b$Freq*100,
-                          as.numeric(strsplit(format.label, "")[[1]][1])  ), nsmall = as.numeric(strsplit(format.label, "")[[1]][1])) %>%
+                                  as.numeric(strsplit(format.label, "")[[1]][1])  ), nsmall = as.numeric(strsplit(format.label, "")[[1]][1])) %>%
                        sapply(., function(x) if(as.numeric(x)<2) "<2" else x  ),
-                    ifelse(is.na(strsplit(format.label, "")[[1]][2]), "", strsplit(format.label, "")[[1]][2]),
-                    sep="")
+                     ifelse(is.na(strsplit(format.label, "")[[1]][2]), "", strsplit(format.label, "")[[1]][2]),
+                     sep="")
 
 
     if(!any(is.na(label.col))) {
@@ -152,11 +152,11 @@ stacked_bar<-function(variable, group, sort.cat=1, colors=NA, include.na=FALSE, 
 
 
 stacked_bar_ntf<-function(var, group, sort.cat=0, flip=FALSE) {
-  library("RColorBrewer")
-  library(stringr)
-  library(ggplot2)
-  library(scales)
-  library(sjlabelled)
+  requireNamespace("RColorBrewer")
+  requireNamespace(stringr)
+  requireNamespace(ggplot2)
+  requireNamespace(scales)
+  requireNamespace(sjlabelled)
   dta.graph1<-as.data.frame.matrix(prop.table(table(to_label(group), var),2))
 
   #Total<-colSums(as.data.frame.matrix(table(to_label(group), var)))
@@ -205,13 +205,13 @@ stacked_bar_ntf_n<-function(var, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap=1
   #    message("Sorting is not active currently!")
   #    sort.cat=0 }
 
-  library("RColorBrewer")
-  library(stringr)
-  library(ggplot2)
-  library(scales)
-  library(sjmisc)
-  library(reshape2)
-  library(sjlabelled)
+  requireNamespace("RColorBrewer")
+  requireNamespace(stringr)
+  requireNamespace(ggplot2)
+  requireNamespace(scales)
+  requireNamespace(sjmisc)
+  requireNamespace(reshape2)
+  requireNamespace(sjlabelled)
 
   if(!is.factor(group)) group <- as.factor(group)
 
@@ -229,10 +229,10 @@ stacked_bar_ntf_n<-function(var, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap=1
   datm$ind<-factor(datm$ind, levels=rev(c(levels(to_factor(group)), "Total")))
 
   if(sort.cat!=0) {
-  datm$variable<-factor(str_wrap(datm$variable, width = wrap), unique(str_wrap(datm$variable, width = wrap)))
+    datm$variable<-factor(str_wrap(datm$variable, width = wrap), unique(str_wrap(datm$variable, width = wrap)))
   } else {
     datm$variable<-factor(str_wrap(datm$variable, width = wrap),
-              sort(unique(str_wrap(datm$variable, width = wrap)), T))
+                          sort(unique(str_wrap(datm$variable, width = wrap)), T))
   }
 
 
@@ -260,12 +260,12 @@ stacked_bar_ntf_n<-function(var, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap=1
           legend.position=ifelse(leg==T, "right", "none"))
 
   if(five.categories) {
-   g<- g+ geom_text(size = 3,
-              position = position_stack(vjust = 0.5),
-              col=rep(c("White", "White","Black","Black","Black", "Black"), nrow(datm)/6))
+    g<- g+ geom_text(size = 3,
+                     position = position_stack(vjust = 0.5),
+                     col=rep(c("White", "White","Black","Black","Black", "Black"), nrow(datm)/6))
   } else {
     g<- g+ geom_text(size = 3, col="black",
-              position = position_stack(vjust = 0.5))
+                     position = position_stack(vjust = 0.5))
   }
 
 
@@ -277,7 +277,7 @@ stacked_bar_ntf_n<-function(var, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap=1
   }
   else {
     g + geom_text(data=datm[datm$ind=="Total",],
-                aes(y = value+1, label=Total.count), vjust=-0.5, size=2.5)
+                  aes(y = value+1, label=Total.count), vjust=-0.5, size=2.5)
   }
 
 }
@@ -288,10 +288,10 @@ stacked_bar_ntf_nm<-function(vars, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap
   #    message("Sorting is not active currently!")
   #    sort.cat=0 }
 
-  library("RColorBrewer")
-  library(stringr)
-  library(ggplot2)
-  library(scales)
+  requireNamespace("RColorBrewer")
+  requireNamespace(stringr)
+  requireNamespace(ggplot2)
+  requireNamespace(scales)
   dta.graph1<-sapply(names(vars), function(x) prop.table(table(to_label(group), vars[,x]),2)[,2])
 
   #dta.graph1<-as.data.frame.matrix(prop.table(table(to_label(group), vars[,1]),2)[,2])
@@ -385,7 +385,7 @@ stacked_bar_ntf_nm<-function(vars, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap
 #' with(d, graph_means_ci(v, group))
 #' @export
 graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "caption") , type=c("means", "ridges", "heat"), use.labels=T) {
- #warning("Danger! There is some error in labeling! Do not trust the results!")
+  #warning("Danger! There is some error in labeling! Do not trust the results!")
   group <- lab_to_fac(group)
 
   # if(!is.null(attr(var, "labels"))) {
@@ -455,7 +455,7 @@ graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "cap
 
   } else if(type[1] == "ridges") {
 
-    library(ggridges)
+    requireNamespace(ggridges)
 
     means<-tapply(var, lab_to_fac(group), function(x) mean(x, na.rm=T), simplify = T)
 
@@ -494,7 +494,7 @@ graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "cap
 
       g<-g+theme(axis.text.y=element_text(face= bold.highlight ))+
         geom_vline(xintercept=(1:length(levels(freq.dt$group)))[levels(freq.dt$group) %in% highlight.group], linetype="dotted", color="black", size=.1)#+
-        #scale_colour_manual(breaks = c("4", "6", "8"), values = c("red", "black") )
+      #scale_colour_manual(breaks = c("4", "6", "8"), values = c("red", "black") )
     }
 
   }
@@ -574,7 +574,7 @@ scatter_means_ci <- function(variable1, variable2, group, data, plot=TRUE, print
   #names.dt<-c(deparse(substitute(var1)),deparse(substitute(var2)))
   dt1<-dt
 
- # colnames(dt1) <- names.dt
+  # colnames(dt1) <- names.dt
   colnames(dt1) <- c(variable1, variable2)
   if(print)  print(dt1)
 
@@ -585,9 +585,9 @@ scatter_means_ci <- function(variable1, variable2, group, data, plot=TRUE, print
       labs(x=variable1, y=variable2)+geom_smooth(method = smooth.method, se = FALSE)+
       labs(caption=c(round(cor(dt$mean1, dt$mean2, use="pairwise.complete.obs"),2), "n=", nrow(na.omit(cbind(dt$mean1, dt$mean2))) ))+
       theme_mr()
-    } else {
-      dt
-}
+  } else {
+    dt
+  }
 }
 
 
@@ -620,7 +620,7 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { 
   }
 
 
-  library(grid)
+  requireNamespace(grid)
   glist<-gList()
   for(i in names(ses)) {
 
@@ -654,7 +654,7 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { 
 
   if(!facets)  {
     if(print ==T) {
-    for(i in 1:length(glist))  print( glist[[i]] )
+      for(i in 1:length(glist))  print( glist[[i]] )
     }
     cat(length(names(ses)), "graphs were created.")
     invisible(glist)
@@ -666,6 +666,8 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { 
 
 
 }
+
+
 
 
 # Cross-level interaction plot ####
@@ -685,7 +687,9 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { 
 #' @param labs List of length equal to a number of cross-level interactions, each element should contain sublist with names "x", "y", "line1", "line2", "line3", optionally "line4", "line5", "caption".
 #' @param x.levels desired x-axis coordinates, individual-level term. If NULL (default) are defined automatically.
 #' @return Returns one or several ggplots. In case one plot is returned it can be appended with `+theme()`, `+geom_()`, etc.
-#' @examples random_interaction(lmr, "model.1SD.2SD")
+#' @examples data("Orthodont",package="nlme")
+#' m1 = lmer(distance ~ age*Sex + (age|Subject), data=Orthodont)
+#' random_interaction2(m1)
 #' @details It somehow repeats functionality of 'sjPlot::sjp.int', but differs in being able to select real groups close to +/- 1 sd and mean of moderating variable; makes prettier and customizable plots.
 #' @seealso \link{random_plot} \link{good_table}
 #' @md
@@ -694,10 +698,12 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { 
 random_interaction <- function( x,
                                 real=TRUE,
                                 z.levels=c("1SD", "2SD", "1.2SD", "all"),
-                                scatter=TRUE, labs=NULL,
+                                scatter=F,
+                                labs=NULL,
                                 x.levels=NULL,
                                 silent = T,
                                 ... ) {
+
 
   # Works only with cross-level two-way interactions
   # Test it with factor predictors
@@ -706,99 +712,138 @@ random_interaction <- function( x,
   # Add scatterlot of random effects vs explanatory variable
 
 
-  library("effects")
-  library("stringr")
-  library("lme4")
-  library("grid")
+  requireNamespace("effects")
+  requireNamespace("stringr")
+  requireNamespace("lme4")
+  requireNamespace("grid")
+  requireNamespace("ggrepel")
+
 
   z.levels<-z.levels[1]
+  if(z.levels=="1.2SD") z.levels="12SD"
 
+  all.fix.terms <- names(fixef(x))
+  mf <- model.frame(x)
+  mm <- model.matrix(x)
 
-  interaction.terms <- names(fixef(x))[grep(":", names(fixef(x)))]
-  #verb(interaction.terms)
+  # Interaction terms
+  interaction.terms <- all.fix.terms[grep(":", all.fix.terms)]
 
   # Are there any interactions
   if(length(interaction.terms)==0) stop("Interactions were not found!")
-  #verb("interaction.terms", str(interaction.terms))
 
-  new.data <- model.frame(x)
-  is.there.any.labelled.variables <-0
-
-
-  glist<-gList()
+  # Grouping variable name
+  group.name <- names(ranef(x))
+  if(length(group.name)>1) stop("Cannot deal with more than one grouping variable.")
 
 
 
-  for(i in names(fixef(x))[-1]) {
-    if(class(model.frame(x)[[i]])=="labelled")  {
-      is.there.any.labelled.variables <-is.there.any.labelled.variables+1
-      class(new.data[[i]]) <- "numeric"
-    }}
 
-  if(is.there.any.labelled.variables>0) {
+  # Refit if any 'labelled'
+  if(any(sapply(mf, function(x) any(class(x) %in% "labelled")))) {
+    # Remove class 'labelled'
+    for(v in 1:ncol(mf))
+      if(any(class(mf[[v]]) %in% "labelled"))
+        class(mf[[v]]) <- class(mf[[v]])[class(mf[[v]])!= "labelled"]
+
     message(paste("There are",is.there.any.labelled.variables, "variable(s) of class 'labelled', with which package 'effects' doesn't work, so refitting to a data with 'labelled' converted to 'numeric'. " ))
-    x<-lmer(formula(x), data=new.data,
-            weights= `(weights)` )
+    x<-lmer(formula(x), data=mf)
   }
 
-  group.name<-names(getME(x, "flist"))
-  #verb("Group name is", group.name)
+
+
 
   interaction.terms.split<- str_split(interaction.terms, ":")
   if(!silent) verb("interaction.terms.split", interaction.terms.split)
 
+
+
+  glist<-gList()
   for(i in 1:length(interaction.terms.split)) {
 
 
-    #Check if one of the variables in an interaction is a group-level interaction
-   sum.var1<- sum(aggregate(model.frame(x)[ ,interaction.terms.split[[i]][1] ], list(model.frame(x)[,group.name]), sd, na.rm=T)[,2])
-   sum.var2<- sum(aggregate(model.frame(x)[ ,interaction.terms.split[[i]][2] ], list(model.frame(x)[,group.name]), sd, na.rm=T)[,2])
+    #Check if one of the variables in an interaction is a group-level variable
+    sum.var1<- sum(aggregate(model.matrix(x)[ ,interaction.terms.split[[i]][1] ],
+                             getME(x, "flist"), sd, na.rm=T)[,2])
+    sum.var2<- sum(aggregate(model.matrix(x)[ ,interaction.terms.split[[i]][2] ],
+                             getME(x, "flist"), sd, na.rm=T)[,2])
 
     if(sum.var1==0) {
       group.eff.name <- interaction.terms.split[[i]][1]
-      #verb("Variable ", interaction.terms.split[[i]][1], "is group-level, as its variance within group is 0.")
 
     } else if(sum.var2==0){
       group.eff.name <- interaction.terms.split[[i]][2]
-      #verb("Variable ", interaction.terms.split[[i]][2], "is group-level, as its variance within group is 0.")
 
     } else {
       warning("The interaction '", paste(interaction.terms.split[[i]], collapse=" X "), "' is a first-level interaction. Currently I ignore it.")
       next
     }
 
+    # Check if variables are factors
+    possibly.factors <- unlist(sapply(interaction.terms.split[[i]], function(v) v[!v %in% colnames(mf)]))
+    possibly.factor <- names(mf)[sapply(names(mf),function(n) grepl(paste0("^",n), possibly.factors))]
+    if(length(possibly.factor)>1) stop("Cannot deal with an interaction of two factors.")
+    factor.var <- ifelse(class(mf[,possibly.factor])=="factor", possibly.factor, NA)
+    if(length(possibly.factors)>0) {
+      warning("One of the terms is factor, using all the levels: ", factor.var)
+      z.levels = "all"
+      if(any(group.eff.name %in% possibly.factors)) group.eff.name = factor.var
+      interaction.terms[[i]] = sub(possibly.factors,factor.var, interaction.terms[[i]])
 
-  if( sum( interaction.terms.split[[i]] %in% names(ranef(x)[[group.name]]) )>0 ) {
+    }
 
-    random.eff.name <- interaction.terms.split[[i]][interaction.terms.split[[i]] %in% names(ranef(x)[[group.name]])]
-    if(!silent) verb("Attempting to plot interaction", random.eff.name, " X ", group.eff.name, ".", sep="")
+    ind.eff <- sub(":", "", sub(group.eff.name, "", interaction.terms[[i]]))
+    # Find which one is a random effect
+    if( sum( interaction.terms.split[[i]] %in% names(ranef(x)[[group.name]]) )>0 ) {
 
-  } else {
-    warning("Not", paste(interaction.terms.split[[i]], collapse=" nor ") , "is a random effect. Ignore this interaction.")
-    next
-  }
+      random.eff.name <- interaction.terms.split[[i]][interaction.terms.split[[i]] %in% names(ranef(x)[[group.name]])]
+      if(!silent) verb("Attempting to plot interaction", random.eff.name, " X ", group.eff.name, ".", sep="")
+
+    } else {
+      warning("Not", paste(interaction.terms.split[[i]], collapse=" nor ") , "is a random effect. Ignore this interaction.")
+      next
+    }
+
+    message("Interaction term is ", interaction.terms[[i]],
+      "\n factor variable is ", ifelse(length(factor.var)>0,factor.var,"none"),
+      "\n group-level effect is ", group.eff.name,
+      "\n random effect term is", random.eff.name,
+      "\n ind term is ", ind.eff
+       )
 
 
-   group.var.means <- aggregate(model.frame(x)[[group.eff.name]], list(model.frame(x)[[group.name]]), mean, na.rm=T)
+  # Constructing the moderator levels and labels
+    if(z.levels == "1SD") {
+      noflines <- 1:3
+    } else if (z.levels == "2SD") {
+      noflines <- c(1,4,5)
+    } else if(any(z.levels %in% c("12SD"))) {
+      noflines <- 1:5
+    } else if(z.levels == "all") {
+      #noflines <- 1:nrow(group.var.means)
+      message("Plotting all the groups.")
+      real=TRUE
+    } else {
+      "Incorrect z.levels argument."
+    }
 
-   mean.level.group.eff <- mean(group.var.means[,2], na.rm=T)
-   sd.level.group.eff <- sd(group.var.means[,2], na.rm=T)
 
-   if(z.levels == "1SD") {
-     noflines <- 1:3
-   } else if (z.levels == "2SD") {
-     noflines <- c(1,4,5)
-   } else if(z.levels == "12SD") {
-     noflines <- 1:5
-   } else if(z.levels == "all") {
-     #noflines <- 1:nrow(group.var.means)
-     message("Plotting all the groups.")
-     real=TRUE
-   } else {
-     "Incorrect z.levels argument."
-   }
 
-if(real==FALSE) {
+    if(z.levels == "all") {
+
+      #moderator.levels.to.plot <- list(name1= group.var.means[,2])
+      #index.groups.needed <- 1:nrow(group.var.means)
+
+      moderator.levels.to.plot <- list(as.character(unique(mf[ ,group.eff.name ])))
+
+    } else {
+      group.var.means <- aggregate(mf[ ,group.eff.name ],
+                                   getME(x, "flist"),
+                                   mean, na.rm=T)
+      mean.level.group.eff <- mean(group.var.means[,2], na.rm=T)
+      sd.level.group.eff <- sd(group.var.means[,2], na.rm=T)
+
+    if(real==FALSE) {
 
       moderator.levels.to.plot <- list(name1=c(
         mean.level.group.eff,
@@ -807,229 +852,203 @@ if(real==FALSE) {
         mean.level.group.eff+2*sd.level.group.eff,
         mean.level.group.eff-2*sd.level.group.eff)[noflines])
 
-  } else {
-    if(z.levels == "all") {
-
-      moderator.levels.to.plot <- list(name1= group.var.means[,2])
-      index.groups.needed <- 1:nrow(group.var.means)
     } else {
 
-      index.groups.needed <- c(
-        which.min(abs(group.var.means[,2] - mean.level.group.eff)),
-        which.min(abs(group.var.means[,2] - (mean.level.group.eff + sd.level.group.eff))),
-        which.min(abs(group.var.means[,2] - (mean.level.group.eff - sd.level.group.eff))),
-        which.min(abs(group.var.means[,2] - (mean.level.group.eff + 2*sd.level.group.eff))),
-        which.min(abs(group.var.means[,2] - (mean.level.group.eff - 2*sd.level.group.eff))))
 
+        index.groups.needed <- c(
+          which.min(abs(group.var.means[,2] - mean.level.group.eff)),
+          which.min(abs(group.var.means[,2] - (mean.level.group.eff + sd.level.group.eff))),
+          which.min(abs(group.var.means[,2] - (mean.level.group.eff - sd.level.group.eff))),
+          which.min(abs(group.var.means[,2] - (mean.level.group.eff + 2*sd.level.group.eff))),
+          which.min(abs(group.var.means[,2] - (mean.level.group.eff - 2*sd.level.group.eff))))
 
         index.groups.needed <- index.groups.needed[noflines]
+        moderator.levels.to.plot <- list(name1= group.var.means[index.groups.needed,2])
 
-
-      moderator.levels.to.plot <- list(name1= group.var.means[index.groups.needed,2])
-
-  }}
+      }}
 
 
     names(moderator.levels.to.plot) <- gsub("scale|)|\\(", "", group.eff.name)
 
     # assign x axis levels if they are defined by user
     if(!any(is.null(x.levels)))  {
-      moderator.levels.to.plot[[length(moderator.levels.to.plot)+1]] <-  x.levels
-      names(moderator.levels.to.plot)[length(moderator.levels.to.plot)]<- strsplit(interaction.terms[i], ":")[[1]][1]
+      #moderator.levels.to.plot[[length(moderator.levels.to.plot)+1]] <-  x.levels
+      #names(moderator.levels.to.plot)[length(moderator.levels.to.plot)]<- strsplit(interaction.terms[i], ":")[[1]][1]
+      moderator.levels.to.plot <- append(moderator.levels.to.plot, list(x.levels))
+      names(moderator.levels.to.plot)[[2]]<- ind.eff
     }
 
     if(!silent) print(moderator.levels.to.plot)
 
-# Compute effects
+    # Compute effects
 
-    #assign("new.data", new.data, envir=.GlobalEnv)
-    ploff<-effect(term=interaction.terms[i], xlevels=moderator.levels.to.plot, mod=x, ...)
-    if(!silent) print(ploff)
-    db<- data.frame(ploff$x, ploff$fit, ploff$lower, ploff$upper)
-    real.names<-names(db)
-    names(db)<-c("dep", "moderator", "ind", "lower", "upper")
-    db$moderator <- as.factor(round(db$moderator, 2))
+    if(length(possibly.factors)>0) {
+
+
+     # int.terms2 <- interaction.terms.split[[1]]
+     # which.int.1 <- which(grepl(possibly.factors1, int.terms2))
+     # which.int.2 <- which(!grepl(possibly.factors1, int.terms2))
+     # non.fact.term <- int.terms2[[which.int.2]]
+
+     # itt <- paste0(c(possibly.factors1,non.fact.term)[c(which.int.1,which.int.2)], collapse=":")
+
+      ploff<-effect(term=interaction.terms[[i]], mod=x, xlevels=moderator.levels.to.plot,...)
+      db<- data.frame(ploff)
+
+    } else {
+      ploff<-effect(term=interaction.terms[[i]],
+                    mod=x,
+                    xlevels=moderator.levels.to.plot, ...)
+      if(!silent) print(ploff)
+
+      db<- data.frame(ploff)
+      db[,group.eff.name]<-factor(round(db[,group.eff.name], 2))
+      #ind.str=interaction.terms.split[[i]][!interaction.terms.split[[i]] %in% group.eff.name]
+    }
+
+
     if(!silent) print(db)
 
-
-#Plot effects
-    g<- ggplot(db, aes(dep, ind, col=moderator, group=moderator))+
-      geom_line(aes(linetype=moderator))+
-      geom_ribbon(aes(ymin=lower, ymax=upper, fill=moderator), alpha=0.1, col=NA)+
-      labs(x=real.names[1], y=ploff$response, #col=real.names[2], fill=real.names[2], linetype=real.names[2],
-           caption=paste("Predicted slopes conditioned on group-level variable", group.eff.name)  )+
-      theme_minimal()+theme(legend.position = "none", axis.line = element_line(colour = "grey"),
-                            panel.grid = element_blank())
+    #Plot effects
 
 
+    g <-
+      ggplot(db,
+             aes_string(
+               x = ind.eff,
+               y = "fit",
+               col = group.eff.name,
+               group = group.eff.name
+             )) +
+      geom_line(aes_string(linetype = group.eff.name)) +
+      geom_ribbon(
+        aes_string(
+          ymin = "lower",
+          ymax = "upper",
+          fill = group.eff.name
+        ),
+        alpha = 0.1,
+        col = NA
+      ) +
+      theme_minimal() + theme(
+        legend.position = "none",
+        axis.line = element_line(colour = "grey"),
+        panel.grid = element_blank()
+      )
 
-      if(length(moderator.levels.to.plot[[1]])==3) {
-        col.scale.values <- c("red", "black", "blue")
-        linetype.scale <- c("dashed", "solid", "dashed")
-        labels <- paste(group.eff.name,  c("mean", "plus SD", "minus SD"))
 
-      } else if (length(moderator.levels.to.plot[[1]])==5) {
-        col.scale.values <- c("magenta", "red", "black", "blue", "skyblue")
-        linetype.scale <-   c("dotted", "dashed", "solid", "dashed", "dotted")
-        labels <- paste(group.eff.name,  c("mean", "plus 1SD", "minus 1SD", "plus 2SD","minus 2SD"))
-      } else {
-        labels <- group.var.means[,1]
-      }
+
+    if(z.levels == "1SD") {
+      col.scale.values <- c("red", "black", "blue")
+      linetype.scale <- c("dashed", "solid", "dashed")
+      labels <- paste(group.eff.name,  c("mean", "+1SD", "-1SD"))
+      labels <- paste(labels, round(moderator.levels.to.plot[[1]],2)  )
+
+    } else if(z.levels == "2SD") {
+      col.scale.values <- c("red", "black", "blue")
+      linetype.scale <- c("dashed", "solid", "dashed")
+      labels <- paste(group.eff.name,  c("mean", "+2SD", "-2SD"))
+      labels <- paste(labels, round(moderator.levels.to.plot[[1]],2)  )
+
+    } else if (z.levels == "12SD") {
+      col.scale.values <- c("magenta", "red", "black", "blue", "skyblue")
+      linetype.scale <-   c("dotted", "dashed", "solid", "dashed", "dotted")
+      labels <- paste(group.eff.name,  c("mean", "+1SD", "-1SD", "+2SD","-2SD"))
+      labels <- paste(labels, round(moderator.levels.to.plot[[1]],2)  )
+    } else {
+      #labels <- group.var.means[,1]
+      labels <- moderator.levels.to.plot[[1]]
+    }
 
     #verb("moderator.levels.to.plot", moderator.levels.to.plot)
 
-    labels <- paste(labels, round(moderator.levels.to.plot[[1]],2)  )
 
 
-    if(real) {
-    labels <- paste(labels, "; b=", round(coef(x)[[group.name]][,random.eff.name][index.groups.needed],2), sep="")
-    if(z.levels!="all") {
-    labels <- sapply(1:length(labels),
-                     function(u) paste(labels[u], group.var.means[,1][index.groups.needed][u], sep=","))
-    }
+
+    if(real & z.levels!="all") {
+      labels <- paste(labels, "; b=", round(coef(x)[[group.name]][,random.eff.name][index.groups.needed],2), sep="")
+      labels <- sapply(1:length(labels),
+                         function(u) paste(labels[u], group.var.means[,1][index.groups.needed][u], sep=","))
+
+    } else if(real & z.levels=="all")  {
+
+
+    ranef.w.group.eff.names <-  merge(aggregate(mf[,c(group.eff.name )],
+                                                list(mf[,group.name]),
+                                                unique),
+                                      coef(x)[[group.name]],
+                                      by.x="Group.1",
+                                      by.y="row.names")
+
+     average.ranef.by.group.eff <- aggregate(ranef.w.group.eff.names[,random.eff.name],
+                                             list(group.eff.names=ranef.w.group.eff.names$x),
+                                             median)
+     labels <- paste(labels, "; b=", format(average.ranef.by.group.eff[match(average.ranef.by.group.eff$group.eff.names, labels), 2],nsmall=2), sep="")
+
+
     } else {
       warning("Here computations of slopes should be")
     }
 
 
-    if(length(moderator.levels.to.plot[[1]])<=5) {
+    if(z.levels!="all") {
       g<- g + scale_color_manual(values=col.scale.values)+
         scale_fill_manual(values=col.scale.values)+
         scale_linetype_manual(values=linetype.scale)
     }
 
-    library(ggrepel)
-    if(is.null(labs)) {
-    g<-g+geom_text_repel(data=db[db$dep==max(db$dep),], aes(label=labels))
+
+    if (is.null(labs)) {
+      g <- g +
+        geom_text_repel(data = db[db[,ind.eff] == max(db[,ind.eff]), ],
+                        aes(label = labels),
+                        box.padding = unit(0.5, "lines"))+
+        labs(y = ploff$response,
+             caption = paste("Predicted slopes conditioned on group-level variable",
+                             group.eff.name)
+        )
     } else {
-      l<-labs[[length(glist)+1]]
-      g<-g+labs(x=l[["x"]], y=l[["y"]], caption=ifelse(is.null(l[["caption"]]),"", l[["caption"]]))+
-        geom_text_repel(data=db[db$dep==max(db$dep),], aes(label=c(l[["line1"]],l[["line2"]],l[["line3"]])  ),
-                        box.padding = unit(0.5, "lines"))
+
+      l <- labs#[[length(glist)+1]]
+      l.nonlines <- l[!grepl("line", names(l))]
+      if(length(l.nonlines)>0)
+        g <- g + structure(l.nonlines, class = "labels")
+
+      if(sum(grepl("line", names(l)))>0)
+        g <-
+        g + geom_text_repel(data = db[ db[,ind.eff] == max(db[,ind.eff]), ],
+                            aes(label = l[grep("line", names(l))]),
+                            box.padding = unit(0.5, "lines"))
     }
 
 
 
-#Construct labels
-    #
-    # if(real=FALSE) {
-    # #Predicted slopes conditioned on the interaction effect
-    # main.effect<-fixef(x)[interaction.terms.split[[i]]][random.eff.name]
-    # group.effect<-fixef(x)[interaction.terms.split[[i]]][group.eff.name]
-    # interaction.effect<-fixef(x)[interaction.terms[i]]
-    #
-    # # For exmaple, we have
-    # # y = a + 5x + 2z + 0.5xz, where x is variable with random effect and z is a group-level variable.
-    # # For mean(z):
-    # #  y = a + 5*x + 2*mean(z) + 0.5*(x)*mean(z)
-    # slopes <- c(
-    #   main.effect - (mean.level.group.eff + 2*sd.level.group.eff)*interaction.effect,
-    #   main.effect - (mean.level.group.eff + sd.level.group.eff)*interaction.effect,
-    #   main.effect + mean.level.group.eff*interaction.effect,
-    #   main.effect + (mean.level.group.eff + sd.level.group.eff)*interaction.effect,
-    #   main.effect + (mean.level.group.eff + 2*sd.level.group.eff)*interaction.effect
-    # )
-    #
-    # } else if(real=TRUE) {
-    #
-    #     slopes <- ranef(x)[[group.name]][,random.eff.name]
-    #     names(slopes)<-rownames(ranef(x)[[group.name]])
-    #
-    #      if(z.levels!="all") {
-    #
-    #        slopes <- slopes[rownames(slopes)==c(group.close.to.minus2SD[,1],
-    #                                             group.close.to.minusSD[,1],
-    #                                             group.close.to.mean[,1],
-    #                                             group.close.to.plusSD[,1],
-    #                                             group.close.to.plus2SD[,1]),]
-    #
-    #        label.group <-  paste()
-    #
-    #        } else {
-    #        label.group <- rownames(slopes)
-    #
-    #   }
-    #
-    #
-    #
-    #
-    #
-    # if(z.levels == "1SD") {
-    #
-    #   label.group <- c(
-    #     paste(group.close.to.minusSD, ", \n",
-    #           group.eff.name, "(~—1sd)=", round(moderator.levels.to.plot[[1]][1], 2), sep=""),
-    #     paste(group.close.to.mean,    ", \n",
-    #           group.eff.name, "(~mean)=", round(moderator.levels.to.plot[[1]][2], 2), sep=""),
-    #     paste(group.close.to.plusSD,  ", \n",
-    #           group.eff.name, "(~+1sd)=", round(moderator.levels.to.plot[[1]][3], 2), sep=""))
-    #
-    # } else if(z.levels == "real.2SD") {
-    #
-    #   label.group <- c(
-    #     paste(group.close.to.minus2SD, ", \n",
-    #           group.eff.name, "(-2sd)=", round(moderator.levels.to.plot[[1]][1], 2), sep=""),
-    #     paste(group.close.to.mean,    ", \n",
-    #           group.eff.name, "(mean)=", round(moderator.levels.to.plot[[1]][2], 2), sep=""),
-    #     paste(group.close.to.plus2SD,  ", \n",
-    #           group.eff.name, "(+2sd)=", round(moderator.levels.to.plot[[1]][3], 2), sep=""))
-    #
-    # } else if(z.levels=="model.1SD") {
-    #
-    #   label.group <- c(
-    #     paste(group.eff.name, "(-1sd)=", round(moderator.levels.to.plot[[1]][1], 2),  "; b=", round(slope.minus1,2) , sep=""),
-    #     paste(group.eff.name, "(mean)=", round(moderator.levels.to.plot[[1]][2], 2), "; b=", round(slope0,2), sep=""),
-    #     paste(group.eff.name, "(+1sd)=", round(moderator.levels.to.plot[[1]][3], 2), "; b=", round(slope.plus1,2), sep=""))
-    #
-    # } else if( z.levels=="model.2SD") {
-    #
-    #   label.group <- c(
-    #     paste(group.eff.name, "(-2sd)=", round(moderator.levels.to.plot[[1]][1], 2),  "; b=", round(slope.minus2,2) , sep=""),
-    #     paste(group.eff.name, "(mean)=", round(moderator.levels.to.plot[[1]][2], 2), "; b=", round(slope0,2), sep=""),
-    #     paste(group.eff.name, "(+2sd)=", round(moderator.levels.to.plot[[1]][3], 2), "; b=", round(slope.plus2,2), sep=""))
-    #
-    #
-    # } else if(z.levels=="model.1SD.2SD") {
-    #
-    #   label.group <- c(
-    #     paste(group.eff.name, "(-2sd)=", round(moderator.levels.to.plot[[1]][1], 2),  "; b=", round(slope.minus2,2) , sep=""),
-    #     paste(group.eff.name, "(-1sd)=", round(moderator.levels.to.plot[[1]][2], 2),  "; b=", round(slope.minus1,2) , sep=""),
-    #     paste(group.eff.name, "(mean)=", round(moderator.levels.to.plot[[1]][3], 2), "; b=", round(slope0,2), sep=""),
-    #     paste(group.eff.name, "(+1sd)=", round(moderator.levels.to.plot[[1]][4], 2), "; b=", round(slope.plus1,2), sep=""),
-    #     paste(group.eff.name, "(+2sd)=", round(moderator.levels.to.plot[[1]][5], 2), "; b=", round(slope.plus2,2), sep=""))
-    #
-    #
-    # }
-    #
 
-if(scatter) {
-    scatter <- qplot(group.var.means[,2], coef(x)[[group.name]][group.var.means[,1],random.eff.name],
-                     label= group.var.means[,1],
-                     geom=c( "text"),
-                     xlab=group.eff.name, ylab=paste("Effect of", random.eff.name, "on", as.character(x@call$formula[2])))
+    if(scatter) {
+      scatter <- qplot(group.var.means[,2], coef(x)[[group.name]][group.var.means[,1],random.eff.name],
+                       label= group.var.means[,1],
+                       geom=c( "text"),
+                       xlab=group.eff.name, ylab=paste("Effect of", random.eff.name, "on", as.character(x@call$formula[2])))
 
-    g <- gridExtra::grid.arrange( scatter, g, nrow=2, ncol=1)
-  }
+      g <- gridExtra::grid.arrange( scatter, g, nrow=2, ncol=1)
+    }
 
     #rm(new.data, envir=.GlobalEnv)
     glist[[length(glist)+1]] <- g
-}
-
-  #  g
-    if(length(glist)==1) {
-      #plot(glist[[1]])
-      g
-    } else if(length(glist)>1){
-      verb(length(glist), " ggplots have been created.")
-      gridExtra::grid.arrange( grobs=glist, ncol=length(glist), nrow=1)
-    } else {
-      message("Nothing was created, because interactions weren't found (or for some other reason")
-    }
-
   }
 
+  #  g
+  if(length(glist)==1) {
+    #plot(glist[[1]])
+    g
+  } else if(length(glist)>1){
+    verb(length(glist), " ggplots have been created.")
+    gridExtra::grid.arrange( grobs=glist, ncol=length(glist), nrow=1)
+  } else {
+    message("Nothing was created, because interactions weren't found (or for some other reason")
+  }
 
-
+}
 
 #' Clean and precise theme
 #'

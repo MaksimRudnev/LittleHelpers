@@ -34,7 +34,7 @@ Recode multilevel data:
 
 Summarize and visualize multilevel regressions:
 
-- `good_table` Large function that creates customizable coefficients tables using multiple lmer models; outputs in Rstudio viewer.
+- `good_table`/`lmer_table` Function that creates customizable coefficients tables using multiple lmer models; outputs in Rstudio viewer.
 - `potential_interactions` Exploratory. If you have no idea what cross-level interactions to look for. Computes pairwise tests of all the possible interactions in the `lmer()` model, or simply shows correlations between random effects and group-level variables.
 - `random_interaction` Plots cross-level interactions for `lmer()`-fitted models. Customizable. Can automatically choose real moderator values close to mean+-(2)SD.
 - `random_plot` Plots random effects from `lmer()`-fitted models.
@@ -52,14 +52,14 @@ Compute extra stats for multilevel regressions:
 - `mgcfa_diagnose` Print comprehensible output to diagnose problems with MGCFA models.
 - `mi_test` Series of measurement invariance tests, analoigous to `semTools::measurementInvariance()`.
 
-- See also [Measurement invariance explorer - Shiny App](https://github.com/MaksimRudnev/MIE)
+- See also [Measurement invariance explorer](https://github.com/MaksimRudnev/MIE)
 
 
 ## Tools for labelled data and Rstudio viewer
 
 Know the labels:
 
-- `label_book` Creates a codebook for data.frames with labels.
+- `label_book`/`label_table` Creates a codebook for data.frames with labels.
 
 Make use of labels: 
 

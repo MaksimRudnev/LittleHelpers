@@ -18,7 +18,10 @@ Combine fit measures form several models and compare
 Extracts select fit measures from lavaan objects and lists it in the tables.
 }
 \examples{
-lav_compare(fit1, fit2, fit3, what = c("cfi.scaled", "rmsea.scaled") )
+data("HolzingerSwineford1939", package="lavaan")
+m1 = cfa("F1 =~ x1 + x2 + x3 + x4 + x5", estimator= "mlr", HolzingerSwineford1939)
+m2 = cfa("F1 =~ x1 + x2 + x3 + x4 + x5; x4 ~~ x5", estimator= "mlr", HolzingerSwineford1939)
+lav_compare(m1, m2, what = c("cfi.scaled", "rmsea.scaled") )
 
 
 }

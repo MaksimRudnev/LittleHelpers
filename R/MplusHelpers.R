@@ -425,7 +425,7 @@ partable_mplus <- function(models, std=FALSE, se=T) {
                                                                        )
                                                           ),
                                                           ")"), ""),
-                                                 LittleHelpers:::pvalue_to_stars(as.numeric(eachrow["pval"])
+                                                 pvalue_to_stars(as.numeric(eachrow["pval"])
                                                  )
                                      )
                                    )))
@@ -491,6 +491,50 @@ checkMplusModel <- function(model) {
   print(mgml.pars.covs[mgml.pars.cors$est>.9,])
 
 
+}
+
+
+#' Extracts parameters from Bayesian models produces by Mplus where 'readModels' cannot help
+#'
+#' @description Extracts parameters from Bayesian models produces by Mplus where 'readModels' cannot help. Currently for latent class models only.
+#' @param file Name of the Mplus .out file.
+#' @return A data.frame with all parameters.
+#' @export
+getParamsMplus <- function(file) {
+  #file="RWA_BSEM/RWA4_Bayes_alignment30.out"
+  str.bdiff <- paste(readLines(file),
+                     collapse = "\n")
+  mod.reslts <- sub(".*MODEL RESULTS *(.*?) *Categorical Latent Variables.*", "\\1", str.bdiff)
+  by.lc = strsplit(mod.reslts, "Latent Class")[[1]]
+  zag <- by.lc[[1]]
+  zag <- sub("\n\n", "", zag)
+  zag <- read.fwf(textConnection(zag), widths = c(20,12,11,11,11,11))[,-1]
+  zag <- trimws(gsub("\\s+", " ", paste(zag[1,], zag[2,])))
+
+  by.lc <- by.lc[-1]
+  lc.labs <- gsub("^\\s(.*?) *\n\n.*", "\\1", by.lc)
+
+  by.lc.by.par <- strsplit( by.lc, "\n\n")
+  by.lc.by.par <- lapply(by.lc.by.par, function(x) x<-x[-1])
+
+  partab.by.lc <- lapply(setNames(by.lc.by.par, nm = lc.labs),
+                         function(lc) {
+
+                           parHeaders <- sub("^\\s(.*?) *\n.*", "\\1", lc)
+                           a=lapply(lc, function(x)  read.table(text=gsub("\\*\n|\\*$", "\n", x), skip=1) )
+                           names(a)<-parHeaders
+                           tab.out <- reshape2::melt(a, id.vars = "V1") %>% dcast(L1 + V1 ~ variable)
+                           names(tab.out)<-c("parHeaders", "params", zag)
+                           tab.out
+                         })
+
+  out <- reshape2::melt(partab.by.lc, id.vars = c("parHeaders", "params")) %>%
+    reshape2::dcast(L1 + parHeaders + params~ variable)
+
+  out$latent.classes <- sapply(strsplit(out$L1, " \\(|\\)"), `[[`,1)
+  out$group.labels   <- sapply(strsplit(out$L1, " \\(|\\)"), `[[`,2)
+  out$sig <- pvalue_to_stars(out$`One-Tailed P-Value`)
+  out[,-1]
 }
 
 

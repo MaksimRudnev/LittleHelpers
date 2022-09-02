@@ -1,13 +1,13 @@
 Package: LittleHelpers
 Type: Package
 Title: Helpers for comparative studies
-Version: 0.5-13
+Version: 0.5-14
 Author: Maksim Rudnev <http://maksimrudnev.com>
 Maintainer: Maksim Rudnev <maksim.rudnev@gmail.com>
 Description: Continuously updated collection of little helpers (tm) that facilitate my life in analyzing data (mostly comparative datasets) with R.
 URL: https://github.com/MaksimRudnev/LittleHelpers
 BugReports: https://github.com/MaksimRudnev/LittleHelpers/issues
-Depends: R (>= 4.0), ggplot2 (>= 2.2), magrittr (>= 1.5), lme4 (>= 1.1), lavaan (>= 0.6)
+Depends: R (>= 4.0), ggplot2 (>= 2.2), magrittr (>= 1.5), lme4 (>= 1.1), lavaan (>= 0.6), gridExtra (>= 2.0)
 Imports: 
     effects (>= 3.1),
     stats (>= 3.1),
@@ -22,6 +22,7 @@ Suggests: knitr,
     stargazer,
     ggrepel,
     ggridges,
+    gridExtra,
     effects,
     grid,
     reshape2,

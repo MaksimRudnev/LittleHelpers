@@ -3,7 +3,7 @@
 #' Produces data frame of correlations with stars standing for significance
 #'
 #' @param d Data.frame
-#' @param method Method from `cor` function. spearman by default.
+#' @param method Method from `cor` function. "spearman" by default.
 #' @param star If stars for p levels should be added.
 #'
 #' @export
@@ -41,7 +41,7 @@ cor_table <- function(d, method="spearman", star=TRUE) {
 
   names(m)<-names(d)
   rownames(m)<-names(d)
-  m
+  as.matrix(m)
 }
 
 

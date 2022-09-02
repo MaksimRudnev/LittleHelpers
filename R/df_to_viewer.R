@@ -16,7 +16,7 @@
 #' @aliases to_viewer
 #' @export
 
-df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, html = FALSE, colformat = NULL, sg.style = "ajs", k.style = "default", ...) {
+df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, html = FALSE, colformat = NULL, sg.style = "ajs", k.style = "default", digits = 2, ...) {
 
 
   if( k.style =="default") {
@@ -27,7 +27,7 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
       html_font = "Times new roman",
       font_size = 12,
       bootstrap_options="none",
-      htmltable_class = "lightable-minimal",
+      htmltable_class = "lightable-classic-2",
       ...
       )}
     } else {
@@ -36,17 +36,17 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
 
   if(!is.null(colformat)) {
     #colformat <- c(NA, 1,1,0,1,1,1,1,2,0,3)
-    warning("we're going to format the numbers")
+   # warning("we're going to format the numbers")
 
     if(!is.null(names(colformat)))  {
       colformat <- colformat[colnames(x)]
       names(colformat) <- colnames(x)
-      it = colnames(x)
+      col.nmz = colnames(x)
     } else {
-      it = 1:ncol(x)
+      col.nmz = 1:ncol(x)
     }
 
-    x_ <- sapply(it, function(y) {
+    x.formatted <- sapply(col.nmz, function(y) {
       if(is.character(x[,y]) | is.na(colformat[[y]]))
         x[,y]
       else
@@ -57,13 +57,17 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
 
     })
 
-    dimnames(x_) <- dimnames(x)
-    x<-x_
+    dimnames(x.formatted) <- dimnames(x)
+
+    for(i in colnames(x.formatted))
+      x.formatted[,i][x.formatted[,i]=="NA"]<-NA
+
+    x<-x.formatted
   }
 
 
   if(!kable) {
-      library(stargazer, quietly=T)
+    requireNamespace("stargazer", quietly=T)
       tempDir <- tempfile()
       dir.create(tempDir)
       htmlFile <- file.path(tempDir, "index.html")
@@ -72,7 +76,7 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
       a<-capture.output(stargazer(x, summary = summ,
                                              #out=htmlFile,
                                              type="html",
-                                             rownames = rownames, style=sg.style, ...))
+                                             rownames = rownames, style=sg.style, digits=digits, ...))
       } else {
         a = x
       }
@@ -85,10 +89,12 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
       viewer(htmlFile)
       #rm(this,b,viewer)
   } else {
+    requireNamespace("knitr", quietly=T)
+    requireNamespace("kableExtra", quietly=T)
 
     if(is.null(by)) {
 
-    kabTab <- knitr::kable(x, format  = "html", rownames = rownames)
+    kabTab <- knitr::kable(x, format  = "html", row.names = rownames, digits=digits)
     do.call(kableExtra::kable_styling, kableStyling.arg(kabTab, ...))
 
     } else {
@@ -97,9 +103,9 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
       x <- x[unlist(sapply(unique(x[,by]), function(i) which(x[,by] == i))),]
 
     # save kable code to use in the loop below
-      kabTab <- kable(x[,-which(names(x)==by)],
+      kabTab <- knitr::kable(x[,-which(colnames(x)==by)],
                       format  = "html",
-                      row.names = rownames)
+                      row.names = rownames, digits=digits)
        tbl.out <- do.call(kableExtra::kable_styling, kableStyling.arg(kabTab, ...))
 
 
@@ -109,15 +115,20 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
         new.end.position = sum(x[,by] == unique(x[,by])[i]) + end.position
         tbl.out <-
           tbl.out %>%
-          pack_rows(
+          kableExtra::pack_rows(
             group_label = unique(x[,by])[i],
             start_row =  end.position + 1,
-            end_row = new.end.position
+            end_row = new.end.position,
+            hline_before=F,
+            hline_after = FALSE,
+            label_row_css = "border-top: 1px solid;"
+
           )
         end.position = new.end.position
 
       }
-      print(tbl.out)
+       print(tbl.out)
+
 
     }
   }

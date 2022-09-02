@@ -9,7 +9,7 @@ cor_table(d, method = "spearman", star = TRUE)
 \arguments{
 \item{d}{Data.frame}
 
-\item{method}{Method from `cor` function. spearman by default.}
+\item{method}{Method from `cor` function. "spearman" by default.}
 
 \item{star}{If stars for p levels should be added.}
 }

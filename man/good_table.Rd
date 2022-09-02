@@ -48,16 +48,10 @@ Issues to implement:
 }
 }
 \examples{
-\donttest{
-m1<- lmer(HE ~ age + gender + (1|country), ess.data.d, weights=dweight)
-m2<- lmer(HE ~ age + gender + (1+age + gender|country), ess.data.d, weights=dweight)
+data("sleepstudy", package="lme4")
+m1=lmer(Reaction ~ Days + (1|Subject), sleepstudy)
+m2=lmer(Reaction ~ Days + (1+Days|Subject), sleepstudy)
 good_table(list(m1, m2))
-
-# Another option
-f1 <- as.formula(HE ~ age + gender + (1|country))
-f2 <- as.formula(HE ~ age + gender + (1|country))
-good_table(lapply(c(f1, f2), function(x) lmer(x, ess.data.d, weights=dweight)))
-}
 
 
 }

@@ -8,7 +8,7 @@ random_interaction(
   x,
   real = TRUE,
   z.levels = c("1SD", "2SD", "1.2SD", "all"),
-  scatter = TRUE,
+  scatter = F,
   labs = NULL,
   x.levels = NULL,
   silent = T,
@@ -46,7 +46,9 @@ Takes object produced by lme4::lmer() function, and returns interaction plot(s).
 It somehow repeats functionality of 'sjPlot::sjp.int', but differs in being able to select real groups close to +/- 1 sd and mean of moderating variable; makes prettier and customizable plots.
 }
 \examples{
-random_interaction(lmr, "model.1SD.2SD")
+data("Orthodont",package="nlme")
+m1 = lmer(distance ~ age*Sex + (age|Subject), data=Orthodont)
+random_interaction2(m1)
 }
 \seealso{
 \link{random_plot} \link{good_table}

@@ -15,6 +15,7 @@ df_to_viewer(
   colformat = NULL,
   sg.style = "ajs",
   k.style = "default",
+  digits = 2,
   ...
 )
 }
