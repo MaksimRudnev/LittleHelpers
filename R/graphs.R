@@ -712,11 +712,11 @@ random_interaction <- function( x,
   # Add scatterlot of random effects vs explanatory variable
 
 
-  requireNamespace("effects")
-  requireNamespace("stringr")
-  requireNamespace("lme4")
-  requireNamespace("grid")
-  requireNamespace("ggrepel")
+  requireNamespace("effects", quietly = T)
+  requireNamespace("stringr", quietly = T)
+  requireNamespace("lme4", quietly = T)
+  requireNamespace("grid", quietly = T)
+  requireNamespace("ggrepel", quietly = T)
 
 
   z.levels<-z.levels[1]
@@ -805,12 +805,14 @@ random_interaction <- function( x,
       next
     }
 
+    if(!silent) {
     message("Interaction term is ", interaction.terms[[i]],
       "\n factor variable is ", ifelse(length(possibly.factors)>0,factor.var,"none"),
       "\n group-level effect is ", group.eff.name,
       "\n random effect term is ", random.eff.name,
       "\n ind term is ", ind.eff
        )
+    }
 
 
   # Constructing the moderator levels and labels
@@ -988,7 +990,7 @@ random_interaction <- function( x,
 
 
     } else {
-      warning("Here computations of slopes should be")
+      if(!silent) warning("Here computations of slopes should be")
     }
 
 
