@@ -289,7 +289,7 @@ eachParamPSRMplus <- function(parameters, id.parameter, iterations.range=NULL) {
   n = niterations.total/2 #burnin removed, niterations
   if(is.null(iterations.range)) iterations.range=n:niterations.total
 
-  # Bahavior in case there's a single chain (fold it and pretent there are two)
+  # Bahavior in case there's a single chain (fold it and pretend there are two)
   if(m==1) {
     folded.range1 =  iterations.range[1]:(iterations.range[1]+round(length(iterations.range)/2))
     folded.range2 = (iterations.range[1]+round(length(iterations.range)/2)):iterations.range[length(iterations.range)]
@@ -343,8 +343,26 @@ eachParamPSRMplus <- function(parameters, id.parameter, iterations.range=NULL) {
            ESS_bulk = ESS_bulk, ESS_tail = ESS_tail))
 }
 
+#' Loglikelihood test for MLR estimator - wrapper
+#'
+#' @description Convenience wrapper for \code{\link[LittleHelpers]{diffTestMLR}}
+#' @param reduced  reduced model read by \code{\link[MplusAutomation]{readModels}}
+#' @param full   full model read by \code{\link[MplusAutomation]{readModels}}
+#' @export
 
-#' Loglikelihood test for MLR
+diffTestMLR_ <- function(reduced, full) {
+  diffTestMLR(reduced$summaries$LL,
+              reduced$summaries$LLCorrectionFactor,
+              reduced$summaries$Parameters,
+              full$summaries$LL,
+              full$summaries$LLCorrectionFactor,
+              full$summaries$Parameters
+  )
+}
+
+
+
+#' Loglikelihood test for MLR estimator
 #'
 #' @description Adapted from http://www.statmodel.com/chidiff.shtml
 #' @param L0  loglikelihood values of reduced model

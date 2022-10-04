@@ -39,8 +39,8 @@ good_table <- function(models,
                        digits = 2,
                        #boot.ci = FALSE,
                         ...) {
-  loadNamespace("scales")
-  loadNamespace("stargazer", quietly = T)
+  requireNamespace("scales")
+  requireNamespace("stargazer", quietly = T)
 
   total.time<-Sys.time()
 

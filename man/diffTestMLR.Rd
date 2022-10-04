@@ -2,7 +2,7 @@
 % Please edit documentation in R/MplusHelpers.R
 \name{diffTestMLR}
 \alias{diffTestMLR}
-\title{Loglikelihood test for MLR}
+\title{Loglikelihood test for MLR estimator}
 \usage{
 diffTestMLR(L0, c0, p0, L1, c1, p1)
 }

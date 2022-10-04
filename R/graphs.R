@@ -385,7 +385,11 @@ stacked_bar_ntf_nm<-function(vars, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap
 #' with(d, graph_means_ci(v, group))
 #' @export
 graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "caption") , type=c("means", "ridges", "heat"), use.labels=T) {
-  #warning("Danger! There is some error in labeling! Do not trust the results!")
+
+  if(!type %in% c("means", "ridges", "heat")) {
+    stop('Type argument should be one of the "means", "ridges", "heat"')
+  }
+  #warning("There is some error in labeling! Do not trust the results!")
   group <- lab_to_fac(group)
 
   # if(!is.null(attr(var, "labels"))) {
@@ -455,7 +459,7 @@ graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "cap
 
   } else if(type[1] == "ridges") {
 
-    requireNamespace(ggridges)
+    requireNamespace("ggridges")
 
     means<-tapply(var, lab_to_fac(group), function(x) mean(x, na.rm=T), simplify = T)
 
