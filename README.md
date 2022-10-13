@@ -12,8 +12,8 @@ Use `remotes::install_github("maksimrudnev/LittleHelpers")` to install.
 - [Multilevel helpers](#multilevel-helpers)
 - [Multigroup helpers](#multigroup-helpers)
 - [Tools for labelled data and Rstudio viewer](#tools-for-labelled-data-and-rstudio-viewer)
-- Pipe helpers [removed, see [gist](https://gist.github.com/MaksimRudnev/bf81eab9f39bd830f9f167c669444472)]
-- [Values, Schwartz, ESS](#values-schwartz-ess)
+- deprecated - Pipe helpers [see [gist](https://gist.github.com/MaksimRudnev/bf81eab9f39bd830f9f167c669444472)]
+- deprecated - Values, Schwartz, ESS
 - [Miscellaneous](#miscellaneous)
 
 ## Multilevel helpers
@@ -50,9 +50,9 @@ Compute extra stats for multilevel regressions:
 
 - `lavTestScore_clean` Wrapper around `lavaan::lavTestScore()`, merging parameter labels with parameters and groups names and adding stars. Useful when you decide with between-group contraints might be relaxed.
 - `mgcfa_diagnose` Print comprehensible output to diagnose problems with MGCFA models.
-- `mi_test` Series of measurement invariance tests, analoigous to `semTools::measurementInvariance()`.
+- [[ Moved to [MIE package](https://github.com/MaksimRudnev/MIE.package) under the name `globalMI()` ]] `mi_test` Series of measurement invariance tests, analogous to `semTools::measurementInvariance()`.
 
-- See also [Measurement invariance explorer](https://github.com/MaksimRudnev/MIE)
+- See also [Measurement invariance explorer](https://github.com/MaksimRudnev/MIE.package)
 
 
 ## Tools for labelled data and Rstudio viewer
@@ -77,12 +77,18 @@ Make use of Rstudio viewer:
 - `df_to_viewer` Puts any data.frame to RStudio viewer. Also works with models and anything that can be passed through `stargazer` or `kable`.
 
 
-## Values, Schwartz, ESS
 
-- `values` list of value labels.
-- `download_ess` Download European Social Survey data
-- `schwartz_circle` Draw Schwartz circle and more with three simple functions: `add_circle`, `add_radius`, and `add_label`.
-- `ess_values` Computes 2, 4, or 10 value indices as they are measured in ESS.
+
+
+## Mplus Automation
+
+- `traceplots_mplus` Extracts Bayesian data from data Mplus, draws the trace plots and autocorrelation plots, and saves in a single pdf.
+- `checkMplusModel` Checks if the output contains any negative variances and correlations higher than 1. Also can print errors and warnings. Handy when working with many models.
+- `diffTestMLR_` Computes Likelihood ratio test for estimators like MLR.
+- `getParamsMplus` Extracts parameters from Bayesian models produced by Mplus where `MplusAutomation` fails.
+- `partable_mplus` Collects parameters from several models and ,erges them into a single table (persuing the idea of stargazer/semTable for Mplus).
+
+
 
 ## Miscellaneous
 
@@ -90,12 +96,15 @@ Make use of Rstudio viewer:
 - `replace_by_table` Useful for recoding when matching tables are alsready specified in a table. Particularly useful for translation.
 - `mean_se_lower_upper` Simply mean, SE, upper and lower 95% CI.
 - `verb` Simply prints its arguments.
-- `rename` Renames variables in data.frame without bullshittery.
 - `theme_mr` Clean theme for ggplot.
 
-## News
 
-- `convergencePlotsMplus` Extract Bayesian data from data Mplus, draw trace plots and autocorrelation plots, and save in a single pdf.
+## Values, Schwartz, ESS
+
+- `values` list of value labels.
+- `download_ess` Download European Social Survey data
+<!-- - `schwartz_circle` Draw Schwartz circle and more with three simple functions: `add_circle`, `add_radius`, and `add_label`. !-->
+- `ess_values` Computes 2, 4, or 10 value indices as they are measured in ESS.
 
 
 
