@@ -412,7 +412,7 @@ diffTestMLR <- function(L0, c0, p0,
 #' @param se If SEs should be included.
 #' @return Returns a single data frame with unstandardized parameters.
 #' @export
-partable_mplus <- function(models, std=FALSE, se=T) {
+partable_mplus <- function(models, std=FALSE, se=T, digits=2) {
 
   par.list <- lapply(1:length(models),
                      function(i) {
@@ -434,11 +434,11 @@ partable_mplus <- function(models, std=FALSE, se=T) {
                          t(apply(p, 1,
                                  function(eachrow)
                                    c(eachrow[1:2],
-                                     est=paste0( sprintf("%.2f",
+                                     est=paste0( sprintf(paste0("%.", digits, "f"),
                                                          as.numeric(eachrow["est"])),
                                                  ifelse(se,
                                                         paste0(
-                                                          "(", sprintf("%.2f",
+                                                          "(", sprintf(paste0("%.", digits, "f"),
                                                                        as.numeric(eachrow[se.lab]
                                                                        )
                                                           ),
@@ -466,48 +466,67 @@ return(out)
 #'
 #' @description Prints if any variance is negative oand whether there are correlations above 1 (OUTPUT: stdyx; is required in the Mplus input)
 #' @param model A single model read by MplusAutomation::readModels
+#' @param additional If additional info should be printed
+#' @param warnings If warnings and errors (if any) should be printed.
 #' @return Returns a single data frame with unstandardized parameters.
 #' @export
-checkMplusModel <- function(model) {
+checkMplusModel <- function(model, additional = TRUE, warnings = TRUE) {
 
   mgml.pars.nonstd <- model$parameters$unstandardized
   mgml.pars.std <- model$parameters$stdyx.standardized
 
-  cat("Are there any negative residual variances?\n")
+  cli::cli_h2("Are there any negative residual variances?\n")
   if(any(mgml.pars.nonstd[mgml.pars.nonstd$paramHeader=="Residual.Variances","est"]<0)) {
-    cat("Yes\n")
+    cat(cli::col_br_red("Some variances <0.\n"))
 
     cat("Unstandardized parameters:\n")
     resid.nonstd <- mgml.pars.nonstd[mgml.pars.nonstd$paramHeader=="Residual.Variances",]
     print(resid.nonstd[resid.nonstd$est<0,])
 
   } else {
-    cat("No\n")
+    cat(cli::col_br_blue("No variances <0.\n"))
   }
 
 
-  cat("Are there any correlations above 1?\n")
+  cli::cli_h2("Are there any correlations above 1?\n")
 
 
   if(any(mgml.pars.std[grep("\\.WITH", mgml.pars.std$paramHeader),"est"]>1)) {
-    cat("Yes\n")
+    cat(cli::col_br_red("Some cors are >1.\n"))
 
   } else {
-    cat("No\n")
+    cat(cli::col_br_blue("No cors >1.\n"))
   }
 
-  cat("Additional. close to zero standardized residual variances\n")
-  resid.std <- mgml.pars.std[mgml.pars.std$paramHeader=="Residual.Variances",]
-  resid.std <- resid.std[resid.std$est<.01,]
-  print(resid.std[order(resid.std$est),])
-  cat("Correlations >0.9:\n")
-  mgml.pars.cors <- mgml.pars.std[grep("\\.WITH", mgml.pars.std$paramHeader),]
-  print(mgml.pars.cors[mgml.pars.cors$est>.9,])
+  if(additional) {
+    cli::cli_h2("Additional. close to zero standardized residual variances\n")
+    resid.std <- mgml.pars.std[mgml.pars.std$paramHeader=="Residual.Variances",]
+    resid.std <- resid.std[resid.std$est<.01,]
+    print(resid.std[order(resid.std$est),])
+    cli::cli_h2("Correlations >0.9:\n")
+    mgml.pars.cors <- mgml.pars.std[grep("\\.WITH", mgml.pars.std$paramHeader),]
+    print(mgml.pars.cors[mgml.pars.cors$est>.9,])
 
-  cat("Covariances corresponding to correlations >.0.9\n")
-  mgml.pars.covs <- mgml.pars.nonstd[grep("\\.WITH", mgml.pars.nonstd$paramHeader),]
-  print(mgml.pars.covs[mgml.pars.cors$est>.9,])
+    cli::cli_h2("Covariances corresponding to correlations >.0.9\n")
+    mgml.pars.covs <- mgml.pars.nonstd[grep("\\.WITH", mgml.pars.nonstd$paramHeader),]
+    print(mgml.pars.covs[mgml.pars.cors$est>.9,])
+  }
 
+  if(warnings) {
+    cli::cli_h2("Are there any errors or warnings?\n")
+    if(length(model$warnings)>0) {
+      cat(cli::col_br_red("Yes.\n"))
+      print(model$warnings)
+    } else {
+      cat(cli::col_br_blue("No warnings.\n"))
+    }
+    if(length(model$errors)>0) {
+      cat(cli::col_br_red("Yes.\n"))
+      print(model$errors)
+    } else {
+      cat(cli::col_br_blue("No errors\n"))
+    }
+  }
 
 }
 

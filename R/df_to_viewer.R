@@ -12,11 +12,12 @@
 #' @param ... Other arguments passed to `stargazer` or `kableStyling()`.
 #' @param sg.style 'style' argument of `stargazer`.
 #' @param k.style Applies custom kableStyling style, might take two values "default", and "custom".
+#' @param kable.options A list of arguments passed to `kable` function.
 #'
 #' @aliases to_viewer
 #' @export
 
-df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, html = FALSE, colformat = NULL, sg.style = "ajs", k.style = "default", digits = 2, ...) {
+df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, html = FALSE, colformat = NULL, sg.style = "ajs", k.style = "default", digits = 2, kable.options = list(), ...) {
 
 
   if( k.style =="default") {
@@ -94,7 +95,11 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
 
     if(is.null(by)) {
 
-    kabTab <- knitr::kable(x, format  = "html", row.names = rownames, digits=digits)
+    kabTab <- do.call(knitr::kable, append(kable.options,
+                                             list(x = x,
+                                                  format  = "html",
+                                                  row.names = rownames,
+                                                  digits=digits)))
     do.call(kableExtra::kable_styling, kableStyling.arg(kabTab, ...))
 
     } else {
@@ -103,9 +108,12 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
       x <- x[unlist(sapply(unique(x[,by]), function(i) which(x[,by] == i))),]
 
     # save kable code to use in the loop below
-      kabTab <- knitr::kable(x[,-which(colnames(x)==by)],
-                      format  = "html",
-                      row.names = rownames, digits=digits)
+      kabTab <- do.call(knitr::kable,
+                                     append(kable.options,
+                                            list(x = x[,-which(colnames(x)==by)],
+                                                format  = "html",
+                                                row.names = rownames,
+                                                digits=digits)))
        tbl.out <- do.call(kableExtra::kable_styling, kableStyling.arg(kabTab, ...))
 
 

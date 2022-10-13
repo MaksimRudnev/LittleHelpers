@@ -4,10 +4,14 @@
 \alias{checkMplusModel}
 \title{Check NDP related to residuals and correlations of models read by 'readModels'}
 \usage{
-checkMplusModel(model)
+checkMplusModel(model, additional = TRUE, warnings = TRUE)
 }
 \arguments{
 \item{model}{A single model read by MplusAutomation::readModels}
+
+\item{additional}{If additional info should be printed}
+
+\item{warnings}{If warnings and errors (if any) should be printed.}
 }
 \value{
 Returns a single data frame with unstandardized parameters.

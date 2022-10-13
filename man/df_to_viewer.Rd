@@ -16,6 +16,7 @@ df_to_viewer(
   sg.style = "ajs",
   k.style = "default",
   digits = 2,
+  kable.options = list(),
   ...
 )
 }
@@ -35,6 +36,8 @@ df_to_viewer(
 \item{sg.style}{'style' argument of `stargazer`.}
 
 \item{k.style}{Applies custom kableStyling style, might take two values "default", and "custom".}
+
+\item{kable.options}{A list of arguments passed to `kable` function.}
 
 \item{...}{Other arguments passed to `stargazer` or `kableStyling()`.}
 

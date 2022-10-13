@@ -4,7 +4,7 @@
 \alias{partable_mplus}
 \title{Summarize parameters from several Mplus models read by 'readModels'}
 \usage{
-partable_mplus(models, std = FALSE, se = T)
+partable_mplus(models, std = FALSE, se = T, digits = 2)
 }
 \arguments{
 \item{models}{A list of models read by MplusAutomation::readModels}
