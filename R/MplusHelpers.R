@@ -452,7 +452,7 @@ partable_mplus <- function(models, std=FALSE, se=T, digits=2) {
                      })
 
  out <- Reduce(function(a, b)
-    merge(a, b, by = c("paramHeader", "param"), all=T),
+    merge(a, b, by = c("paramHeader", "param"), all=T, sort = F),
     par.list)
 
 return(out)
