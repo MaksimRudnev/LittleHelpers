@@ -1,6 +1,6 @@
 #' Shows data.frame in RStudio viewer
 #'
-#' via stargazer
+#' via stargazer and knitr
 #'
 #' @param df data.frame to show. Also works with a list of fitted lm() models.
 #' @param rownames Logical, if rownames should be shown.
@@ -68,13 +68,13 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
 
 
   if(!kable) {
-    requireNamespace("stargazer", quietly=T)
+    requireNamespace("stargazer", quietly = T)
       tempDir <- tempfile()
       dir.create(tempDir)
       htmlFile <- file.path(tempDir, "index.html")
 
       if(!html) {
-      a<-capture.output(stargazer(x, summary = summ,
+      a<-capture.output(stargazer::stargazer(x, summary = summ,
                                              #out=htmlFile,
                                              type="html",
                                              rownames = rownames, style=sg.style, digits=digits, ...))

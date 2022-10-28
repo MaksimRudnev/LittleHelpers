@@ -403,6 +403,14 @@ diffTestMLR <- function(L0, c0, p0,
 
 }
 
+#' Format the number quickly
+#' @param x any numeric vector or value.
+#' @param digits number of decimals.
+#' @returns Character of the formatted
+#' @export
+f = function(x, digits=3) sub("0\\.", ".", sprintf(paste0("%.", digits, "f"), x))
+
+
 
 #' Summarize parameters from several Mplus models read by 'readModels'
 #'
@@ -410,9 +418,11 @@ diffTestMLR <- function(L0, c0, p0,
 #' @param models A list of models read by MplusAutomation::readModels
 #' @param std If stdyx standardized coefs should be reported.
 #' @param se If SEs should be included.
+#' @param stars Logical. if significance stars should be added.
+#' @param digits Numeric value, how many decimals required.
 #' @return Returns a single data frame with unstandardized parameters.
 #' @export
-partable_mplus <- function(models, std=FALSE, se=T, digits=2) {
+partable_mplus <- function(models, std=FALSE, se=T, stars=T, digits=2) {
 
   par.list <- lapply(1:length(models),
                      function(i) {
@@ -434,26 +444,34 @@ partable_mplus <- function(models, std=FALSE, se=T, digits=2) {
                          t(apply(p, 1,
                                  function(eachrow)
                                    c(eachrow[1:2],
-                                     est=paste0( sprintf(paste0("%.", digits, "f"),
-                                                         as.numeric(eachrow["est"])),
-                                                 ifelse(se,
-                                                        paste0(
-                                                          "(", sprintf(paste0("%.", digits, "f"),
-                                                                       as.numeric(eachrow[se.lab]
-                                                                       )
-                                                          ),
-                                                          ")"), ""),
-                                                 pvalue_to_stars(as.numeric(eachrow["pval"])
-                                                 )
+                                     est=paste0( f(as.numeric(eachrow["est"]), digits),
+                                                 if(se)
+                                                   paste0(
+                                                          "(", f(as.numeric(eachrow[se.lab]), digits),
+                                                          ")")
+                                                 else
+                                                   "",
+                                                 if(stars)
+                                                   pvalue_to_stars(as.numeric(eachrow["pval"]))
+                                                 else
+                                                   ""
                                      )
                                    )))
                        colnames(p.formatted)[3] <- names(models)[[i]]
                        return(p.formatted)
                      })
 
- out <- Reduce(function(a, b)
-    merge(a, b, by = c("paramHeader", "param"), all=T, sort = F),
-    par.list)
+ # par.list = lapply(par.list, function(x) within(x, {paramHeader = I(paramHeader)}))
+
+ # out <- Reduce(function(a, b)
+ #    merge(a, b, by = c("paramHeader", "param"), all=T, sort = F),
+ #    par.list)
+
+  # This way preserves the order of parameters given by the FIRST model in the list
+  par.list = lapply(par.list, as.data.frame)
+  out <- Reduce(function(a, b)
+   datawizard::data_merge(a, b, by = c("paramHeader", "param"), join="full", sort = F),
+   par.list)
 
 return(out)
 

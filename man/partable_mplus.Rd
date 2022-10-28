@@ -4,7 +4,7 @@
 \alias{partable_mplus}
 \title{Summarize parameters from several Mplus models read by 'readModels'}
 \usage{
-partable_mplus(models, std = FALSE, se = T, digits = 2)
+partable_mplus(models, std = FALSE, se = T, stars = T, digits = 2)
 }
 \arguments{
 \item{models}{A list of models read by MplusAutomation::readModels}
@@ -12,6 +12,10 @@ partable_mplus(models, std = FALSE, se = T, digits = 2)
 \item{std}{If stdyx standardized coefs should be reported.}
 
 \item{se}{If SEs should be included.}
+
+\item{stars}{Logical. if significance stars should be added.}
+
+\item{digits}{Numeric value, how many decimals required.}
 }
 \value{
 Returns a single data frame with unstandardized parameters.

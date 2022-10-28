@@ -44,5 +44,5 @@ df_to_viewer(
 \item{df}{data.frame to show. Also works with a list of fitted lm() models.}
 }
 \description{
-via stargazer
+via stargazer and knitr
 }
