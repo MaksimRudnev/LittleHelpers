@@ -593,6 +593,43 @@ getParamsMplus <- function(file) {
 }
 
 
+#' Extracts Tech11 and Tech14 (Tests for mixture models)
+#'
+#' @description Extracts Tech11 and Tech14 containing VLMR, adjusted LMR, as well as BLRT ests for mixture models (L-1 vs L number of components)
+#' @param output Output either from `readModels()$output` or the raw file read by e.g. `readLines(Mplus output)`
+#' @return A list of data.frames with tests.
+#' @export
+tech11.14 <- function(output) {
+
+  t11 = "TECHNICAL 11 OUTPUT" #LMR
+  t14 = "TECHNICAL 14 OUTPUT" #BLRT
+
+  if( !any(grepl(t11, output))) {
+    warning("Could not find ", t11, ". Add  tech11; to the Mplus input and run the model again.")
+  } else {
+    tech11 = output[grep(t11, output):(grep(t11, output)+20)]
+    ALMR.pos = grep("LO-MENDELL-RUBIN ADJUSTED", tech11)
+    VLMR.pos = grep("VUONG-LO-MENDELL-RUBIN", tech11)
+
+    VLMR.text = paste(gsub("\\s+\\s", "\t", trimws(tech11[(VLMR.pos+2):(VLMR.pos+7)])), collapse="\n")
+    VLMR = read.delim(text= VLMR.text, header=F, col.names = c("stat", "value"), flush=T)
+
+    ALMR.text = paste(gsub("\\s+\\s", "\t", trimws(tech11[(ALMR.pos+2):(ALMR.pos+3)])), collapse="\n")
+    ALMR = read.delim(text= ALMR.text, header=F, col.names = c("stat", "value"), flush=T)
+  }
+
+  if( !any(grepl(t14, output))) {
+    warning("Could not find ", t14, ". Add  tech14; to the Mplus input and run the model again.")
+  } else {
+    tech14 = output[grep(t14, output):(grep(t14, output)+23)]
+    BLRT.pos = grep("PARAMETRIC BOOTSTRAPPED", tech14)
+    BLRT.text = paste(gsub("\\s+\\s", "\t", trimws(tech14[(BLRT.pos+2):(BLRT.pos+6)])), collapse="\n")
+    BLRT = read.delim(text= BLRT.text, header=F, col.names = c("stat", "value"), flush=T)
+  }
+  list(VLMR=VLMR, ALMR=ALMR, BLRT=BLRT)
+
+}
+
 
 
 
