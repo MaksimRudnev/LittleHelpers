@@ -133,9 +133,9 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
             group_label = unique(x[,by])[i],
             start_row =  end.position + 1,
             end_row = new.end.position,
-            hline_before=F,
-            hline_after = FALSE,
-            label_row_css = "border-top: 1px solid;",
+            hline_before = F,
+            hline_after = ifelse(cells.by.merge, F, T),
+            label_row_css = ifelse(cells.by.merge,  "border-top: 1px solid;", ""),
             colnum = ifelse(cells.by.merge, ncol(x), 1),
             indent = cells.by.indent
 
