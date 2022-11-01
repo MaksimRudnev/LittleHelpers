@@ -17,6 +17,8 @@ df_to_viewer(
   k.style = "default",
   digits = 2,
   kable.options = list(),
+  cells.by.merge = T,
+  cells.by.indent = T,
   ...
 )
 }
@@ -38,6 +40,10 @@ df_to_viewer(
 \item{k.style}{Applies custom kableStyling style, might take two values "default", and "custom".}
 
 \item{kable.options}{A list of arguments passed to `kable` function.}
+
+\item{cells.by.merge}{The headers created by `by` argument can be a single cell spanning all the columns (TRUE) or the subheader can be put in the new line's first column (FALSE). The latter tables are easier to hande in, e.g. MS Word.}
+
+\item{cells.by.indent}{Logical. Whether 'by' headers should have an indent.}
 
 \item{...}{Other arguments passed to `stargazer` or `kableStyling()`.}
 

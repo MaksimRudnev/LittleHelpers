@@ -13,11 +13,14 @@
 #' @param sg.style 'style' argument of `stargazer`.
 #' @param k.style Applies custom kableStyling style, might take two values "default", and "custom".
 #' @param kable.options A list of arguments passed to `kable` function.
+#' @param cells.by.merge The headers created by `by` argument can be a single cell spanning all the columns (TRUE) or the subheader can be put in the new line's first column (FALSE). The latter tables are easier to hande in, e.g. MS Word.
+#' @param cells.by.indent Logical. Whether 'by' headers should have an indent.
 #'
 #' @aliases to_viewer
 #' @export
 
-df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, html = FALSE, colformat = NULL, sg.style = "ajs", k.style = "default", digits = 2, kable.options = list(), ...) {
+df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, html = FALSE, colformat = NULL, sg.style = "ajs", k.style = "default", digits = 2, kable.options = list(), cells.by.merge = T, cells.by.indent = T, ...) {
+
 
 
   if( k.style =="default") {
@@ -95,6 +98,7 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
 
     if(is.null(by)) {
 
+
     kabTab <- do.call(knitr::kable, append(kable.options,
                                              list(x = x,
                                                   format  = "html",
@@ -102,8 +106,10 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
                                                   digits=digits)))
     do.call(kableExtra::kable_styling, kableStyling.arg(kabTab, ...))
 
+
     } else {
 
+       #if(cell.by = "merged") {
       #sort table by unique values of 'by' in the way they appear in the data
       x <- x[unlist(sapply(unique(x[,by]), function(i) which(x[,by] == i))),]
 
@@ -129,7 +135,9 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
             end_row = new.end.position,
             hline_before=F,
             hline_after = FALSE,
-            label_row_css = "border-top: 1px solid;"
+            label_row_css = "border-top: 1px solid;",
+            colnum = ifelse(cells.by.merge, ncol(x), 1),
+            indent = cells.by.indent
 
           )
         end.position = new.end.position
@@ -138,6 +146,13 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
        print(tbl.out)
 
 
+       # } else if(cells.by = "split") {
+
+
+
+      # } else {
+       #  warning("'cells.by' argument can only be 'merged' or 'split'")
+       #}
     }
   }
 }
