@@ -55,11 +55,13 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, h
         x[,y]
       else
         switch(class(colformat),
-               numeric= sprintf(paste0("%.", colformat[[y]], "f"), x[,y]),
+               numeric= f(x[,y], colformat[[y]]),
                character= sprintf(colformat[[y]], x[,y])
         )
 
     })
+
+
 
     dimnames(x.formatted) <- dimnames(x)
 

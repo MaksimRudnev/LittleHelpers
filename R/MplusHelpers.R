@@ -403,12 +403,7 @@ diffTestMLR <- function(L0, c0, p0,
 
 }
 
-#' Format the number quickly
-#' @param x any numeric vector or value.
-#' @param digits number of decimals.
-#' @returns Character of the formatted
-#' @export
-f = function(x, digits=3) sub("0\\.", ".", sprintf(paste0("%.", digits, "f"), x))
+
 
 
 

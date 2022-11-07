@@ -156,3 +156,16 @@ crosstab <- function(rows, cols, data, margin="row", useNA="always", drop.empty 
 
 
 }
+
+
+#' Format the number quickly and remove zero before dot
+#' @param x any numeric vector or value.
+#' @param digits number of decimals.
+#' @returns Character of the formatted
+#' @export
+f = function(x, digits=3) {
+  ifelse(grepl("^-", x),
+         sub("^-0\\.", "-.", sprintf(paste0("%.", digits, "f"), x)),
+         sub("^0\\.", ".", sprintf(paste0("%.", digits, "f"), x))
+  )
+}
