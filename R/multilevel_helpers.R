@@ -100,7 +100,7 @@ good_table <- function(models,
      ) {
 
    if( any(!lapply(models, nobs)==stats::nobs(models[[1]])) ) {
-     message("At least one model wasn't fit to the same sample, so LRT computation is stopped.")
+     stop("At least one model wasn't fit to the same sample, so LRT computation is stopped.")
    } else {
 
 
@@ -652,9 +652,14 @@ group_center <- function(variables, group, data, std=FALSE, prefix="g.") {
 
   new.data <- data[,c(group,variables)]
 
+  if(any(c("tbl", "tibble") %in% class(new.data))) attr(new.data, "class") <- "data.frame"
+
   for(v in variables)  {
-    ag<- tapply(new.data[,v], list(new.data[,group]), mean, na.rm = T)
-    for(g in unique(new.data[,group])) new.data[new.data[,group]==g, v]<- new.data[new.data[,group]==g, v] -ag[g]
+
+    ag <- tapply(new.data[,v], list(new.data[,group]), mean, na.rm = T)
+
+    for(g in unique(new.data[,group]))
+      new.data[new.data[,group]==g, v] <- new.data[new.data[,group]==g, v] -ag[g]
 
     if(std) {
       ag.sd<- tapply(new.data[,v], list(new.data[,group]), sd, na.rm = T)
@@ -698,34 +703,45 @@ grand_center <- function(variables, data, prefix="gc.", std = F) {
 #'
 #'
 #' @export
-aggr_and_merge <- function(variables, group, data, FUN="mean", prefix="") {
+# aggr_and_merge <- function(variables, group, data, FUN="mean", prefix="") {
+#
+#   if(length(group)==1) {
+#     c.x<-with(data, tapply(get(variables), get(group),
+#                                function(x) eval(call(FUN, x, na.rm=T)), simplify = T))
+#     c.y<-data.frame(c.x, grp=rownames(c.x))
+#
+#     names(c.y)[1] <- paste(ifelse(prefix=="", group, prefix), variables, sep="")
+#
+#     appended_data<-merge(x=data, c.y, by.x=group, by.y="grp", all.x=TRUE)
+#
+#   } else {
+#     aggs <- tapply(data[,variables], data[,group],
+#                    function(x) eval(call(FUN, x, na.rm=T)), simplify = T)
+#
+#     aggs <-reshape2::melt(aggs)
+#     names(aggs)[names(aggs)=="value"]<-
+#       paste(
+#         ifelse(prefix=="",
+#                paste0(group, collapse=""),
+#                prefix),
+#         variables,
+#         sep=".")
+#     appended_data<-merge(data, aggs, by = group, all.x = T)
+#   }
+#   return(appended_data)
+# }
+aggr_and_merge <- function(variables, group, data, FUN = "mean", prefix = paste0(group, ".")) {
 
-  if(length(group)==1) {
-    c.x<-with(data, tapply(get(variables), get(group),
-                               function(x) eval(call(FUN, x, na.rm=T)), simplify = T))
-    c.y<-data.frame(c.x, grp=rownames(c.x))
+  aggr.dat <- aggregate(data[,variables],
+                        setNames(list(data[,group]), nm=group),
+                        function(x) eval(call(FUN, x, na.rm=T)))
 
-    names(c.y)[1] <- paste(ifelse(prefix=="", group, prefix), variables, sep="")
+  colnames(aggr.dat)[-1] <- paste0(prefix, variables)
 
-    appended_data<-merge(x=data, c.y, by.x=group, by.y="grp", all.x=TRUE)
+  appended.data <- merge(data, aggr.dat, by=group, all.x=TRUE)
 
-  } else {
-    aggs <- tapply(data[,variables], data[,group],
-                   function(x) eval(call(FUN, x, na.rm=T)), simplify = T)
-
-    aggs <-reshape2::melt(aggs)
-    names(aggs)[names(aggs)=="value"]<-
-      paste(
-        ifelse(prefix=="",
-               paste0(group, collapse=""),
-               prefix),
-        variables,
-        sep=".")
-    appended_data<-merge(data, aggs, by = group, all.x = T)
-  }
-  return(appended_data)
+  return(appended.data)
 }
-
 
 
 

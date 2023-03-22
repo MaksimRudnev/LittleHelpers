@@ -596,7 +596,7 @@ scatter_means_ci <- function(variable1, variable2, group, data, plot=TRUE, print
 
 
 # Plot random effects #####
-#' Plot random effects and interactoions for mer objects
+#' Plot random effects and interactions for lmer objects
 #'
 #'Takes object produced by lme4::lmer() function, extracts random effects and interactions, and returns ggplot2-based plots to examine.
 #'
@@ -624,8 +624,8 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { 
   }
 
 
-  requireNamespace(grid)
-  glist<-gList()
+  requireNamespace("grid")
+  glist<-grid::gList()
   for(i in names(ses)) {
 
     est.ci<- data.frame(group    = row.names(dt),
@@ -716,11 +716,11 @@ random_interaction <- function( x,
   # Add scatterlot of random effects vs explanatory variable
 
 
-  requireNamespace("effects", quietly = T)
-  requireNamespace("stringr", quietly = T)
-  requireNamespace("lme4", quietly = T)
-  requireNamespace("grid", quietly = T)
-  requireNamespace("ggrepel", quietly = T)
+  loadNamespace("effects")
+  loadNamespace("stringr")
+  loadNamespace("lme4")
+  loadNamespace("grid")
+  loadNamespace("ggrepel")
 
 
   z.levels<-z.levels[1]
@@ -762,7 +762,7 @@ random_interaction <- function( x,
 
 
 
-  glist<-gList()
+  glist<-grid::gList()
   for(i in 1:length(interaction.terms.split)) {
 
 

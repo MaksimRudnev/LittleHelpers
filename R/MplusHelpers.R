@@ -419,6 +419,8 @@ diffTestMLR <- function(L0, c0, p0,
 #' @export
 partable_mplus <- function(models, std=FALSE, se=T, stars=T, digits=2) {
 
+  if(is.null(names(models))) names(models) <- 1:length(models)
+
   par.list <- lapply(1:length(models),
                      function(i) {
                        x<-models[[i]]
@@ -434,11 +436,12 @@ partable_mplus <- function(models, std=FALSE, se=T, stars=T, digits=2) {
                            grepl("bayes", models[[i]]$summaries$Estimator, ignore.case=T),
                             "posterior_sd", "se")
 
+                       id.vars = colnames(p)[colnames(p) %in% c("paramHeader", "param", "BetweenWithin")]
 
                        p.formatted <-
                          t(apply(p, 1,
                                  function(eachrow)
-                                   c(eachrow[1:2],
+                                   c(eachrow[id.vars],
                                      est=paste0( f(as.numeric(eachrow["est"]), digits),
                                                  if(se)
                                                    paste0(
@@ -447,12 +450,12 @@ partable_mplus <- function(models, std=FALSE, se=T, stars=T, digits=2) {
                                                  else
                                                    "",
                                                  if(stars)
-                                                   pvalue_to_stars(as.numeric(eachrow["pval"]))
+                                                   LittleHelpers:::pvalue_to_stars(as.numeric(eachrow["pval"]))
                                                  else
                                                    ""
                                      )
                                    )))
-                       colnames(p.formatted)[3] <- names(models)[[i]]
+                       colnames(p.formatted)[ncol(p.formatted)] <- names(models)[[i]]
                        return(p.formatted)
                      })
 
@@ -464,9 +467,13 @@ partable_mplus <- function(models, std=FALSE, se=T, stars=T, digits=2) {
 
   # This way preserves the order of parameters given by the FIRST model in the list
   par.list = lapply(par.list, as.data.frame)
+
   out <- Reduce(function(a, b)
-   datawizard::data_merge(a, b, by = c("paramHeader", "param"), join="full", sort = F),
-   par.list)
+            datawizard::data_merge(a, b,
+                                   by.x = colnames(a)[-ncol(a)],
+                                   by.y = colnames(b)[-ncol(b)],
+                                   join="full", sort = F),
+            par.list)
 
 return(out)
 

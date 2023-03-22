@@ -497,22 +497,32 @@ if(!code.only) {
 #'
 #'
 #' @export
-lav_compare <- function(..., what = c("cfi", "tli", "rmsea", "srmr", "bic", "df")) {
+lav_compare <- function(..., what = c("cfi", "tli", "rmsea", "srmr", "bic", "df"), LRT = F, print  = T) {
 
 
-  out <- lavaan::lavTestLRT(..., model.names = as.character(substitute(...()) ) )
+if(length(what)<1) warning("Please choose at least one fit statistic to report.")
 
-  out2<-t(sapply(list(...),   fitmeasures)[what,])
+  out2<- t(sapply(list(...),  function(x) {
+    all.fit= fitmeasures(x)
+    sapply(what, function(y) ifelse(any(names(all.fit) == y), all.fit[[y]], NA))
+    }))
   diffs <- apply(out2, 2, function(v) v - c(NA, v[-length(v)]))
   out2 <- cbind(out2, diffs)
   rownames(out2)<-as.character(substitute(...()) )
 
+  out = out2
 
-  print(out)
+  if(LRT) {
+    LRT <- lavaan::lavTestLRT(..., model.names = as.character(substitute(...()) ) )
+    if(print) print(LRT)
+    out = list(fit=out2, LRT = LRT)
+  }
+
+if(print) {
   cat("\n")
   print(round(out2, 3), digits=3, row.names = TRUE, na.print = "" )
-
-  invisible(list(LRT=out, Other.fit=out2))
+}
+  invisible(out)
 }
 
 
