@@ -659,7 +659,7 @@ group_center <- function(variables, group, data, std=FALSE, prefix="g.") {
     ag <- tapply(new.data[,v], list(new.data[,group]), mean, na.rm = T)
 
     for(g in unique(new.data[,group]))
-      new.data[new.data[,group]==g, v] <- new.data[new.data[,group]==g, v] -ag[g]
+      new.data[new.data[,group]==g, v] <- new.data[new.data[,group]==g, v] -ag[[as.character(g)]]
 
     if(std) {
       ag.sd<- tapply(new.data[,v], list(new.data[,group]), sd, na.rm = T)

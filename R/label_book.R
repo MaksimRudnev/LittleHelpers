@@ -43,24 +43,24 @@ label_book <- function(df, max.vals=25, vars="all", view=TRUE) {
     #Extract labels if they exist
     var.name<-names(df[i])
 
-    if(sum(class(df)=="tbl")>0) {
+    if( "tbl" %in% class(df) ) {
       variable <- df[,i][[1]]
     } else {
       variable <- df[,i]
     }
 
-    var.lab<-attr(variable, "label")
+    var.lab<-attr(variable, "label", exact = T)
 
-    if(is.null(attr(variable, "labels"))) {
+    if(is.null(attr(variable, "labels", exact = T))) {
       val.labs <- ""
       names(val.labs)<-""
 
     } else {
 
-      if(length(attr(variable, "labels"))>=max.vals) {
-      val.labs<-c(attr(variable, "labels")[1:max.vals], '-----truncated-----'="")
+      if(length(attr(variable, "labels", exact = T))>=max.vals) {
+      val.labs<-c(attr(variable, "labels", exact = T)[1:max.vals], '-----truncated-----'="")
       } else {
-      val.labs<-attr(variable, "labels")
+      val.labs<-attr(variable, "labels", exact = T)
       }
     }
 
@@ -87,16 +87,16 @@ label_book <- function(df, max.vals=25, vars="all", view=TRUE) {
       var.lab<-attr(df, "variable.labels")[i]
       var.name<-names(var.lab)
 
-      if(is.null(attr(df[,i], "value.labels"))| length(attr(df[,i], "value.labels"))==0   ) {
+      if(is.null(attr(df[,i], "value.labels", exact = T))| length(attr(df[,i], "value.labels"))==0   ) {
         val.labs <- ""
         names(val.labs)<-""
 
       } else {
 
-        if(length(attr(df[,i], "value.labels"))>=max.vals) {
-          val.labs<-c(sort(attr(df[,i], "value.labels"))[1:max.vals], '-----truncated-----'="")
+        if(length(attr(df[,i], "value.labels", exact = T))>=max.vals) {
+          val.labs<-c(sort(attr(df[,i], "value.labels", exact = T))[1:max.vals], '-----truncated-----'="")
         } else {
-          val.labs<-sort(attr(df[,i], "value.labels"))
+          val.labs<-sort(attr(df[,i], "value.labels", exact = T))
         }
       }
 

@@ -56,10 +56,19 @@ se <- function(variable) {
 }
 
 
-pvalue_to_stars <- function(vector.of.pvalues) {
-  sapply(vector.of.pvalues, function(x) paste0(
-  ifelse(x < .001, "***", ifelse(x < .01, "**", ifelse(x < .05, "*", " ")))))
+pvalue_to_stars <- function(vector.of.pvalues, na = "") {
+  sapply(vector.of.pvalues, function(x)
+    paste0(
+      ifelse(is.na(x),
+             na,
+             ifelse(x < .001, "***", ifelse(x < .01, "**", ifelse(x < .05, "*", " "))))
+  ))
 }
+
+eststar <- function(est, pvalue, digits = 2, na = "") {
+   paste0(f(est, digits), LittleHelpers:::pvalue_to_stars(pvalue, na))
+}
+
 
 
 
