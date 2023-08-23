@@ -46,7 +46,7 @@ cor_table <- function(d, method="spearman", star=TRUE) {
 
 
 
-#'St err of mean
+#' Standard err of mean
 #'
 #'@export
 se <- function(variable) {
@@ -65,6 +65,13 @@ pvalue_to_stars <- function(vector.of.pvalues, na = "") {
   ))
 }
 
+#' Quickly generate string from estimates and p-values
+#'
+#' @param est estimate
+#' @param pvalue p-value
+#' @param digits round to this number of decimals
+#' @param na return this if `est` is `NA`
+#' @export
 eststar <- function(est, pvalue, digits = 2, na = "") {
    paste0(f(est, digits), LittleHelpers:::pvalue_to_stars(pvalue, na))
 }
@@ -168,6 +175,7 @@ crosstab <- function(rows, cols, data, margin="row", useNA="always", drop.empty 
 
 
 #' Format the number quickly and remove zero before dot
+#'
 #' @param x any numeric vector or value.
 #' @param digits number of decimals.
 #' @returns Character of the formatted
@@ -178,3 +186,33 @@ f = function(x, digits=3) {
          sub("^0\\.", ".", sprintf(paste0("%.", digits, "f"), x))
   )
 }
+
+
+#' Reverse values and value labels
+#'
+#' @description  Returns same variable with reversed values. Reversing makes use of observed values rather than stored factor levels or attributes.
+#' @param var variable to reverse.
+#' @param preserve.labels Attempt saving labels.
+#' @export
+reverse <-function(var, preserve.labels = T) {
+
+  straight<-sort(unique(var), F)
+  reversed<-sort(unique(var), T)
+
+  #new.var<-sapply(var, function(x) reversed[straight==x][1] )
+
+  # Faster version
+  new.var <- rep(NA, length(var))
+  for(i in 1:length(straight) ) new.var[var==straight[i]] <- reversed[i]
+
+
+  if(length(attr(var, "labels", exact = T))!=0 & preserve.labels) {
+    old.labels <- attr(var, "labels", exact = T)
+    names(reversed) <- sapply(straight, function(x)  names(old.labels)[old.labels==x]  )
+    attr(new.var, "labels") <- reversed
+    attr(new.var, "label") <- attr(var, "label", exact = T)
+  }
+  new.var
+}
+
+

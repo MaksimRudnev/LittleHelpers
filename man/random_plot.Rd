@@ -2,7 +2,7 @@
 % Please edit documentation in R/graphs.R
 \name{random_plot}
 \alias{random_plot}
-\title{Plot random effects and interactoions for mer objects}
+\title{Plot random effects and interactions for lmer objects}
 \usage{
 random_plot(lmer.fit, optional.names = NA, facets = FALSE, print = T)
 }

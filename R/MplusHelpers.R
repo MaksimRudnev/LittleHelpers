@@ -419,7 +419,9 @@ diffTestMLR <- function(L0, c0, p0,
 #' @export
 partable_mplus <- function(models, std=FALSE, se=T, stars=T, digits=2) {
 
+  if("mplus.model" %in% class(models)) models <- list(models)
   if(is.null(names(models))) names(models) <- 1:length(models)
+
 
   par.list <- lapply(1:length(models),
                      function(i) {

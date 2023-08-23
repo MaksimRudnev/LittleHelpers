@@ -2,10 +2,10 @@
 % Please edit documentation in R/general_helpers.R
 \name{se}
 \alias{se}
-\title{St err of mean}
+\title{Standard err of mean}
 \usage{
 se(variable)
 }
 \description{
-St err of mean
+Standard err of mean
 }

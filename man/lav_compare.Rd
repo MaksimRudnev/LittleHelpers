@@ -4,7 +4,12 @@
 \alias{lav_compare}
 \title{Combine fit measures form several models and compare}
 \usage{
-lav_compare(..., what = c("cfi", "tli", "rmsea", "srmr", "bic", "df"))
+lav_compare(
+  ...,
+  what = c("cfi", "tli", "rmsea", "srmr", "bic", "df"),
+  LRT = F,
+  print = T
+)
 }
 \arguments{
 \item{...}{lavaan fitted objects}

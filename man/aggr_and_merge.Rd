@@ -4,7 +4,13 @@
 \alias{aggr_and_merge}
 \title{Creates country level variables by aggregating individual level variables}
 \usage{
-aggr_and_merge(variables, group, data, FUN = "mean", prefix = "")
+aggr_and_merge(
+  variables,
+  group,
+  data,
+  FUN = "mean",
+  prefix = paste0(group, ".")
+)
 }
 \arguments{
 \item{variables}{Variable to be aggregated.}
