@@ -635,6 +635,79 @@ tech11.14 <- function(output) {
 }
 
 
+#' Extracts fit indices of the Multilevel EFA (Mplus output)
+#'
+#' @description Extracts summary statistics from the Mplus output file.
+#' @param output Output file path.
+#' @return Sorted data frame with differing n of factors at each level and fit statistics. By default it extracts CFI, RMSEA, RMSEA.CI.LO, RMSEA.CI.HI, SRMR.w, SRMR.b, SABIC, AIC, Chi.sq, Chi.df, Chi.p, Chi.scale.
+#' @export
+extractMLEFA <- function(mplus.file) {
+  ml.efa <- readLines(mplus.file)
+  efa.headers <- grep("EXPLORATORY FACTOR ANALYSIS WITH ", ml.efa)
+
+  efa.headers <- efa.headers[ml.efa[efa.headers+3]=="MODEL FIT INFORMATION"]
+
+  out.tab <-
+    sapply(1:length(efa.headers), function(x) {
+
+      if(x != length(efa.headers)) {
+        piece = ml.efa[efa.headers[[x]]:efa.headers[[x+1]]]
+      } else {
+
+        piece.remaining = ml.efa[efa.headers[[x]]:length(ml.efa)]
+        piece = piece.remaining[1:grep("WITHIN LEVEL RESULTS", piece.remaining)]
+
+      }
+
+
+      n.fac = c(
+        n.factors.within = gsub(
+          "EXPLORATORY FACTOR ANALYSIS WITH |AND.*|WITHIN FACTOR\\(S\\)", "",
+          ml.efa[efa.headers[[x]]]),
+        n.factors.between = gsub("^.*AND|BETWEEN FACTOR\\(S\\):", "",
+                                 ml.efa[efa.headers[[x]]])
+      )
+
+      n.fac[grepl("UNRESTRICTED", n.fac)] <- "Unrestricted"
+
+      if(any(grepl("RMSEA", piece))) {
+
+        RMSEA.CI = piece[grep("RMSEA\\s\\(", piece)+3]
+
+        fit.ind <-
+          c(
+            CFI = piece[grepl("CFI\\s", piece)],
+            RMSEA = piece[grep("RMSEA\\s\\(", piece)+2],
+            RMSEA.CI.LO = ifelse(RMSEA.CI=="", strsplit(RMSEA.CI, " ")[[1]][length(strsplit(RMSEA.CI, " ")[[1]])-2], NA),
+            RMSEA.CI.HI = ifelse(RMSEA.CI=="", strsplit(RMSEA.CI, " ")[[1]][length(strsplit(RMSEA.CI, " ")[[1]])], NA),
+            SRMR.w = piece[grep("SRMR\\s\\(", piece)+2],
+            SRMR.b = piece[grep("SRMR\\s\\(", piece)+3],
+            SABIC = piece[grep("Sample-Size Adjusted BIC", piece)],
+            AIC = piece[grep("Akaike \\(AIC\\)", piece)],
+            Chi.sq = piece[grep("Chi-Square Test of Model Fit$", piece)+2],
+            Chi.df = piece[grep("Chi-Square Test of Model Fit$", piece)+3],
+            Chi.p = piece[grep("Chi-Square Test of Model Fit$", piece)+4],
+            Chi.scale = piece[grep("Chi-Square Test of Model Fit$", piece)+5]
+          )
+
+        fit.ind = gsub("[^0-9\\.]", "", fit.ind)
+        fit.ind = setNames(as.numeric(fit.ind), nm = names(fit.ind))
+
+
+      } else {
+
+        fit.ind = setNames(rep(NA, 12), nm = c("CFI", "RMSEA", "RMSEA.CI.LO",
+                                               "RMSEA.CI.HI", "SRMR.w", "SRMR.b", "SABIC", "AIC", "Chi.sq",
+                                               "Chi.df", "Chi.p", "Chi.scale"))
+      }
+
+      return(c(trimws(n.fac), fit.ind))
+
+    })
+
+  t(out.tab) %>% as.data.frame() %>% arrange(n.factors.within, n.factors.between)
+
+}
 
 
 

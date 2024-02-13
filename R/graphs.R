@@ -1,9 +1,9 @@
 ###Graphs and generic functions for comparative analysis##
-require(ggplot2)
-require(sjmisc)
-require(ggrepel)
-require(arm)
-require(car)
+require('ggplot2')
+require('sjmisc')
+require('ggrepel')
+require('arm')
+require('car')
 
 #' Convenience function for logging the code
 #'
@@ -36,13 +36,13 @@ verb <- function(...) {
 stacked_bar<-function(variable, group, sort.cat=1, colors=NA, include.na=FALSE, labs=TRUE, label.col=NA, format.label="2%", weight=NA,
                       label_col=NA) {
   requireNamespace("RColorBrewer")
-  requireNamespace(ggplot2)
-  requireNamespace(ggrepel)
-  requireNamespace(scales)
-  requireNamespace(reshape2)
-  requireNamespace(sjmisc)
-  requireNamespace(magrittr)
-  requireNamespace(stringr)
+  requireNamespace('ggplot2')
+  requireNamespace('ggrepel')
+  requireNamespace('scales')
+  requireNamespace('reshape2')
+  requireNamespace('sjmisc')
+  requireNamespace('magrittr')
+  requireNamespace('stringr')
 
 
   label_col=label.col
@@ -73,7 +73,7 @@ stacked_bar<-function(variable, group, sort.cat=1, colors=NA, include.na=FALSE, 
       as.data.frame %>% set_colnames(c("var", "group", "Freq"))
   } else {
 
-    requireNamespace(survey)
+    requireNamespace("survey")
 
     b <-  svydesign(id = ~0,
                     weights = ~ weight,
