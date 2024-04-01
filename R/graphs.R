@@ -54,7 +54,7 @@ stacked_bar<-function(variable, group, sort.cat=1, colors=NA, include.na=FALSE, 
               '#225ea8','#253494','#081d58', '#CCCCCC')
   }
 
-  var.label <- str_wrap(attr(variable, "label"), 50)
+  var.label <- stringr::str_wrap(attr(variable, "label"), 50)
   #print(var.label)
   if(include.na) {
     variable <- factor(variable, levels=c(unique(variable), "Missing"))
@@ -467,7 +467,7 @@ graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "cap
                     group=factor(group, levels=names(means)[order(means)]))
 
     g<-ggplot(dt, aes(x=var, y=group))+
-      geom_density_ridges(aes(fill=group %in% highlight.group),
+      ggridges::geom_density_ridges(aes(fill=group %in% highlight.group),
                           show.legend = F, quantiles=4, scale = 2, size=0.3)+theme_mr()+
       scale_fill_manual(values=c("skyblue", "#FF8FDA"))+
       geom_point(data=data.frame(x=means, y=names(means)), aes(x, y), shape=19, size=1, color="black", alpha=.5)+

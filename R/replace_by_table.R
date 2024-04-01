@@ -16,7 +16,7 @@
 #'@export
 replace_by_table<- function(variable=all.data$cntry, lookup.table=recodes2,
                             matching.column="cntry",
-                            replacement.column="WDIcode", save.levels.order=T) {
+                            replacement.column="", save.levels.order=T) {
 
 
   #NB rewrite using switch()

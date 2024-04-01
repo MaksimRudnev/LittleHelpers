@@ -112,7 +112,7 @@ na_tab <- function(data, viewer = T) {
   nms <- names(lst)
   lst <-  Reduce("rbind", lst)
   rownames(lst)<-nms
-  if(viewer) df_to_viewer(lst) else return(lst)
+  if(viewer) df_to_viewer(lst, kable = T) else return(lst)
 }
 
 
