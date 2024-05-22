@@ -1,13 +1,15 @@
 Package: LittleHelpers
 Type: Package
 Title: Helpers for comparative studies
-Version: 0.5-27
-Author: Maksim Rudnev <http://maksimrudnev.com>
-Maintainer: Maksim Rudnev <maksim.rudnev@gmail.com>
+Version: 0.5-30
+Date: 05-22-2024
+Authors@R: 
+    person("Maksim", "Rudnev", , "maksim.rudnev@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-2714-3840"))
 Description: Continuously updated collection of little helpers (tm) that facilitate my life in analyzing data (mostly comparative datasets) with R.
 URL: https://github.com/MaksimRudnev/LittleHelpers
 BugReports: https://github.com/MaksimRudnev/LittleHelpers/issues
-Depends: R (>= 4.0), ggplot2 (>= 2.2), magrittr (>= 1.5), lme4 (>= 1.1), lavaan (>= 0.6), gridExtra (>= 2.0)
+Depends: R (>= 4.1), ggplot2 (>= 2.2), magrittr (>= 1.5), lme4 (>= 1.1), lavaan (>= 0.6), gridExtra (>= 2.0)
 Imports: 
     effects (>= 3.1),
     stats (>= 3.1),

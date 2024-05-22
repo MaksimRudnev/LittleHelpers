@@ -5,7 +5,7 @@
 #' @param df data.frame to show. Also works with a list of fitted lm() models.
 #' @param rownames Logical, if rownames should be shown.
 #' @param summ Passed to `summary` argument of stargazer.
-#' @param kable logical, if data.frame should be passed to kable. If true, ... will be passed to function kableExtra::kable_styling
+#' @param kable logical. If data.frame should be passed to kable.  If true, ... will be passed to function kableExtra::kable_styling. Defaults to TRUE. If FALSE, passes df to stargazer.
 #' @param by The name of variable to group the rows by. Used only when `kable=TRUE`
 #' @param html If viewer should be ignored and just html code returned (useful to embed in Rmarkdown outputs
 #' @param colformat Formats each column using `sprintf`. If numeric, applies rounding only, if character, is passed to `sprintf` directly. Can be named to match x's column names. If not named, must have the same length as there are columns in x.
@@ -19,7 +19,7 @@
 #' @aliases to_viewer
 #' @export
 
-df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = FALSE, by = NULL, html = FALSE, colformat = NULL, sg.style = "ajs", k.style = "default", digits = 2, kable.options = list(), cells.by.merge = T, cells.by.indent = T, ...) {
+df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, html = FALSE, colformat = NULL, sg.style = "ajs", k.style = "default", digits = 2, kable.options = list(), cells.by.merge = T, cells.by.indent = T, ...) {
 
 
 

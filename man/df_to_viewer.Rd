@@ -9,7 +9,7 @@ df_to_viewer(
   x,
   rownames = TRUE,
   summ = F,
-  kable = FALSE,
+  kable = TRUE,
   by = NULL,
   html = FALSE,
   colformat = NULL,
@@ -27,7 +27,7 @@ df_to_viewer(
 
 \item{summ}{Passed to `summary` argument of stargazer.}
 
-\item{kable}{logical, if data.frame should be passed to kable. If true, ... will be passed to function kableExtra::kable_styling}
+\item{kable}{logical. If data.frame should be passed to kable.  If true, ... will be passed to function kableExtra::kable_styling. Defaults to TRUE. If FALSE, passes df to stargazer.}
 
 \item{by}{The name of variable to group the rows by. Used only when `kable=TRUE`}
 

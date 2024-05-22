@@ -792,19 +792,28 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
 
   tb$group<-factor(tb$group, levels=tb$group[order(tb$Corr)])
   if(plot==T) {
+    tb$group.highlighted <- as.character(tb$group %in% highlight.group)
 
-
-
-      tb$group.highlighted <- as.character(tb$group %in% highlight.group)
-
-    g<-ggplot(tb,aes(x=group, y=Corr, ymin = loCI, ymax= hiCI))+
-      geom_errorbar(width=.4, colour="grey")+geom_point(colour="red")+
-      geom_point(aes(colour=group.highlighted, size = group.highlighted),
-                 show.legend = F, alpha=1 )+
-      scale_color_manual(values = c("red", "black"))+
-      scale_size_manual(values = c(1, 3))+ylab(paste("Corr", var1, "with", var2))+xlab("")+
-      coord_flip()+theme_minimal()
-    if(labs) g<-g+ggrepel::geom_text_repel(aes(label=(round(Corr, 2))), size=3)
+    g <- ggplot(tb, aes(
+      x = group,
+      y = Corr,
+      ymin = loCI,
+      ymax = hiCI
+    )) +
+      geom_errorbar(width = .4, colour = "grey") +
+      geom_point(colour = "red") +
+      geom_point(
+        aes(colour = group.highlighted, size = group.highlighted),
+        show.legend = F,
+        alpha = 1
+      ) +
+      scale_color_manual(values = c("red", "black")) +
+      scale_size_manual(values = c(1, 3)) + ylab(paste("Corr", var1, "with", var2)) +
+      xlab("") +
+      coord_flip() + theme_minimal()
+    if (labs)
+      g <- g + ggrepel::geom_text_repel(aes(label = (round(Corr, 2))), size =
+                                          3)
 
     print(g)
   }

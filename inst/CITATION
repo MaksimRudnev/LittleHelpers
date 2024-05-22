@@ -1,0 +1,9 @@
+bibentry(
+  key = "LittleHelpers",
+  bibtype  = "Misc",
+  url = "https://github.com/MaksimRudnev/LittleHelpers",
+  author = c(person("Maksim", "Rudnev", , "maksim.rudnev@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-2714-3840"))),
+  title = "LittleHelpers: Helpers for comparative studies",
+  year = "2024"
+  )

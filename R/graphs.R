@@ -4,6 +4,7 @@ require('sjmisc')
 require('ggrepel')
 require('arm')
 require('car')
+require("scales")
 
 #' Convenience function for logging the code
 #'
@@ -34,7 +35,7 @@ verb <- function(...) {
 #' @export
 #'
 stacked_bar<-function(variable, group, sort.cat=1, colors=NA, include.na=FALSE, labs=TRUE, label.col=NA, format.label="2%", weight=NA,
-                      label_col=NA) {
+                      label_col=NA, flip = F, cat.rev = F) {
   requireNamespace("RColorBrewer")
   requireNamespace('ggplot2')
   requireNamespace('ggrepel')
@@ -48,7 +49,7 @@ stacked_bar<-function(variable, group, sort.cat=1, colors=NA, include.na=FALSE, 
   label_col=label.col
 
 
-  if(is.na(colors)) {
+  if(any(is.na(colors))) {
     colors<-c('#ffffd9','#edf8b1','#c7e9b4',
               '#7fcdbb','#41b6c4','#1d91c0',
               '#225ea8','#253494','#081d58', '#CCCCCC')
@@ -69,7 +70,12 @@ stacked_bar<-function(variable, group, sort.cat=1, colors=NA, include.na=FALSE, 
 
     b <-  table(variable, group) %>%
       prop.table(2) %>%
-      .[, order(.[sort.cat,])] %>%
+      {
+        if(any(!is.na(sort.cat)))
+        .[, order(colSums(.[sort.cat,]))]
+        else
+          .
+        } %>%
       as.data.frame %>% set_colnames(c("var", "group", "Freq"))
   } else {
 
@@ -84,25 +90,27 @@ stacked_bar<-function(variable, group, sort.cat=1, colors=NA, include.na=FALSE, 
     ) %>%
       svytable(~ var + group, .) %>%
       prop.table(2) %>%
-      .[, order(.[sort.cat,])] %>%
+      #.[, order(.[sort.cat,])] %>%
+      { if(any(is.na(sort.cat))) .[, order(.[sort.cat,])] else . } %>%
       as.data.frame #%>% set_colnames(c("var", "group", "Freq"))
   }
 
   print(b)
   #print(reshape2::dcast(b,  group ~ var  ))
-
+if(cat.rev) levels(b$var) <- rev(levels(b$var))
 
 
   g<- ggplot(b,aes(x = group, y = Freq, fill = rev(var) )) +
     geom_bar(position = "fill", stat = "identity", col="black", size=.1)+
     scale_y_continuous(name="", labels = percent_format()) +
     labs(x="", y="", fill="")+
-    coord_flip() +
     theme(legend.title=element_blank(), legend.position = "bottom")+
     theme_minimal()+
     scale_fill_manual(name="", values=colors[1:length(levels(variable))],
                       labels=rev(levels(variable)))+
     theme(panel.grid = element_blank())
+
+  if(!flip) g <- g+coord_flip()
 
   if(!is.null(var.label)) g<- g + ggtitle(var.label)
 

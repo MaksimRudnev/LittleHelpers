@@ -8,7 +8,7 @@ replace_by_table(
   variable = all.data$cntry,
   lookup.table = recodes2,
   matching.column = "cntry",
-  replacement.column = "WDIcode",
+  replacement.column = "",
   save.levels.order = T
 )
 }

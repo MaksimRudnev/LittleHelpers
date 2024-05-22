@@ -14,7 +14,9 @@ stacked_bar(
   label.col = NA,
   format.label = "2\%",
   weight = NA,
-  label_col = NA
+  label_col = NA,
+  flip = F,
+  cat.rev = F
 )
 }
 \arguments{
