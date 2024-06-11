@@ -5,24 +5,29 @@
 \title{Graph means w/CIs}
 \usage{
 graph_means_ci(
-  var,
+  x,
   group,
   highlight.group = NA,
-  codes = c("print", "caption"),
+  codes = c("none", "print", "caption"),
   type = c("means", "ridges", "heat"),
-  use.labels = T
+  use.labels = T,
+  data
 )
 }
 \arguments{
-\item{var}{Variable to aggregate.}
+\item{x}{Variable to aggregate.}
 
-\item{group}{Group variable.}
+\item{group}{Group variable. If length is 1, assumes it's a variable name in the `data`}
 
 \item{highlight.group}{Character vector of groups make bold.}
 
 \item{codes}{"print" or "caption"}
 
 \item{type}{"means", "ridges", "heat"}
+
+\item{use.labels}{Whether or not attempt to extract value labels. TRUE by default.}
+
+\item{data}{Optional, used only if `X` or `group` have length 1.}
 }
 \description{
 Returns ggplot of means by group with 95% confidence intervals. Modifiable with standard ggplot geoms, scales, themes, etc.

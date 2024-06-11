@@ -382,54 +382,72 @@ stacked_bar_ntf_nm<-function(vars, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap
 #' Graph means w/CIs
 #'
 #' Returns ggplot of means by group with 95% confidence intervals. Modifiable with standard ggplot geoms, scales, themes, etc.
-#' @param var Variable to aggregate.
-#' @param group Group variable.
+#' @param x Variable to aggregate.
+#' @param group Group variable. If length is 1, assumes it's a variable name in the `data`
 #' @param highlight.group Character vector of groups make bold.
 #' @param codes "print" or "caption"
 #' @param type "means", "ridges", "heat"
+#' @param use.labels Whether or not attempt to extract value labels. TRUE by default.
+#' @param data Optional, used only if `X` or `group` have length 1.
 #'
 #' @examples d<-data.frame(v=1:100, group=rep(1:2, 50))
 #' graph_means_ci(d$v, d$group)
 #' with(d, graph_means_ci(v, group))
 #' @export
-graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "caption") , type=c("means", "ridges", "heat"), use.labels=T) {
+graph_means_ci <- function(x,
+                           group,
+                           highlight.group=NA,
+                           codes=c("none", "print", "caption"),
+                           type=c("means", "ridges", "heat"),
+                           use.labels=T,
+                           data) {
 
+  type = type[[1]]
   if(!type %in% c("means", "ridges", "heat")) {
     stop('Type argument should be one of the "means", "ridges", "heat"')
   }
+
+  if(length(x)==1) x <- data[,x]
+  if(length(group)==1) group <- data[,group]
+
   #warning("There is some error in labeling! Do not trust the results!")
   group <- lab_to_fac(group)
 
-  # if(!is.null(attr(var, "labels"))) {
-  #   lbl.tbl<-  data.frame(codes= attr(var, "labels"),
-  #                         labels= names(attr(var, "labels")),
+  # if(!is.null(attr(x, "labels"))) {
+  #   lbl.tbl<-  data.frame(codes= attr(x, "labels"),
+  #                         labels= names(attr(x, "labels")),
   #                         row.names = NULL)
   #   print(lbl.tbl)
   # }
 
 
   # Caption and codes
-  if(!is.null(attr(var, "labels")) && use.labels) {
-    g.caption <- paste(attr(var, "labels"),
-                       attr(attr(var, "labels"), "names"), collapse="; \n")
+  if(!is.null(attr(x, "labels")) && use.labels) {
+    g.caption <- paste(attr(x, "labels"),
+                       attr(attr(x, "labels"), "names"), collapse="; \n")
   } else {
-    g.caption <- paste(unique(var), collapse="; \n")
+    #g.caption <- paste(unique(x), collapse="; \n")
+    g.caption <- paste(deparse(substitute(x)), "by",
+                       deparse(substitute(group))
+                       )
   }
 
-  # X labs
-  if(!is.null(attr(var, "label"))  &&  any(!attr(var, "label")==attr(var, "labels")) && use.labels) {
-    x.label <-  attr(var, "label")
+  # x labs
+  if(!is.null(attr(x, "label"))  &&
+     any(!attr(x, "label")==attr(x, "labels")) &&
+     use.labels) {
+    x.label <-  attr(x, "label")
   } else {
-    x.label <-   deparse(substitute(var))
+    x.label <-   deparse(substitute(x))
   }
 
 
   if(type[1]=="means") {
 
     dt<-data.frame(
-      mean=tapply(var, group, function(x) mean(x, na.rm=T), simplify = T),
-      sd=tapply(var, group, function(x) sd(x, na.rm=T), simplify = T),
-      n=tapply(var, group, function(x) length(x), simplify = T)
+      mean=tapply(x, group, function(x) mean(x, na.rm=T), simplify = T),
+      sd=tapply(x, group, function(x) sd(x, na.rm=T), simplify = T),
+      n=tapply(x, group, function(x) length(x), simplify = T)
     )
     dt$lower<-dt[,1]-dt[,2]*1.96/sqrt(dt[,3])
     dt$upper<-dt[,1]+dt[,2]*1.96/sqrt(dt[,3])
@@ -447,7 +465,7 @@ graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "cap
                          #breaks=2:7,
                          minor_breaks=NULL) +
       coord_flip()+
-      labs(title = gsub('(.{1,50})(\\s|$)', '\\1\n', x.label))+
+      labs(title = gsub('(.{1,50})(\\s|$)', '\\1\n', g.caption))+
       theme(axis.line = element_line(colour = "black"),
             panel.grid = element_blank(),
             plot.caption = element_text(size=5, hjust=0))
@@ -469,12 +487,12 @@ graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "cap
 
     requireNamespace("ggridges")
 
-    means<-tapply(var, lab_to_fac(group), function(x) mean(x, na.rm=T), simplify = T)
+    means<-tapply(x, lab_to_fac(group), function(x) mean(x, na.rm=T), simplify = T)
 
-    dt<- data.frame(var=var,
+    dt<- data.frame(x=x,
                     group=factor(group, levels=names(means)[order(means)]))
 
-    g<-ggplot(dt, aes(x=var, y=group))+
+    g<-ggplot(dt, aes(x=x, y=group))+
       ggridges::geom_density_ridges(aes(fill=group %in% highlight.group),
                           show.legend = F, quantiles=4, scale = 2, size=0.3)+theme_mr()+
       scale_fill_manual(values=c("skyblue", "#FF8FDA"))+
@@ -485,8 +503,8 @@ graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "cap
 
   } else if(type[1]=="heat") {
 
-    freq.dt<-as.data.frame(prop.table(table(group, var, useNA="no"), margin=1))
-    means<-tapply(var, lab_to_fac(group), function(x) mean(x, na.rm=T), simplify = T)
+    freq.dt<-as.data.frame(prop.table(table(group, x, useNA="no"), margin=1))
+    means<-tapply(x, lab_to_fac(group), function(y) mean(y, na.rm=T), simplify = T)
     means.dt<- data.frame(group=names(means), means=means)
     freq.dt$ones <- rep(1, nrow(freq.dt))
     freq.dt$group <- factor(freq.dt$group, levels=names(means)[order(means)])
@@ -496,7 +514,7 @@ graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "cap
       #scale_fill_distiller(type="seq", direction = 1, palette="GnBu")+
       geom_point(data=means.dt, aes(group, means, fill=NULL))+
       geom_text(data=means.dt, aes(group, means, fill=NULL, label=format(means, digits=2, nsmall=2)), size=2, nudge_y=.5)+
-      scale_y_continuous(breaks=min(var,na.rm =T):max(var,na.rm =T) - 0.5, labels=min(var,na.rm =T):max(var,na.rm =T))+
+      scale_y_continuous(breaks=min(x,na.rm =T):max(x,na.rm =T) - 0.5, labels=min(x,na.rm =T):max(x,na.rm =T))+
       theme_mr()+labs(x="", y="", fill="Frequency")
 
 
@@ -512,10 +530,12 @@ graph_means_ci <- function(var, group, highlight.group=NA, codes=c("print", "cap
   }
 
 
-  if(codes[1]=="caption") {
+
+  if(codes[[1]]=="caption") {
     g+labs(caption = g.caption)
-  } else if (codes[1]=="print") {
+  } else if (codes[[1]]=="print") {
     cat(g.caption)
+  } else if (codes[[1]]=="none") {
   }
 
   g
@@ -1103,6 +1123,56 @@ plef <-   function(modl, eff.id=1, x.var=1,...) {
        rug=F, colors=c("pink", "red", "black", "blue", "skyblue"))
 }
 
+#' Prepares data for significance staples on ggplot
+#'
+#'
+#'@param df Aggregated data frame
+#'@param compare.var Indicator of categories compared
+#'@param y.var Means or other compared quantities (used to define the ends of the staples)
+#'@param group.var Any additional variable in the dataset (e.g., groupuing variable)
+#'@param heights Numeric vector. Height or width of each staple.
+#'@param ends Numeric vector. Fixed ends for even staple graphs, in case specified, `y.var` is ignored.
+#'
+#' @export
+sig_seg <- function(df, compare.var, y.var, group.var, heights, ends) {
+  df <-untibble(df)
+  df = df[,c(compare.var, y.var, group.var)]
+  df[,compare.var]<-as.character(df[,compare.var])
 
-# Sys.setenv(TZ="Europe/Lisbon")
-# Sys.getenv("TZ")
+  all.links = expand.grid(unique(df[,compare.var]),
+                          unique(df[,compare.var]),
+                          stringsAsFactors = F) %>%
+    mutate(x = 1:9) %>%
+    dcast(Var1 ~ Var2, value.var = "x") %>%
+    set_rownames(.$Var1)
+
+  segment.id = all.links[,-1][lower.tri(all.links[,-1])]
+  segments = melt(all.links, id.vars = "Var1") %>% filter(value %in% segment.id) %>%
+    mutate(variable = as.character(variable))
+
+  framework = lapply(1:nrow(segments), function(x)
+    as.data.frame.matrix(matrix(unlist(segments[x, c(1,1,1,2,2,2)]), nrow = 3, byrow = T)) %>% mutate(segm.id = paste(segments[x, c(1,2)], collapse = "_")  ))
+
+  if(is.null(ends)) ends <- d[,y.var]
+
+  segments.paths =
+    lapply(df[,group.var], function(pop) {
+      a = dplyr::filter(df,df[,group.var]==pop)
+      lapply(1:length(framework), function(x) {
+        fr = framework[[x]]
+        fr$x1 = heights[[x]]
+        fr$x2 = heights[[x]]
+        if(is.null(ends))  {
+          fr[1, "x1"]<- a[,y.var][a[,compare.var] == fr[1,1]]
+          fr[3, "x2"]<- a[,y.var][a[,compare.var] == fr[3,1]]
+        } else {
+          fr[1, "x1"]<- ends[[x]]
+          fr[3, "x2"]<- ends[[x]]
+        }
+        cbind(fr, pop_groups = pop)
+      })})
+
+  segm.df = Reduce(rbind, lapply(segments.paths, function(x) Reduce(rbind, x))) %>%
+    set_names(c("y", "yend", "segm.id", "x", "xend", group.var))
+  segm.df
+}
