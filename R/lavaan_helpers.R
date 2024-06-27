@@ -501,10 +501,16 @@ lav_compare = function(..., what = c("cfi", "tli", "rmsea", "srmr", "bic", "df")
 
 
   if(length(what)<1) warning("Please choose at least one fit statistic to report.")
-  if(length(list(...))==1 & class(list(...)[[1]]) == "list")
+  if(length(list(...))==1 & class(list(...)[[1]]) == "list") {
     modellist = list(...)[[1]]
-  else
+    modelnames <- names(modellist)
+  } else {
     modellist = list(...)
+    if(is.null(names(modellist)))
+      modelnames <- as.character(substitute(...()) )
+    else
+      modelnames <- names(modellist)
+  }
 
 
   out2<- t(sapply(modellist,  function(x) {
@@ -514,10 +520,7 @@ lav_compare = function(..., what = c("cfi", "tli", "rmsea", "srmr", "bic", "df")
   diffs <- apply(out2, 2, function(v) v - c(NA, v[-length(v)]))
   out2 <- cbind(out2, diffs)
 
-  if(is.null(names(modellist)))
-    modelnames <- as.character(substitute(...()) )
-  else
-    modelnames <- names(modellist)
+
 
   rownames(out2)<-modelnames
 
@@ -569,4 +572,11 @@ plot_latent_means <- function(fit) {
   })
 
 }
+
+
+
+#' SEM tab
+#' @model
+#' @export
+
 
