@@ -501,7 +501,7 @@ lav_compare = function(..., what = c("cfi", "tli", "rmsea", "srmr", "bic", "df")
 
 
   if(length(what)<1) warning("Please choose at least one fit statistic to report.")
-  if(length(list(...))==1 & class(list(...)[[1]]) == "list") {
+  if(length(list(...))==1 & "list" %in% class(list(...)[[1]]) ) {
     modellist = list(...)[[1]]
     modelnames <- names(modellist)
   } else {
@@ -529,7 +529,7 @@ lav_compare = function(..., what = c("cfi", "tli", "rmsea", "srmr", "bic", "df")
   if(LRT) {
     # LRT <- do.call(lavaan::lavTestLRT, append(modellist, list(model.names = modelnames)))
     # above does not work properly
-    args.for.lav.LRT = append(rus1.cfas, list(modelnames))
+    args.for.lav.LRT = append(modellist, list(modelnames))
     names(args.for.lav.LRT) <- c("object", rep("", length(modellist)-1), "model.names")
     LRT <- do.call(lavaan::lavTestLRT, args.for.lav.LRT)
 
@@ -543,6 +543,8 @@ lav_compare = function(..., what = c("cfi", "tli", "rmsea", "srmr", "bic", "df")
   }
   invisible(out)
 }
+
+
 
 
 
@@ -576,7 +578,93 @@ plot_latent_means <- function(fit) {
 
 
 #' SEM tab
-#' @model
+#' @param ... Fitted lavaan models as separate arguments or a list of models
+#' @param what Kinds of parameters to report. Possible values "loadings" and "intercepts"
 #' @export
+sem_tab <- function(..., what = c("loadings", "intercepts"), std = F) {
+
+  if(length(list(...))==1 & class(list(...)[[1]]) == "list")
+    modellist = list(...)[[1]]
+  else
+    modellist = list(...)
 
 
+
+  if(is.null(names(modellist))) {
+    modelnames <- as.character(substitute(...()) )
+    print(modelnames)
+  } else {
+    modelnames <- names(modellist)
+  }
+
+  #modellist = list(IH.pool.3bif = IH.pool.3bif, IH.pool.three = IH.pool.three)
+
+  names(modellist) <- modelnames
+
+  #str(modellist, 1)
+  #print(names(modellist))
+
+  paramlist <- lapply(setNames(nm=modelnames),
+                      function(m) {
+                        if(std) {
+                          pr.tb = standardizedSolution(modellist[[m]])
+                          pr.tb = dplyr::rename(pr.tb, "est" = "est.std")
+                          pr.tb$model = m
+                          pr.tb
+                        } else {
+                          pr.tb = parameterEstimates(modellist[[m]])
+                          pr.tb$model = m
+                          pr.tb
+                        }
+                      })
+
+  #print(paramlist)
+  allprms = Reduce(rbind, paramlist)
+
+
+
+  allprms %>% mutate(kind = ifelse(op == "=~", "loadings",
+                                   ifelse(op == "~1", "intercepts",
+                                          ifelse(op == "~~", "covariances", "other")))) %>%
+    filter(kind %in% what) %>%
+    mutate(est_star  = eststar(est, pvalue)) %>%
+    reshape2::dcast(lhs + rhs + kind ~ model, value.var = "est_star")
+
+}
+
+sem_tab <- function(m, elements = "loadings", std = F) {
+
+  extract_pars <- function(model) {
+    if(std)  {
+      pars = standardizedSolution(model) %>%
+        rename(est = "std.est")
+    } else {
+      pars = parameterEstimates(model)
+    }
+
+    if( ("loadings" %in% elements)) {
+      if(lavInspect(model, "ngroups")>1 ) {
+        tab1 = pars %>% dplyr::filter(op == "=~") %>%
+          dplyr::mutate(eststar = eststar(est, pvalue)) %>%
+          dplyr::select(lhs, rhs, group, eststar) %>%
+          reshape2::dcast(lhs + rhs ~ group, value.var = "eststar")
+      } else {
+        tab1 = pars %>% dplyr::filter(op == "=~") %>%
+          dplyr::mutate(eststar = eststar(est, pvalue)) %>%
+          dplyr::select(lhs, rhs, eststar)
+      }
+
+
+    }
+    return(tab1)
+  }
+
+
+  if(is.list(m)) {
+    Reduce(dplyr::full_join, sapply(m, function(x) extract_pars(x)))
+  } else {
+    extract_pars(m)
+  }
+
+
+}
