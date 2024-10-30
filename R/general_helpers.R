@@ -88,9 +88,9 @@ se <- function(variable) {
 
 }
 
-# Convert numbers to stars
-#
-#'@param vector.of.pvalues self-explaining argument
+#' Convert numbers to stars
+#'
+#' @param vector.of.pvalues self-explaining argument
 #' @param na return this if `est` is `NA`
 #' @export
 pvalue_to_stars <- function(vector.of.pvalues, na = "") {

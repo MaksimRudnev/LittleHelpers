@@ -353,8 +353,7 @@ random <-lapply(1:nrow(random.variances), function(x) unname(c(random.variances[
 #'
 #' Doesn't make use of Satorra-Bentler correction (should give this option in future).
 #' @export
-#' @aliases explained_variance, explained_variance.merMod
-explained.variance.merMod <- function (base.model, tested.model) {
+explained_variance <- function (base.model, tested.model) {
 
   base.model.vars   <-as.data.frame(lme4::VarCorr(base.model))
   tested.model.vars <-as.data.frame(lme4::VarCorr(tested.model))

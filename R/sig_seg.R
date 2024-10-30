@@ -1,3 +1,12 @@
+#' Constructing a significance brackets in ggplot
+#' @param df,
+#' @param compare.var
+#' @param  y.var
+#' @param group.var
+#' @param heights
+#' @param ends
+#' @param description
+
 sig_seg <- function(df, compare.var, y.var, group.var, heights, ends) {
   df <-untibble(df)
   df = df[,c(compare.var, y.var, group.var)]

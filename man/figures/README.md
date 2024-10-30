@@ -1,4 +1,4 @@
-# LittleHelpers <a href="https://maksimrudnev.github.io/LittleHelpers/"><img src="man/figures/logo.jpeg" align="right" height="120" alt="LittleHelpers website" /></a>
+# LittleHelpers
 
 Continuously updated collection of little helpers (tm) that facilitates my life in analyzing data (mostly comparative datasets) with R.
 
@@ -7,12 +7,11 @@ Use `remotes::install_github("maksimrudnev/LittleHelpers")` to install.
 
 # Overview
 
-- Multilevel helpers
-- Multigroup helpers
-- Tools for labelled data and Rstudio viewer
-- Miscellaneous
+- [Multilevel helpers](#multilevel-helpers)
+- [Multigroup helpers](#multigroup-helpers)
+- [Tools for labelled data and Rstudio viewer](#tools-for-labelled-data-and-rstudio-viewer)
+- [Miscellaneous](#miscellaneous)
 
-<!-- 
 ## Multilevel helpers
 
 Explore multilevel data:
@@ -49,6 +48,7 @@ Compute extra stats for multilevel regressions:
 - `mgcfa_diagnose` Print comprehensible output to diagnose problems with MGCFA models.
 - [[ Moved to [MIE package](https://github.com/MaksimRudnev/MIE.package) under the name `globalMI()` ]] `mi_test` Series of measurement invariance tests, analogous to `semTools::measurementInvariance()`.
 
+- See also [Measurement invariance explorer](https://github.com/MaksimRudnev/MIE.package)
 
 
 ## Tools for labelled data and Rstudio viewer
@@ -57,7 +57,7 @@ Know the labels:
 
 - `label_book`/`label_table` Creates a codebook for data.frames with labels.
 
-Make use of labels:
+Make use of labels: 
 
 - `cor_table` Prints ready-to-publish correlation tables with significance stars.
 - `crosstab` Simple cross-tabulation with labels.
@@ -93,21 +93,4 @@ Make use of Rstudio viewer:
 - `mean_se_lower_upper` Simply mean, SE, upper and lower 95% CI.
 - `verb` Simply prints its arguments.
 - `theme_mr` Clean theme for ggplot.
-
-
-## Values, Schwartz, ESS
-
-- `values` list of value labels.
-- `download_ess` Download European Social Survey data
-- `schwartz_circle` Draw Schwartz circle and more with three simple functions: `add_circle`, `add_radius`, and `add_label`. 
-- `ess_values` Computes 2, 4, or 10 value indices as they are measured in ESS.
-
-!-->
-
-## See also 
-
-[Measurement invariance explorer](https://github.com/MaksimRudnev/MIE.package)
-
-
-
 
