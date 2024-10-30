@@ -1,8 +1,8 @@
 Package: LittleHelpers
 Type: Package
 Title: Helpers for comparative studies
-Version: 0.5-33
-Date: 30-09-2024
+Version: 0.5-34
+Date: 30-10-2024
 Authors@R: 
     person("Maksim", "Rudnev", , "maksim.rudnev@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2714-3840"))
