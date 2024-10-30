@@ -4,12 +4,17 @@
 \alias{sem_tab}
 \title{SEM tab}
 \usage{
-sem_tab(..., what = c("loadings", "intercepts", "slopes"), std = F)
+sem_tab(
+  ...,
+  what = c("loadings", "intercepts", "slopes", "covariances", "others"),
+  std = F,
+  ci = F
+)
 }
 \arguments{
 \item{...}{Fitted lavaan models as separate arguments or a list of models}
 
-\item{what}{Kinds of parameters to report. Possible values "loadings" and "intercepts"}
+\item{what}{Kinds of parameters to report. Possible values "loadings", "intercepts",  "slopes", "covariances", and "others"}
 }
 \description{
 SEM tab

@@ -439,51 +439,25 @@ if(!code.only) {
 
 }
 
-# a=Sys.time()
-# lav_to_graph(mdl, adds = "rankdir='LR'")
-# Sys.time()-a
-# # #
-#
-# lav_to_graph("a ~ b; b ~ c; c ~ d; a ~ d0 ", adds = "rankdir='BT'")
-#
-#
-# ess7 <- haven::read_sav("~/Dropbox/STAT/European Social Survey/data/ESS7/ESS7e02_1.sav")
-# Austria <- ess7[ess7$cntry == "AT",]
-#
-# library(lavaan)
-# cfa1 <- cfa( 'F1 =~ ipadvnt + impfun + impdiff + ipgdtim;
-#              F2 =~  ipcrtiv+ impfree;
-#              impfun ~~ ipgdtim;
-#              ', data=Austria)
-#
-# lav_to_graph(cfa1)
-#
-# mdl <- "institutionalized =~ NA*contact+ NA*workorg;
-# non.institutionalized =~ NA*petition + NA*demonstr + NA*boycott;
-# institutionalized ~~ 1*institutionalized;
-# non.institutionalized  ~~ 1*non.institutionalized;
-# associationalism =~ NA*voluntary + NA*participate; associationalism~~1*associationalism;
-# closeness =~ 1*close.party; close.party ~~ 0*close.party;
-# social.trust =~ NA*trust + NA*fairness; social.trust ~~ 1*social.trust;
-# information =~ NA*tv + NA*radio; information ~~ 1*information;
-# pol.interest =~ 1*interest; interest ~~ 0*interest;
-# sociability =~ 1*soc.activity; soc.activity ~~ 0*soc.activity;
-# institutionalized ~ associationalism + closeness + social.trust +
-#     information + pol.interest + sociability + non.institutionalized;
-#  non.institutionalized ~ associationalism + closeness + social.trust +
-#     information + pol.interest + sociability + institutionalized
-#     institutionalized ~~ 0*institutionalized
-#     institutionalized ~ 0*1
-# "
-# lav_to_graph(mdl, file = "~/Downloads/hopahopa.svg")
-#
-# lav_to_graph('F =~ 1*a1 + 2*a2 + NA*a3
-#     F2 =~ a4 + a5 + a6
-#     G =~ NA*a1 + a2 + a3 + a4 + a5 + a6;
-#     G ~~ 0*G;
-#     a1~~ 0.5*a2;
-#     a1 ~~ 5*a1;
-#     G ~ 1*F2;', adds="splines=false;")
+
+#' Convert lavaan to draw.io diagram
+#' Disfunctional at the moment!
+#'
+#'
+#' @param m fitted lavaan object or a lavaan syntax.
+#' @param output Format of the output.
+#'
+#' @details Produce csv-like or mermaid code that should be pasted to draw.io
+#' The cool thing about it is that you can manually adjust the result --  a feature unavailable in any known diagram producers for lavaan so far.
+#'
+#'
+#' @export
+lav_to_draw = function(m, output = c("text", "file") ) {
+
+  # placeholder
+
+}
+
 
 
 #' Combine fit measures form several models and compare

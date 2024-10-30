@@ -23,5 +23,5 @@ manipulate_mplus(inp, target, replacement, run = T, read = T, keep.files = T)
 Sorted data frame with differing n of factors at each level and fit statistics. By default it extracts CFI, RMSEA, RMSEA.CI.LO, RMSEA.CI.HI, SRMR.w, SRMR.b, SABIC, AIC, Chi.sq, Chi.df, Chi.p, Chi.scale.
 }
 \description{
-Replaces part of the Mplus code, runs it, and read it in. Facilitates repeated running with a small change in input. Good for testing the effects of particular analyses.
+Replaces part of the Mplus code, runs it, and reads it in. Facilitates repeated running with a small change in input. Good for testing the effects of particular analyses.
 }
