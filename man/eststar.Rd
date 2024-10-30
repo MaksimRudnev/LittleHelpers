@@ -4,7 +4,7 @@
 \alias{eststar}
 \title{Quickly generate string from estimates and p-values}
 \usage{
-eststar(est, pvalue, digits = 2, na = "")
+eststar(est, pvalue, digits = 2, na = "", ci.low = NA, ci.hi = NA)
 }
 \arguments{
 \item{est}{estimate}

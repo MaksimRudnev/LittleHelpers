@@ -21,21 +21,54 @@ cor_table <- function(d, method="spearman", star=TRUE) {
       sum(v)
     })})
 
-  t <-  r / (sqrt((1-r^2)/(n-2)))
-
-  p <- 2*stats::pt(abs(t), n-2, lower=FALSE)
-
-  starz <- matrix(rep("", ncol(d)^2), nrow=ncol(d))
-  starz[p<0.05]<-"*"
-  starz[p<0.01]<-"**"
-  starz[p<0.001]<-"***"
-
-
   if(star) {
-    m<- paste(format(round(r, 2), digits=2, nsmall = 2), starz, sep="")
-    m<-as.data.frame(matrix(m, nrow=ncol(d)))
+
+    # t <-  r / (sqrt((1-r^2)/(n-2)))
+    # p <- 2*stats::pt(abs(t), n-2, lower=FALSE)
+
+   #cr.tst= cor.test(d, use="pairwise.complete.obs", method=method)
+   #p = cr.tst$p.value
+
+   #varpairs = combn(names(d), 2)
+   varpairs = t(expand.grid(names(d), names(d)))
+
+   ps =
+     rbind(varpairs,
+           p=apply(varpairs, 2, function(x) {
+             rrr=cor.test(as.numeric(d[,x[[1]] ]),
+                          as.numeric(d[,x[[2]] ]),
+                          use="pairwise.complete.obs",
+                          method=method)
+             rrr$p.value
+           }) ) %>% t %>% as.data.frame %>%
+     dcast(Var1 ~ Var2, value.var = "p") %>%
+     set_rownames(., .$Var1) %>%
+     select(-Var1) %>%
+     as.matrix
+
+   ps = ps[rownames(r), colnames(r)]
+
+
+   starz <- matrix(rep("", ncol(d)^2), nrow=ncol(d))
+   starz[as.numeric(ps)<0.05]<-"*"
+   starz[as.numeric(ps)<0.01]<-"**"
+   starz[as.numeric(ps)<0.001]<-"***"
+   diag(starz)=""
+
+   m <- paste(format(round(r, 2), digits=2, nsmall = 2), starz, sep="")
+   m <- as.data.frame(matrix(m, nrow=ncol(dd)))
+
+
+    # starz <- matrix(rep("", ncol(d)^2), nrow=ncol(d))
+    # starz[p<0.05]<-"*"
+    # starz[p<0.01]<-"**"
+    # starz[p<0.001]<-"***"
+
+    m <- paste(format(round(r, 2), digits=2, nsmall = 2), starz, sep="")
+    m <- as.data.frame(matrix(m, nrow=ncol(d)))
+
   } else {
-    m<- paste(r, sep="")
+    m <- paste(r, sep="")
     m <- as.data.frame(matrix(m, nrow=ncol(d)))
   }
 
@@ -55,7 +88,11 @@ se <- function(variable) {
 
 }
 
-
+# Convert numbers to stars
+#
+#'@param vector.of.pvalues self-explaining argument
+#' @param na return this if `est` is `NA`
+#' @export
 pvalue_to_stars <- function(vector.of.pvalues, na = "") {
   sapply(vector.of.pvalues, function(x)
     paste0(
@@ -72,8 +109,13 @@ pvalue_to_stars <- function(vector.of.pvalues, na = "") {
 #' @param digits round to this number of decimals
 #' @param na return this if `est` is `NA`
 #' @export
-eststar <- function(est, pvalue, digits = 2, na = "") {
-   paste0(f(est, digits), LittleHelpers:::pvalue_to_stars(pvalue, na))
+eststar <- function(est, pvalue, digits = 2, na = "", ci.low = NA, ci.hi = NA) {
+  if(length(ci.low)==1 & is.na(ci.low[[1]]))
+    paste0(f(est, digits), pvalue_to_stars(pvalue, na))
+  else
+    paste0(f(est, digits),
+           paste0("[", f(ci.low, digits), " ",  f(ci.hi, digits) , "]"),
+           LittleHelpers:::pvalue_to_stars(pvalue, na))
 }
 
 

@@ -432,9 +432,9 @@ require(stringr)
 require(stats)
 require(lme4)
 
-  if(class(x)=="formula") {
+  if(is(x,"formula")) {
     lmer.formula<-Reduce(paste, deparse((as.formula(x))))
-  } else if (class(x)=="character") {
+  } else if (is(x,"character")) {
     lmer.formula <- x
   } else if ( any("lmerMod" %in% class(x) )) {
     lmer.formula <-Reduce(paste, deparse(formula(x)))
@@ -450,7 +450,7 @@ require(lme4)
 
   if(!is.null(drop)) f<-update(as.formula(f), paste(".~.", paste("-", drop, collapse=" ")))
   if(!is.null(drop.random)) {
-    if(class(f)=="formula") f<-Reduce(paste, deparse((as.formula(f))))
+    if(is(f,"formula")) f<-Reduce(paste, deparse((as.formula(f))))
 
     # rf<- grep("\\|", str_extract_all(f, "\\([^()]+\\)")[[1]], value = TRUE)
     # rf.new<- gsub(drop.random, "", grep("\\|", str_extract_all(f, "\\([^()]+\\)")[[1]], value = TRUE))
@@ -477,13 +477,13 @@ require(lme4)
 
   }
 
-  if(class(f)=="formula") f<-Reduce(paste, deparse((as.formula(f))))
+  if(is(f,"formula")) f<-Reduce(paste, deparse((as.formula(f))))
   f<-gsub("\\s+", " ",f)
   #verb("nospaces", f)
   f<-gsub("\\+\\s\\|", "\\|", f)
 
 
-  if(class(x)=="formula"|class(x)=="character") {
+  if(is(x, "formula")| is(x,"character")) {
     return(f)
   }
   if ( any("lmerMod" %in% class(x) )) {
@@ -780,7 +780,7 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
                    #cor(V1[Gr==x], V2[Gr==x], use=use, ...)
                    if(all(rowSums(cbind(!is.na(V1[Gr==x]), !is.na(V2[Gr==x])))<2)) {
                      warning(paste("There no valid cases in", x))
-                     c(0, 0, 0)
+                     c(NA, NA, NA)
                    } else {
                    r = cor.test(V1[Gr==x], V2[Gr==x], use=use, conf.level = 0.95)
                    c(r$estimate, r$conf.int)

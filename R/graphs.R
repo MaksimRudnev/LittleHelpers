@@ -667,7 +667,7 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { 
     #print(est.ci)
 
     g<-ggplot(est.ci, aes(group, estimate, ymin=lower.ci, ymax=upper.ci))+
-      geom_errorbar(aes(alpha=significant), size=.5, width=.5, colour="black", show.legend = F)+geom_point()+
+      geom_errorbar(aes(alpha=significant), size=.5, width=.5, colour="black", show.legend = F)+geom_point(aes(alpha=significant), show.legend = F)+
       scale_alpha_manual(values=c("FALSE"=0.3, "TRUE"=1))+
       geom_hline(aes(yintercept=0), linetype="dashed"  )+coord_flip()+
       labs(x="", y=paste("", optional.names[i] ))+theme_minimal()+

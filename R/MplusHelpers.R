@@ -732,4 +732,56 @@ gammaHat.mplus = function(mplus.model) {
 }
 
 
+#' manipulate mplus file
+#' @description Replaces part of the Mplus code, runs it, and read it in. Facilitates repeated running with a small change in input. Good for testing the effects of particular analyses.
+#' @param inp Input file path.
+#' @param target Character. Block of Mplus code to replace.
+#' @param replacement Character. Mplus code to replace the target. Can be a vector - in this case, multiple outputs will be created.
+#' @param run Whether new input files should be executed.  When FALSE, returns a vector of paths to the new input files.
+#' @param read Logical, whether read the models in. When FALSE, returns the list of paths to output files.
+#' @param keep.files Logical. Whether input and output files shuld be kept on disk. When FALSE, all Mplus files are deleted and read in wish readModels.
+#' @return Sorted data frame with differing n of factors at each level and fit statistics. By default it extracts CFI, RMSEA, RMSEA.CI.LO, RMSEA.CI.HI, SRMR.w, SRMR.b, SABIC, AIC, Chi.sq, Chi.df, Chi.p, Chi.scale.
+#' @export
+manipulate_mplus <- function(inp,
+                             target,
+                             replacement,
+                             run = T,
+                             read = T,
+                             keep.files = T) {
+  s = readLines(inp)
+
+  lapply(replacement, function(repl) {
+    s.new = gsub(target, repl, s)
+    t.file.name = gsub("\\.inp", paste0("_temp",paste0(sample(LETTERS, 8), collapse = ""),".inp"), inp)
+    print(t.file.name)
+    writeLines(s.new, t.file.name)
+
+    if(run) {
+      Mplus_com = ifelse(is.null(rstudioapi::getPersistentValue("mplus.path")),Mplus_com,  rstudioapi::getPersistentValue("mplus.path"))
+
+      system(paste0(Mplus_com, " '",t.file.name,"'"))
+      #mplus.rstudio:::runMplusInput(t.file.name)
+      output.file = gsub("\\.inp", "\\.out", t.file.name)
+
+      if(read & file.exists(output.file)) {
+
+        read.out = MplusAutomation::readModels(output.file)
+        if(!keep.files) {
+          file.remove(t.file.name)
+          file.remove(output.file)
+        }
+        return(read.out)
+      } else {
+        #file.remove(t.file.name)
+        return(output.file)
+      }
+
+    } else {
+      return(t.file.name)
+    }
+  })
+
+}
+
+
 

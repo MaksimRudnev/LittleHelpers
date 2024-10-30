@@ -579,9 +579,9 @@ plot_latent_means <- function(fit) {
 
 #' SEM tab
 #' @param ... Fitted lavaan models as separate arguments or a list of models
-#' @param what Kinds of parameters to report. Possible values "loadings" and "intercepts"
+#' @param what Kinds of parameters to report. Possible values "loadings", "intercepts",  "slopes", "covariances", and "others"
 #' @export
-sem_tab <- function(..., what = c("loadings", "intercepts"), std = F) {
+sem_tab <- function(..., what = c("loadings", "intercepts", "slopes", "covariances", "others"), std = F, ci = F) {
 
   if(length(list(...))==1 & class(list(...)[[1]]) == "list")
     modellist = list(...)[[1]]
@@ -625,46 +625,47 @@ sem_tab <- function(..., what = c("loadings", "intercepts"), std = F) {
 
   allprms %>% mutate(kind = ifelse(op == "=~", "loadings",
                                    ifelse(op == "~1", "intercepts",
-                                          ifelse(op == "~~", "covariances", "other")))) %>%
+                                          ifelse(op == "~~", "covariances",
+                                                 ifelse(op == "~", "slopes", "other"))))) %>%
     filter(kind %in% what) %>%
-    mutate(est_star  = eststar(est, pvalue)) %>%
+    mutate(est_star  = eststar(est, pvalue, ci.low = if(ci) ci.lower else NA, ci.hi = if(ci) ci.upper else NA )) %>%
     reshape2::dcast(lhs + rhs + kind ~ model, value.var = "est_star")
 
 }
 
-sem_tab <- function(m, elements = "loadings", std = F) {
-
-  extract_pars <- function(model) {
-    if(std)  {
-      pars = standardizedSolution(model) %>%
-        rename(est = "std.est")
-    } else {
-      pars = parameterEstimates(model)
-    }
-
-    if( ("loadings" %in% elements)) {
-      if(lavInspect(model, "ngroups")>1 ) {
-        tab1 = pars %>% dplyr::filter(op == "=~") %>%
-          dplyr::mutate(eststar = eststar(est, pvalue)) %>%
-          dplyr::select(lhs, rhs, group, eststar) %>%
-          reshape2::dcast(lhs + rhs ~ group, value.var = "eststar")
-      } else {
-        tab1 = pars %>% dplyr::filter(op == "=~") %>%
-          dplyr::mutate(eststar = eststar(est, pvalue)) %>%
-          dplyr::select(lhs, rhs, eststar)
-      }
-
-
-    }
-    return(tab1)
-  }
-
-
-  if(is.list(m)) {
-    Reduce(dplyr::full_join, sapply(m, function(x) extract_pars(x)))
-  } else {
-    extract_pars(m)
-  }
-
-
-}
+# sem_tab <- function(m, elements = "loadings", std = F) {
+#
+#   extract_pars <- function(model, std = std) {
+#     if(std)  {
+#       pars = standardizedSolution(model) %>%
+#         dplyr::rename(est = "est.std")
+#     } else {
+#       pars = parameterEstimates(model)
+#     }
+#
+#     if( ("loadings" %in% elements)) {
+#       if(lavInspect(model, "ngroups")>1 ) {
+#         tab1 = pars %>% dplyr::filter(op == "=~") %>%
+#           dplyr::mutate(eststar = eststar(est, pvalue)) %>%
+#           dplyr::select(lhs, rhs, group, eststar) %>%
+#           reshape2::dcast(lhs + rhs ~ group, value.var = "eststar")
+#       } else {
+#         tab1 = pars %>% dplyr::filter(op == "=~") %>%
+#           dplyr::mutate(eststar = eststar(est, pvalue)) %>%
+#           dplyr::select(lhs, rhs, eststar)
+#       }
+#
+#
+#     }
+#     return(tab1)
+#   }
+#
+#
+#   if(is.list(m)) {
+#     Reduce(dplyr::full_join, sapply(m, function(x) extract_pars(x)))
+#   } else {
+#     extract_pars(m)
+#   }
+#
+#
+# }

@@ -4,7 +4,7 @@
 \alias{sem_tab}
 \title{SEM tab}
 \usage{
-sem_tab(..., what = c("loadings", "intercepts"), std = F)
+sem_tab(..., what = c("loadings", "intercepts", "slopes"), std = F)
 }
 \arguments{
 \item{...}{Fitted lavaan models as separate arguments or a list of models}
