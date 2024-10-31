@@ -1,3 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 not_in_pack
+^_pkgdown\.yml$
+^pkgdown$
+^\.github$
+^docs$
