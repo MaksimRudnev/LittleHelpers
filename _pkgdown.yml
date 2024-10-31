@@ -2,3 +2,102 @@ url: https://maksimrudnev.github.io/LittleHelpers/
 template:
   bootstrap: 5
 
+authors:
+  Maksim Rudnev:
+  href: https://maksimrudnev.com
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, tutorials, news]
+    right: [search, github, lightswitch]
+  twitter:
+    icon: fa-twitter
+    href: http://twitter.com/MaksimRudnev
+    aria-label: Twitter
+
+reference:
+     - title: Multilevel helpers
+       desc: "Explore multilevel data: lmer helpers, centering, exploring parameters"
+       contents:
+         - add_term
+         - cor_between
+         - cor_within
+         - explained_variance
+         - grand_center
+         - group_center
+         - aggr_and_merge
+         - potential_interactions
+         - potential_interactions_ind
+         - search_random
+         - vif_mer
+
+     - title: SEM helpers
+       desc: "Handy SEM helpers"
+       contents:
+          - checkMplusModel
+          - diffTestMLR
+          - diffTestMLR_
+          - eachParamPSRMplus
+          - extractMLEFA
+          - gammaHat.mplus
+          - getParamsMplus
+          - getPSR
+          - lav_compare
+          - manipulate_mplus
+          - partable_mplus
+          - sem_tab
+          - tech11.14
+          - brmsea
+
+     - title: Tools for labelled data and Rstudio viewer
+       desc: 'Formatting, showing results, and handle labels'
+       contents:
+          - label_book
+          - drop_labs
+          - label_table
+          - lab_to_fac
+          - unhaven
+          - untibble
+          - eststar
+          - f
+          - sig_to_bold
+          - pvalue_to_stars
+          - df_to_viewer
+          - to_viewer
+          - good_table
+          - lmer_table
+
+     - title: Plots and diagrams
+       desc: "Visualize multilevel and SEM"
+       contents:
+          - graph_means_ci
+          - lav_to_graph
+          - lav_to_draw
+          - plef
+          - plot_latent_means
+          - random_interaction
+          - random_plot
+          - scatter_means_ci
+          - sig_seg
+          - stacked_bar
+          - theme_mr
+          - traceplots_mplus
+
+     - title: Miscellaneous
+       desc: "Convenience functions and shortcuts"
+       contents:
+          - cor_table
+          - compare_cor
+          - crosstab
+          - match_named_vectors
+          - replace_by_table
+          - reverse
+          - mean_se_lower_upper
+          - se
+          - get_net
+          - na_tab
+          - verb
+          - ess_values
+          - values
+
+
