@@ -27,19 +27,19 @@ reference:
      - title: SEM helpers
        desc: "Handy SEM helpers"
        contents:
-          - checkMplusModel
-          - diffTestMLR
-          - diffTestMLR_
-          - eachParamPSRMplus
-          - extractMLEFA
-          - gammaHat.mplus
-          - getParamsMplus
-          - getPSR
+          - check_mplus_model
+          - diffTest_mlr
+          - diffTest_mlr_manual
+          - each_param_psr_mplus
+          - extract_mplefa
+          - gamma_hat_mplus
+          - get_params_mplus
+          - get_psr
           - lav_compare
           - manipulate_mplus
           - partable_mplus
           - sem_tab
-          - tech11.14
+          - tech11_14
           - brmsea
 
      - title: Tools for labelled data and Rstudio viewer
