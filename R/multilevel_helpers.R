@@ -29,9 +29,8 @@
 #' * Might be veeery slow (something to work on)
 #'
 #' @md
-#' @aliases lmer_table
 #' @export
-good_table <- function(models,
+lmer_table <- function(models,
                        fit.stats=c("fit", "random"),
                        mod.names="",
                        show.viewer=TRUE,

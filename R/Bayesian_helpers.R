@@ -3,9 +3,7 @@
 #'
 #'
 #' @export
-
-
-get_PSR <- function(path.to.file, last=TRUE, plot = F) {
+get_psr <- function(path.to.file, last=TRUE, plot = F) {
 
   if(dir.exists(path.to.file)) {
     files <- paste0(path.to.file, "/", list.files(path.to.file, pattern = "(\\.out)"))

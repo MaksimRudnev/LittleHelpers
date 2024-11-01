@@ -31,7 +31,7 @@ reference:
           - diff_test_mlr
           - diff_test_mlr_manual
           - each_param_psr_mplus
-          - extract_mplefa
+          - extract_mlefa
           - gamma_hat_mplus
           - get_params_mplus
           - get_psr
@@ -43,7 +43,7 @@ reference:
           - brmsea
 
      - title: Tools for labelled data and Rstudio viewer
-       desc: 'Formatting, showing results, and handle labels'
+       desc: 'Formatting, showing results, and handling labels'
        contents:
           - label_book
           - drop_labs
@@ -57,7 +57,6 @@ reference:
           - pvalue_to_stars
           - df_to_viewer
           - to_viewer
-          - good_table
           - lmer_table
 
      - title: Plots and diagrams
