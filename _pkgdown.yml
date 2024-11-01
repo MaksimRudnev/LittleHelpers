@@ -28,8 +28,8 @@ reference:
        desc: "Handy SEM helpers"
        contents:
           - check_mplus_model
-          - diffTest_mlr
-          - diffTest_mlr_manual
+          - diff_test_mlr
+          - diff_test_mlr_manual
           - each_param_psr_mplus
           - extract_mplefa
           - gamma_hat_mplus
