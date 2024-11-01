@@ -14,7 +14,7 @@ label_book(df, max.vals = 25, vars = "all", view = TRUE)
 
 \item{vars}{can be integer, character, or range of integers or characters. Variables indexes or names for getting subsets of label book.}
 
-\item{view}{logical, whether the result should be shown in the RStudio viewer pane. Defualt is TRUE. If FALSE, html file named 'label_book_output.html' is saved in your working directory.}
+\item{view}{logical, whether the result should be shown in the RStudio viewer pane. Default is TRUE. If FALSE, html file named 'label_book_output.html' is saved in your working directory.}
 }
 \description{
 Create a codebook, table of labels to explore variables and values in your data

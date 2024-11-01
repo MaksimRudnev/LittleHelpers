@@ -282,7 +282,7 @@ dev.off()
 #' }
 #'
 #' @export
-eachParamPSRMplus <- function(parameters, id.parameter, iterations.range=NULL) {
+each_param_psr_mplus <- function(parameters, id.parameter, iterations.range=NULL) {
 
   m = dim(parameters)[[3]] # nchains
   niterations.total = dim(parameters)[[2]]
@@ -350,7 +350,7 @@ eachParamPSRMplus <- function(parameters, id.parameter, iterations.range=NULL) {
 #' @param full   full model read by \code{\link[MplusAutomation]{readModels}}
 #' @export
 
-diffTestMLR_ <- function(reduced, full) {
+diff_test_mlr_manual <- function(reduced, full) {
   diffTestMLR(reduced$summaries$LL,
               reduced$summaries$LLCorrectionFactor,
               reduced$summaries$Parameters,
@@ -372,7 +372,7 @@ diffTestMLR_ <- function(reduced, full) {
 #' @param p0 number of parameters, should be p0 < p1
 #' @param p1 number of parameters, should be p0 < p1
 #' @export
-diffTestMLR <- function(L0, c0, p0,
+diff_test_mlr <- function(L0, c0, p0,
                         L1, c1, p1) {
 
 
@@ -492,7 +492,7 @@ return(out)
 #' @param warnings If warnings and errors (if any) should be printed.
 #' @return Returns a single data frame with unstandardized parameters.
 #' @export
-checkMplusModel <- function(model, additional = TRUE, warnings = TRUE) {
+check_mplus_model <- function(model, additional = TRUE, warnings = TRUE) {
 
   mgml.pars.nonstd <- model$parameters$unstandardized
   mgml.pars.std <- model$parameters$stdyx.standardized
@@ -559,7 +559,7 @@ checkMplusModel <- function(model, additional = TRUE, warnings = TRUE) {
 #' @param file Name of the Mplus .out file.
 #' @return A data.frame with all parameters.
 #' @export
-getParamsMplus <- function(file) {
+get_params_mplus <- function(file) {
   #file="RWA_BSEM/RWA4_Bayes_alignment30.out"
   str.bdiff <- paste(readLines(file),
                      collapse = "\n")
@@ -603,7 +603,7 @@ getParamsMplus <- function(file) {
 #' @param output Output either from `readModels()$output` or the raw file read by e.g. `readLines(Mplus output)`
 #' @return A list of data.frames with tests.
 #' @export
-tech11.14 <- function(output) {
+tech11_14 <- function(output) {
 
   t11 = "TECHNICAL 11 OUTPUT" #LMR
   t14 = "TECHNICAL 14 OUTPUT" #BLRT
@@ -641,7 +641,7 @@ tech11.14 <- function(output) {
 #' @param output Output file path.
 #' @return Sorted data frame with differing n of factors at each level and fit statistics. By default it extracts CFI, RMSEA, RMSEA.CI.LO, RMSEA.CI.HI, SRMR.w, SRMR.b, SABIC, AIC, Chi.sq, Chi.df, Chi.p, Chi.scale.
 #' @export
-extractMLEFA <- function(mplus.file) {
+extract_mlefa <- function(mplus.file) {
   ml.efa <- readLines(mplus.file)
   efa.headers <- grep("EXPLORATORY FACTOR ANALYSIS WITH ", ml.efa)
 
@@ -716,7 +716,7 @@ extractMLEFA <- function(mplus.file) {
 #'
 #' @export
 
-gammaHat.mplus = function(mplus.model) {
+gamma_hat_mplus = function(mplus.model) {
 
   fit = mplus.model$summaries
   p = fit[["NDependentVars"]]

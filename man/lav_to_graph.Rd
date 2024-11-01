@@ -2,7 +2,7 @@
 % Please edit documentation in R/lavaan_helpers.R
 \name{lav_to_graph}
 \alias{lav_to_graph}
-\title{Create a path diagram using lavaan syntax}
+\title{Create a Graphviz path diagram using lavaan syntax}
 \usage{
 lav_to_graph(
   m,
@@ -14,8 +14,7 @@ lav_to_graph(
   try.labels = T,
   label.wrap = 15,
   std = F,
-  elements = c("obs", "lat.covs", "resid.covs", "resid", "slopes",
-    "intercepts/thresholds"),
+  elements = c("obs", "lat.covs", "resid.covs", "resid", "slopes"),
   ...
 )
 }
@@ -33,6 +32,10 @@ lav_to_graph(
 \item{try.labels}{Try extracting labels from the data.}
 
 \item{label.wrap}{Number of character to wrap a label}
+
+\item{std}{Whether include standardized or unstandardized estimates.}
+
+\item{elements}{Character vector. What to include in the diagram, possible values "obs", "lat.covs", "resid.covs", "resid", "slopes", and "intercepts/thresholds" (currently not supported).}
 
 \item{...}{arguments passed to DiagrammeR::grViz function.}
 }

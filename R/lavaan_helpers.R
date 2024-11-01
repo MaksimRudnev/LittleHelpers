@@ -1,13 +1,15 @@
-#' Create a path diagram using lavaan syntax
+#' Create a Graphviz path diagram using lavaan syntax
 #'
 #' @description Converts lavaan syntax or object to graphviz code. Requires 'DiagrammeR' package.
 #' @param m character, following lavaan syntax model conventions (see examples), or fitted lavaan object.
+#' @param layout Can be 'dot', 'neato', 'twopi', 'circo', or 'fdp'
 #' @param file character, file name to save svg code, usually with 'svg' extension.
 #' @param rmarkdown Logical. If the function used in the context of Rmarkdown.
 #' @param adds Any graphviz code to be added to the graph.
 #' @param try.labels Try extracting labels from the data.
 #' @param label.wrap Number of character to wrap a label
-#' @param layout Can be 'dot', 'neato', 'twopi', 'circo', or 'fdp'
+#' @param std Whether include standardized or unstandardized estimates.
+#' @param elements Character vector. What to include in the diagram, possible values "obs", "lat.covs", "resid.covs", "resid", "slopes", and "intercepts/thresholds" (currently not supported).
 #' @param ... arguments passed to DiagrammeR::grViz function.
 #'
 #' @examples lav_to_graph("F =~ a1 + a2 + a3 + a4")
@@ -23,7 +25,7 @@ lav_to_graph <- function(m, layout = "dot",
                          try.labels = T,
                          label.wrap = 15,
                          std=F,
-                         elements = c("obs", "lat.covs", "resid.covs", "resid", "slopes", "intercepts/thresholds"),
+                         elements = c("obs", "lat.covs", "resid.covs", "resid", "slopes"),
                          ...) {
  # elements = c("slopes")
   resid.prefix <- ifelse("resid" %in% elements, "Resid_", "")
@@ -33,8 +35,6 @@ lav_to_graph <- function(m, layout = "dot",
    # pt <- lavaan::parameterTable(m)
 
     if(std) {
-      #pt <- lavaan::parameterEstimates(m, standardized=T)
-      #pt$est= pt$std.all
       pt <- lavaan::standardizedSolution(m)
       pt$est= pt$est.std
 
@@ -441,22 +441,138 @@ if(!code.only) {
 
 
 #' Convert lavaan to draw.io diagram
-#' Disfunctional at the moment!
 #'
+#' Experimental. Produces  SEM diagrams that can be manually edited in draw.io environment. It's such a pain to work with "static" images from semPlot and similar packages. You would often give up and make your own using MS POwerpoint or similar software... Now you can just run this function using the fitted lavaan model (or simply the syntax for the model - useful for representing theoretical models) and paste the code into draw.io. The result of the automatic layour is likely still  messy, but at least now you can arrange the variables and arrows manually with all the power of draw.io -- and achieve the desired result in a few seconds. See details for specific instructions.
 #'
-#' @param m fitted lavaan object or a lavaan syntax.
-#' @param output Format of the output.
-#'
-#' @details Produce csv-like or mermaid code that should be pasted to draw.io
+#' @param m character, following lavaan syntax model conventions (see examples), or fitted lavaan object.
+#' @param layout Format of the output.  Possible values are  'verticaltree', 'horizontaltree', 'verticalflow', 'horizontalflow', 'organic', 'circle', 'orgchart', 'auto', 'none', or a JSON string as used in draw.io -> Layout -> Apply. Default is 'horizontaltree'
+#' @param try.labels Feature in development Try extracting labels from the data.
+#' @param label.wrap Number of character to wrap a label
+#' @param std Whether include standardized or unstandardized estimates.
+#' @param elements Feature in development. Character vector. What to include in the diagram, possible values "obs", "lat.covs", "resid.covs", "resid", "slopes", and "intercepts/thresholds" (currently not supported).
+#' @param thickness The line width multiplier: the paths are made proportional to the coefficients in the model, but sometimes parameters are too small for a line (.e.g, .5 would mean half a pixel). Use higher numbers to make the paths more visible.
+#' @details Produces csv-like code that should be pasted to draw.io
 #' The cool thing about it is that you can manually adjust the result --  a feature unavailable in any known diagram producers for lavaan so far.
-#'
+#' Step 1.  Run the function using either fitted lavaan model or a syntax.
+#' Step 2. The function will produce the code (which is also copied to the clipboard automatically).
+#' Step 3. Go to draw.io (either website or a desktop version), Arrange -> Insert - Advanced - CSV... and insert the code into the window.
+#' Step 4. The diagram is already there and you can start editing it in line with your goals. Probably the first thing to try is different layouts - which you can apply at Arrange -> Layout -> choose one of them.
 #'
 #' @export
-lav_to_draw = function(m, output = c("text", "file") ) {
+lav_to_draw = function(m, layout="horizontaltree", try.labels = F,label.wrap = 15,  std = T, elements = NULL, thickness = 1, clip = T) {
 
-  # placeholder
+    if(is(m, "lavaan")) {
+      if(std) {
+        pt <- lavaan::standardizedSolution(m)
+        pt$est = pt$est.std
 
-}
+
+      } else {
+        pt <- lavaan::parameterEstimates(m)
+      }
+
+      pt = merge(lavaan::parameterTable(m)[-(14:15)], pt, all.y=T)
+      pt$est.char = eststar(pt[,"est"], pt[,"pvalue"])
+      pt$est.numeric = as.numeric(pt[,"est"])
+
+    } else {
+
+      pt <- lavaanify(m)
+      pt$est= pt$label
+      if(all(pt$label=="")) pt$est= pt$ustart
+
+      pt$est.char = pt[,"est"]
+      pt$est.numeric = as.numeric(pt[,"est"])
+      pt$est.numeric = ifelse(length(pt$est.numeric)==0 | all(is.na(pt$est.numeric )), 1, pt$est.numeric)
+
+    }
+
+    # remove thresholds
+    pt <- pt[pt$op!="|",]
+    # remove scaling factors
+    pt <- pt[pt$op!="~*~",]
+
+    pt <- pt[pt$rhs!="",]
+    pt <- pt[pt$op!=":=", ]
+
+
+
+    all.vars = unique(c(pt$lhs, pt$rhs))
+    all.lvs = all.vars[all.vars %in% pt[pt$op=="=~","lhs"]]
+    all.ovs = all.vars[!all.vars %in% pt[pt$op=="=~","lhs"]]
+
+    csv = data.frame(id1 = all.vars,
+                     fill = "#cccccc",
+                     shape = ifelse(all.vars %in% all.lvs, "ellipse", "square")
+    )
+    # adding paths
+    paths.pt = pt %>%
+      dplyr::filter(op %in% c("=~", "~") | (op == "~~" & lhs != rhs))
+
+    paths.l = lapply(setNames(nm=unique(paths.pt$lhs)), function(lhs)
+      t(paths.pt[paths.pt$lhs==lhs,]) %>% `[`("rhs",)
+    )
+
+    library(reshape2)
+    paths.df = melt(paths.l) %>%
+      dplyr::mutate(varn = rownames(.)) %>%
+      dcast(L1 ~ paste0("path", varn), value.var = "value")
+
+    csv = merge(csv, paths.df, by.x = "id1", by.y = "L1", all.x = T)
+    csv$perimeter = ifelse(csv$shape=="ellipse", "ellipsePerimeter;", "rectanglePerimeter")
+
+    # preamble
+    preamble.start = "# label: %id1%
+# style: shape=%shape%;fillColor=%fill%;strokeColor=black;perimeter=%perimeter%
+# namespace: csvimport-"
+
+    ## add paths
+    preamble.loadings =
+
+      apply(paths.pt[paths.pt$op %in% c("=~", "~~", "~"),], 1, function(x) {
+        is.loading = x["op"]=="=~"
+        is.regresson = x["op"]=="~"
+        is.cov = x["op"]=="~~"
+        location = names(csv)[which(csv[csv$id1==x["lhs"],]==x["rhs"])]
+
+        paste0('# connect: {"from":"', location,
+               '", "to":"id1", "label":"', x[["est.char"]], '", "invert":',
+               ifelse(is.loading, "false", "true"),
+
+               ', "style":"endArrow=blockThin;endFill=1;dashed=', ifelse(is.loading & x[["free"]] == 0, 1, 0),
+               ';strokeColor=',
+               ifelse(as.numeric(x[["est.numeric"]])<0,"red","black"),
+               ';strokeWidth=', abs(as.numeric(x[["est.numeric"]]))*thickness, ';',
+               ifelse(is.cov, "startArrow=blockThin;startFill=1;curved=1;rounded=0;", "curved=0;"),
+               '"}')
+
+      })
+
+    preamble.closing =  paste0("# width: 80
+# height: 80
+# nodespacing: 40
+# levelspacing: 40
+# edgespacing: 40
+# layout: ", layout)
+
+    preamble = paste(preamble.start,
+                     "## Factor loadings", paste(preamble.loadings, collapse = "\n"),
+                     paste("# ignore:", paste(names(csv)[-1], collapse = ",")),
+                     preamble.closing,
+                     sep = "\n")
+
+
+
+    csv.out = capture.output(write.csv(csv, quote = F, row.names = F,na = ""))
+
+    output = paste0(preamble, "\n## CSV data starts below this line\n",
+                    paste( csv.out, collapse = "\n"), sep = "")
+
+    cat(output)
+
+if(clip) clipr::write_clip(output, "character", allow_non_interactive = TRUE)
+
+    }
 
 
 

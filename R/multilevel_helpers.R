@@ -68,7 +68,7 @@ good_table <- function(models,
   }
 
 # has.converged
-  has.converged <- function(x) {
+  has_converged <- function(x) {
      is.null(x@optinfo$conv$lme4$code) &&
       ( is.null(x@optinfo$conv$opt) | x@optinfo$conv$opt == 0)
   }

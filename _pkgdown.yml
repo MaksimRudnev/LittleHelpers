@@ -1,19 +1,12 @@
 url: https://maksimrudnev.github.io/LittleHelpers/
 template:
   bootstrap: 5
+  bootswatch: cerulean
 
 authors:
-  Maksim Rudnev:
-  href: https://maksimrudnev.com
+     Maksim Rudnev:
+     href: https://maksimrudnev.com
 
-navbar:
-  structure:
-    left:  [intro, reference, articles, tutorials, news]
-    right: [search, github, lightswitch]
-  twitter:
-    icon: fa-twitter
-    href: http://twitter.com/MaksimRudnev
-    aria-label: Twitter
 
 reference:
      - title: Multilevel helpers

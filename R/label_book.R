@@ -3,7 +3,7 @@
 #' @param df data.frame, usually an object obtained by reading SPSS datafile with have::read_sav or foreign::read.spss
 #' @param max.vals integer, how many value labels per each variable shoud be listed in the table, default is 25
 #' @param vars can be integer, character, or range of integers or characters. Variables indexes or names for getting subsets of label book.
-#' @param view logical, whether the result should be shown in the RStudio viewer pane. Defualt is TRUE. If FALSE, html file named 'label_book_output.html' is saved in your working directory.
+#' @param view logical, whether the result should be shown in the RStudio viewer pane. Default is TRUE. If FALSE, html file named 'label_book_output.html' is saved in your working directory.
 #'
 #' @details For Haven and Foreign read spss files only. The only extra package required is `knitr`.
 #'

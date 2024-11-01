@@ -2,21 +2,42 @@
 % Please edit documentation in R/lavaan_helpers.R
 \name{lav_to_draw}
 \alias{lav_to_draw}
-\title{Convert lavaan to draw.io diagram
-Disfunctional at the moment!}
+\title{Convert lavaan to draw.io diagram}
 \usage{
-lav_to_draw(m, output = c("text", "file"))
+lav_to_draw(
+  m,
+  layout = "horizontaltree",
+  try.labels = F,
+  label.wrap = 15,
+  std = T,
+  elements = NULL,
+  thickness = 1,
+  clip = T
+)
 }
 \arguments{
-\item{m}{fitted lavaan object or a lavaan syntax.}
+\item{m}{character, following lavaan syntax model conventions (see examples), or fitted lavaan object.}
 
-\item{output}{Format of the output.}
+\item{layout}{Format of the output.  Possible values are  'verticaltree', 'horizontaltree', 'verticalflow', 'horizontalflow', 'organic', 'circle', 'orgchart', 'auto', 'none', or a JSON string as used in draw.io -> Layout -> Apply. Default is 'horizontaltree'}
+
+\item{try.labels}{Feature in development Try extracting labels from the data.}
+
+\item{label.wrap}{Number of character to wrap a label}
+
+\item{std}{Whether include standardized or unstandardized estimates.}
+
+\item{elements}{Feature in development. Character vector. What to include in the diagram, possible values "obs", "lat.covs", "resid.covs", "resid", "slopes", and "intercepts/thresholds" (currently not supported).}
+
+\item{thickness}{The line width multiplier: the paths are made proportional to the coefficients in the model, but sometimes parameters are too small for a line (.e.g, .5 would mean half a pixel). Use higher numbers to make the paths more visible.}
 }
 \description{
-Convert lavaan to draw.io diagram
-Disfunctional at the moment!
+Experimental. Produces  SEM diagrams that can be manually edited in draw.io environment. It's such a pain to work with "static" images from semPlot and similar packages. You would often give up and make your own using MS POwerpoint or similar software... Now you can just run this function using the fitted lavaan model (or simply the syntax for the model - useful for representing theoretical models) and paste the code into draw.io. The result of the automatic layour is likely still  messy, but at least now you can arrange the variables and arrows manually with all the power of draw.io -- and achieve the desired result in a few seconds. See details for specific instructions.
 }
 \details{
-Produce csv-like or mermaid code that should be pasted to draw.io
+Produces csv-like code that should be pasted to draw.io
 The cool thing about it is that you can manually adjust the result --  a feature unavailable in any known diagram producers for lavaan so far.
+Step 1.  Run the function using either fitted lavaan model or a syntax.
+Step 2. The function will produce the code (which is also copied to the clipboard automatically).
+Step 3. Go to draw.io (either website or a desktop version), Arrange -> Insert - Advanced - CSV... and insert the code into the window.
+Step 4. The diagram is already there and you can start editing it in line with your goals. Probably the first thing to try is different layouts - which you can apply at Arrange -> Layout -> choose one of them.
 }

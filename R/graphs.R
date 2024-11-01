@@ -10,8 +10,6 @@ require("scales")
 #'
 #' @param ... Character strings.
 #' @details Prints text and objects in order to log and debug the code.
-#'
-#' @export
 verb <- function(...) {
   print(paste(...))
 }
