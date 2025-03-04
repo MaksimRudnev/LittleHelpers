@@ -27,6 +27,7 @@ reference:
      - title: SEM helpers
        desc: "Handy SEM helpers"
        contents:
+          - add_all_indir_and_tot
           - check_mplus_model
           - diff_test_mlr
           - diff_test_mlr_manual
