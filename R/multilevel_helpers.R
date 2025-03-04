@@ -51,6 +51,20 @@ lmer_table <- function(models,
     fit.stats <- fit.stats[fit.stats %in% available.stats]
   }
 
+  # ICC function
+  myICC <- function(lmer_model) {
+    my_variances<- as.data.frame(lme4::VarCorr(lmer_model))$vcov
+    icc<-my_variances[1]/sum(my_variances[1],my_variances[length(my_variances)])
+    paste(round(icc,2)*100, "%", sep="")
+  }
+
+  # has_converged
+  has_converged <- function(x) {
+    is.null(x@optinfo$conv$lme4$code) &&
+      ( is.null(x@optinfo$conv$opt) | x@optinfo$conv$opt == 0)
+  }
+
+
 
   ## This looks wierd, remove and udate @##
   #if(mod.names=="") mod.names <- rep("", length(models))
@@ -59,18 +73,7 @@ lmer_table <- function(models,
   if( all(c("random","random.p") %in% fit.stats)) fit.stats<-fit.stats[!fit.stats=="random"]
 
 
-# ICC function
-  myICC <- function(lmer_model) {
-    my_variances<- as.data.frame(lme4::VarCorr(lmer_model))$vcov
-    icc<-my_variances[1]/sum(my_variances[1],my_variances[length(my_variances)])
-    paste(round(icc,2)*100, "%", sep="")
-  }
 
-# has.converged
-  has_converged <- function(x) {
-     is.null(x@optinfo$conv$lme4$code) &&
-      ( is.null(x@optinfo$conv$opt) | x@optinfo$conv$opt == 0)
-  }
 
   #models.are.ML <- !sapply(models, lme4::isREML)
 
@@ -86,7 +89,7 @@ lmer_table <- function(models,
       BIC = scales::comma(round(BIC(x),0)),
       Ngroups = lme4::ngrps(x)[[1]],
       Nobservations = scales::comma(nobs(x)),
-      Convergence = has.converged(x)
+      Convergence = has_converged(x)
     ))
     fit <-cbind(rownames(fit), fit)
     fit <-unname(unlist(apply(fit, 1, list), F))

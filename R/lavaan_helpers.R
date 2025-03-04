@@ -483,7 +483,8 @@ lav_to_draw = function(m, layout="horizontaltree", try.labels = F,label.wrap = 1
 
       pt$est.char = pt[,"est"]
       pt$est.numeric = as.numeric(pt[,"est"])
-      pt$est.numeric = ifelse(length(pt$est.numeric)==0 | all(is.na(pt$est.numeric )), 1, pt$est.numeric)
+      if(length(pt$est.numeric)==0 | all(is.na(pt$est.numeric)))
+           pt$est.numeric <- 1
 
     }
 
@@ -505,6 +506,7 @@ lav_to_draw = function(m, layout="horizontaltree", try.labels = F,label.wrap = 1
                      fill = "#cccccc",
                      shape = ifelse(all.vars %in% all.lvs, "ellipse", "square")
     )
+    #print(pt)
     # adding paths
     paths.pt = pt %>%
       dplyr::filter(op %in% c("=~", "~") | (op == "~~" & lhs != rhs))
@@ -535,21 +537,36 @@ lav_to_draw = function(m, layout="horizontaltree", try.labels = F,label.wrap = 1
         is.cov = x["op"]=="~~"
         location = names(csv)[which(csv[csv$id1==x["lhs"],]==x["rhs"])]
 
-        paste0('# connect: {"from":"', location,
-               '", "to":"id1", "label":"', x[["est.char"]], '", "invert":',
-               ifelse(is.loading, "false", "true"),
+        path.width = ifelse(is(m, "lavaan"),
+                            abs(as.numeric(x[["est.numeric"]])),
+                            1)
+        path.width = path.width*thickness
 
-               ', "style":"endArrow=blockThin;endFill=1;dashed=', ifelse(is.loading & x[["free"]] == 0, 1, 0),
-               ';strokeColor=',
-               ifelse(as.numeric(x[["est.numeric"]])<0,"red","black"),
-               ';strokeWidth=', abs(as.numeric(x[["est.numeric"]]))*thickness, ';',
-               ifelse(is.cov, "startArrow=blockThin;startFill=1;curved=1;rounded=0;", "curved=0;"),
+        path.color = ifelse(is(m, "lavaan"),
+                            ifelse(as.numeric(x[["est.numeric"]])<0,"red","black"),
+                            ifelse(!is.na(x[["ustart"]]),
+                                   ifelse(as.numeric(x[["ustart"]])<0,"red","black"),"black"))
+
+        paste0(
+             '# connect: {',
+               '"from":"', location, '","to":"id1",',
+               '"label":"', ifelse(is.na(x[["est.char"]]), "", x[["est.char"]]),
+               '","invert":', ifelse(is.loading, "false", "true"),',',
+
+               '"style":"endArrow=blockThin;endFill=1',
+                       ';dashed=', ifelse(is.loading & x[["free"]] == 0, 1, 0),
+                       ';strokeColor=', path.color,
+                       ';strokeWidth=', path.width, ';',
+               ifelse(is.cov,
+                      "startArrow=blockThin;startFill=1;curved=1;rounded=0;",
+                      "curved=0;"),
                '"}')
 
       })
 
-    preamble.closing =  paste0("# width: 80
-# height: 80
+    preamble.closing =  paste0(
+"# width: 130
+# height: 40
 # nodespacing: 40
 # levelspacing: 40
 # edgespacing: 40
@@ -759,3 +776,78 @@ sem_tab <- function(..., what = c("loadings", "intercepts", "slopes", "covarianc
 #
 #
 # }
+#
+#' Add all possible indirect and total effects to the `lavaan` formula
+#' @param lav.formula  `lavaan` formula
+#' @param lab.sep How labels should be separated
+#' @param ngroups Nuber of groups for multiple group data
+#' @export
+#'
+add_all_indir_and_tot <- function(lav.formula, lab.sep = "__", ngroups = 1) {
+
+  mtab = lavaanify(lav.formula)
+  paths = dplyr::filter(mtab, op == "~")
+  mediators = unique(paths[paths$lhs %in% paths$rhs,"lhs"])
+  outcome.vars = unique(paths[!paths$lhs %in% paths$rhs,"lhs"])
+  exog.vars = unique(paths[!paths$rhs %in% paths$lhs,"rhs"])
+  covs = dplyr::filter(mtab, op == "~~" & lhs != rhs)
+
+  statemtns.list <-
+    sapply(exog.vars, function(exog) {
+      c(
+        # exog -> mediator
+        sapply(mediators, function(med) {
+          paste0(med, " ~ ", paste0(med, lab.sep, exog, "*"), exog)
+        }),
+
+        # exog -> outcome [direct effs]
+        sapply(outcome.vars, function(out) {
+          paste0(out,  " ~ ", paste0(out, lab.sep, exog, "*"), exog)
+        }),
+
+        # exog -> mediator -> outcome
+        sapply(mediators, function(med) {
+          sapply(outcome.vars, function(out) {
+
+            c(
+              #[indirect]
+              paste0("INDIRECT_", paste(out, med, exog, sep = lab.sep),  " := ",
+                     paste0(out, lab.sep, med), "*", paste0(med, lab.sep, exog)),
+              #[direct - mediator-specific]
+              paste0("TOTAL_", paste(out, med, exog, sep = lab.sep),  " := ",
+                     paste0(out, lab.sep, med), "*", paste0(med, lab.sep, exog), " + ",
+                     paste0(out, lab.sep, exog))
+            )
+          })}),
+
+
+        #[total: exog -> mediator1 -> outcome + exog -> mediator2 -> outcome]
+        sapply(outcome.vars, function(out) {
+          paste0("TOTAL_", paste(out,
+                                 paste(mediators, collapse="_WITH_"),
+                                 exog, sep = lab.sep),  " := ",
+                 paste(
+                   sapply(mediators, function(med) {
+                     paste0(
+                       paste0(out, lab.sep, med), "*", paste0(med, lab.sep, exog))
+                   }), collapse = " + "), " + ",
+                 paste0(out, lab.sep, exog))
+        })
+
+
+      )
+    })
+  # mediator -> outcome
+  statemtns.list = append(statemtns.list,
+                          sapply(mediators, function(med) {
+                            sapply(outcome.vars, function(out) {
+
+                              paste0(out, " ~ ", paste0(out, lab.sep, med), "*", med) })}))
+
+  # add covs
+  # statemtns.list  = append(statemtns.list, apply(covs, 1, function(x) paste(x[['lhs']], "~~", x[['rhs']])))
+
+  # output
+  paste(statemtns.list, collapse = ";\n")
+
+}

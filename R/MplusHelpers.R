@@ -7,9 +7,9 @@
 #' @param param.id Single interger or a vector. Single intterger shows 1:param.id  parameters to plot, a vector shows parameters by their order id. If NULL (default), all the parameters are used.
 #' @param niter How many iterations should be shown on a traceplot. NULL (default) refers to all iterations.  However, traceplots for long chains may result in highly overplotted graphics which are slow and take a lot of space on disk. A specified number will take a random sample of values from the iterations.
 #' @param raster Logical. Currently not used. It was an option to convert vector plots to raster plots to save space and produce smaller pdfs. Currently not used.
-#' @param PSR If PSR (R-hat) should be printed for each parameter. See \code{\link{eachParamPSRMplus}}.
+#' @param PSR Whether PSR (R-hat) should be printed for each parameter. See \code{\link{each_param_psr_mplus}}.
 #' @param PSR.version Version of PSR; default is "Rstan" - the most up-to-date, provided by the Rstan::Rhat function (Vehtari et al., 2019). Other possible values: "Gelman" (Gelman et al. (2004)); or "Mplus" (Asparouhov and  Muthen, 2010), and "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.
-#' @param ESS Logical. If effective sample size should be printed on the plots. See \code{\link[rstan]{ess_bulk}}
+#' @param ESS Logical. Whether effective sample size should be printed on the plots. See \code{\link[rstan]{ess_bulk}}
 #'
 #' @description The function exports all the available plots for each parameter and every chain. Therefore it can take a long time and the resulting pdf file can be large. Each page in pdf is for a specific parameter.
 #' @examples
@@ -80,7 +80,7 @@ traceplots_mplus <- function(x,
 
 
   headers = sapply(parnames$id, function(i) {
-    PSR_ESS = eachParamPSRMplus(params, i)
+    PSR_ESS = each_param_psr_mplus(params, i)
     paste(parnames[parnames$id==i, 2], "\n",
           ifelse(PSR,paste("PSR=",
                            round(PSR_ESS[[PSR.version]],3)),
@@ -278,7 +278,7 @@ dev.off()
 #'
 #' \dontrun{
 #' m <- MplusAutomation::readModels("mybayes.out")
-#' eachParamPSRMplus(a$gh5$bayesian_data$parameters_autocorr$parameters, 1)
+#' each_param_psr_mplus(a$gh5$bayesian_data$parameters_autocorr$parameters, 1)
 #' }
 #'
 #' @export

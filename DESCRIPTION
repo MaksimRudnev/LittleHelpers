@@ -1,8 +1,8 @@
 Package: LittleHelpers
 Type: Package
 Title: Helpers for comparative studies
-Version: 0.6-01
-Date: 01-11-2024
+Version: 0.6-04
+Date: 04-03-2025
 Authors@R: 
     person("Maksim", "Rudnev", , "maksim.rudnev@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2714-3840"))
@@ -39,4 +39,4 @@ VignetteBuilder: knitr
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2

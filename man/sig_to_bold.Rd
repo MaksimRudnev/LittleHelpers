@@ -10,7 +10,8 @@ sig_to_bold(
   bold.thresh = 1,
   neg.red = T,
   small.thresh = 0.01,
-  replace.small = NA
+  replace.small = NA,
+  extra.style = ""
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ sig_to_bold(
 \item{neg.red}{Red font if the value is negative value.}
 
 \item{small.thresh}{Replaces the value with `<|.01|` if the magnitude is smaller than the indicated number. Default is .01.}
+
+\item{extra.style}{Add extra CSS style to the span tag.}
 }
 \description{
 Adds formatting to a vector of parameters

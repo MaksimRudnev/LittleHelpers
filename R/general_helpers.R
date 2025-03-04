@@ -56,7 +56,7 @@ cor_table <- function(d, method="spearman", star=TRUE) {
    diag(starz)=""
 
    m <- paste(format(round(r, 2), digits=2, nsmall = 2), starz, sep="")
-   m <- as.data.frame(matrix(m, nrow=ncol(dd)))
+   m <- as.data.frame(matrix(m, nrow=ncol(d)))
 
 
     # starz <- matrix(rep("", ncol(d)^2), nrow=ncol(d))
@@ -209,8 +209,9 @@ crosstab <- function(rows, cols, data, margin="row", useNA="always", drop.empty 
 
     df_to_viewer(
       as.data.frame.matrix(tb),
-       digits=2,
-       title=title)
+      digits=2,
+      kable.options=c(caption = title)
+    )
 
 
 }
@@ -223,6 +224,7 @@ crosstab <- function(rows, cols, data, margin="row", useNA="always", drop.empty 
 #' @returns Character of the formatted
 #' @export
 f = function(x, digits=3) {
+  x = as.numeric(x)
   ifelse(grepl("^-", x),
          sub("^-0\\.", "-.", sprintf(paste0("%.", digits, "f"), x)),
          sub("^0\\.", ".", sprintf(paste0("%.", digits, "f"), x))
