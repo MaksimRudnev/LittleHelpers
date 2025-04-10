@@ -446,8 +446,7 @@ if(!code.only) {
 #'
 #' @param m character, following lavaan syntax model conventions (see examples), or fitted lavaan object.
 #' @param layout Format of the output.  Possible values are  'verticaltree', 'horizontaltree', 'verticalflow', 'horizontalflow', 'organic', 'circle', 'orgchart', 'auto', 'none', or a JSON string as used in draw.io -> Layout -> Apply. Default is 'horizontaltree'
-#' @param try.labels Feature in development Try extracting labels from the data.
-#' @param label.wrap Number of character to wrap a label
+#' @param item.labels Named vector where names are item/variable names and values are labels. Adds custom labels.
 #' @param std Whether include standardized or unstandardized estimates.
 #' @param elements Feature in development. Character vector. What to include in the diagram, possible values "obs", "lat.covs", "resid.covs", "resid", "slopes", and "intercepts/thresholds" (currently not supported).
 #' @param thickness The line width multiplier: the paths are made proportional to the coefficients in the model, but sometimes parameters are too small for a line (.e.g, .5 would mean half a pixel). Use higher numbers to make the paths more visible.
@@ -459,7 +458,7 @@ if(!code.only) {
 #' Step 4. The diagram is already there and you can start editing it in line with your goals. Probably the first thing to try is different layouts - which you can apply at Arrange -> Layout -> choose one of them.
 #'
 #' @export
-lav_to_draw = function(m, layout="horizontaltree", try.labels = F,label.wrap = 15,  std = T, elements = NULL, thickness = 1, clip = T) {
+lav_to_draw = function(m, layout="horizontaltree", item.labels = NULL, std = T, elements = NULL, thickness = 1, clip = T) {
 
     if(is(m, "lavaan")) {
       if(std) {
@@ -506,6 +505,9 @@ lav_to_draw = function(m, layout="horizontaltree", try.labels = F,label.wrap = 1
                      fill = "#cccccc",
                      shape = ifelse(all.vars %in% all.lvs, "ellipse", "square")
     )
+
+    csv$labels  = sapply(csv$id1, function(x)
+      ifelse(x %in% names(item.labels), item.labels[[x]], x))
     #print(pt)
     # adding paths
     paths.pt = pt %>%
@@ -524,9 +526,12 @@ lav_to_draw = function(m, layout="horizontaltree", try.labels = F,label.wrap = 1
     csv$perimeter = ifelse(csv$shape=="ellipse", "ellipsePerimeter;", "rectanglePerimeter")
 
     # preamble
-    preamble.start = "# label: %id1%
+
+    lbs = ifelse(is.null(item.labels), "# label: %id1%", "# label: %labels%")
+preamble.start = paste(lbs,
+    "
 # style: shape=%shape%;fillColor=%fill%;strokeColor=black;perimeter=%perimeter%
-# namespace: csvimport-"
+# namespace: csvimport-")
 
     ## add paths
     preamble.loadings =
@@ -539,7 +544,9 @@ lav_to_draw = function(m, layout="horizontaltree", try.labels = F,label.wrap = 1
 
         path.width = ifelse(is(m, "lavaan"),
                             abs(as.numeric(x[["est.numeric"]])),
-                            1)
+                            ifelse(is.na(x[["est.numeric"]]), 1,
+                                   as.numeric(x[["est.numeric"]])))
+
         path.width = path.width*thickness
 
         path.color = ifelse(is(m, "lavaan"),
@@ -554,7 +561,7 @@ lav_to_draw = function(m, layout="horizontaltree", try.labels = F,label.wrap = 1
                '","invert":', ifelse(is.loading, "false", "true"),',',
 
                '"style":"endArrow=blockThin;endFill=1',
-                       ';dashed=', ifelse(is.loading & x[["free"]] == 0, 1, 0),
+                       ';dashed=', ifelse(is.loading & x[["free"]]!=0 & is(m, "lavaan") == 0, 1, 0),
                        ';strokeColor=', path.color,
                        ';strokeWidth=', path.width, ';',
                ifelse(is.cov,
@@ -572,9 +579,18 @@ lav_to_draw = function(m, layout="horizontaltree", try.labels = F,label.wrap = 1
 # edgespacing: 40
 # layout: ", layout)
 
+    if(is.null(item.labels))
+       skip.in.ignore.line =  which(names(csv)=="id1")
+    else
+       skip.in.ignore.line = which(names(csv) %in% c("id1", "labels"))
+
     preamble = paste(preamble.start,
-                     "## Factor loadings", paste(preamble.loadings, collapse = "\n"),
-                     paste("# ignore:", paste(names(csv)[-1], collapse = ",")),
+                     "## Factor loadings",
+                     paste(preamble.loadings, collapse = "\n"),
+
+                     paste("# ignore:",
+                           paste(names(csv)[-skip.in.ignore.line],
+                                 collapse = ",")),
                      preamble.closing,
                      sep = "\n")
 

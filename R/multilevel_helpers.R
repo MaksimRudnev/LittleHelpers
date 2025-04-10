@@ -818,7 +818,7 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
 
     print(g)
   }
-  return(tb)
+  return(tb[,-5])
 
 }
 
@@ -835,7 +835,7 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
 #' @export
 
 cor_between <- function (var1, var2, group, data, print = T, ...) {
-  if(any(class(data)=="tbl")) data<-drop_labs(data);
+  if(any(class(data)=="tbl")) data<-untibble(drop_labs(data))
 
   if(length(var1)==1) {
     var1 = data[,var1]
