@@ -1,208 +1,416 @@
-#' Function producing a tidy table for many multilevel regressions (lmer fitted objects)
-#' @description Stacks coefficients and SEs, extracts various lmer-specific model fit statistics and confidence intervals for random effects (refits models if necessary), outputs a nicely formatted table using stargazer and shows it directly in Rstudio Viewer.
-#' @param models List of the fitted lmer objects
-#' @param fit.stats What fit statistics to compute/extract and show? Possible options are "ICC", "random", "R2s", "fit", "LRT", "REML", "VIF". See "Details".
-#' @param mod.names Vector of the same length as models list, giving names to each model.
-#' @param show.viewer Logical. Whether the resulting table should be shown in the RStudio viewer. If FALSE then the file "good_table_output.html" is saved to working directory.
-#' @param ... Arguments passed to stargazer.
+#' Create Regression Table for Multilevel Models
 #'
+#' Produces a formatted table for multiple lmer fitted objects with various
+#' fit statistics and model comparisons.
 #'
-#'@examples data("sleepstudy", package="lme4")
-#' m1=lmer(Reaction ~ Days + (1|Subject), sleepstudy)
-#' m2=lmer(Reaction ~ Days + (1+Days|Subject), sleepstudy)
-#' good_table(list(m1, m2))
+#' @param models List of fitted lmer objects
+#' @param fit_stats Character vector of statistics to include. Options: "ICC",
+#'   "VIF", "REML", "fit", "LRT", "random", "random_p", "random_ci", "random_anova", "R2". See details.
+#' @param model_names Character vector of model names (default: auto-generated)
+#' @param show_viewer Logical. Show in RStudio viewer (TRUE) or go with stargazer's default (which is latex, see `type` argument in \code{\link[stargazer]{stargazer}}
+#' @param silent Logical. Suppress progress messages
+#' @param digits Integer. Number of digits for rounding
+#' @param ... Additional arguments passed to \code{\link[stargazer]{stargazer}}
 #'
+#' @return Invisibly returns the HTML output path
 #'
-#' @details  The list of possible fit.stats options:
-#'  \describe{
-#'   \item{fit}{Shows deviance (-2*logLikelihood), AIC, BIC, number of parameters, number of groups, number of observations, if the model converged}
-#'   \item{ICC}{Computes intra-class correlation by fitting an empty model and computing a ratio of first-level and intercept variances.   }
-#'   \item{R2}{Computes R-square by fitting an empoty model and computing a ratio of residuals in an empty model and in the current model. }
-#'   \item{LRT}{Computes Likelihood ratio test; all the models should be fitted to the same sample and be in order of nestedness, otherwise the test fails. }
-#'   \item{random}{Adds variances of all the random effects.}
-#'   \item{random.p}{Adds variances of all the random effects and implements bootstrapping (`lme4::confint.merMod`) in order to get confidence intervals and this p.values for variances of random effects. }
-#'   \item{REML}{Shows if REML was used to fit the model.}
+#' @details
+#' Fit statistics:
+#' \describe{
+#'   \item{fit}{Deviance, AIC, BIC, parameters, groups, observations, convergence}
+#'   \item{ICC}{Intra-class correlation coefficient}
+#'   \item{R2}{R-squared from empty model comparison}
+#'   \item{LRT}{Likelihood ratio tests between nested models}
+#'   \item{random}{Random effect variances}
+#'   \item{random_p}{Random effect variances with bootstrapped significance sign}
+#'   \item{random_ci}{Random effect variances with bootstrapped confidence intervals and sig sign}
+#'   \item{VIF}{Maximum variance inflation factor}
+#'   \item{REML}{Whether REML estimation was used}
 #' }
 #'
+#' @importFrom lme4 VarCorr ngrps isREML refitML getME fixef
+#' @importFrom stats logLik AIC BIC nobs anova update
+#' @importFrom scales comma percent
+#' @importFrom stargazer stargazer
+#' @importFrom rstudioapi viewer
+#' @importFrom utils txtProgressBar setTxtProgressBar
 #'
-#'@note Issues to implement:
-#' * Might be veeery slow (something to work on)
+#' @examples
+#' \dontrun{
+#' data("sleepstudy", package = "lme4")
+#' m1 <- lmer(Reaction ~ Days + (1|Subject), sleepstudy)
+#' m2 <- lmer(Reaction ~ Days + (1+Days|Subject), sleepstudy)
+#' lmer_table(list(m1, m2))
+#' }
 #'
-#' @md
 #' @export
 lmer_table <- function(models,
-                       fit.stats=c("fit", "random"),
-                       mod.names="",
-                       show.viewer=TRUE,
+                       fit_stats = c("fit", "random"),
+                       model_names = NULL,
+                       show_viewer = TRUE,
                        silent = TRUE,
                        digits = 2,
-                       #boot.ci = FALSE,
-                        ...) {
-  requireNamespace("scales")
-  requireNamespace("stargazer", quietly = T)
+                       ...) {
 
-  total.time<-Sys.time()
+  # Input validation
+  available_stats <- c("ICC", "VIF", "REML", "fit", "LRT", "random",
+                       "random_p", "random_ci", "random_anova", "R2")
 
-  # warn and remove unknown fit stats
-  available.stats <- c("ICC", "VIF", "REML", "fit", "LRT", "random", "random.p", "random.anova",  "R2")
-  if(any(!fit.stats %in% available.stats) ) {
-    warning(paste("I don't know stats '", paste(fit.stats[!fit.stats %in% available.stats], collapse=", "),
-                  "'. They are omitted.\n", sep=""))
-    fit.stats <- fit.stats[fit.stats %in% available.stats]
+  if(any(fit_stats=="all")) fit_stats <- available_stats[-c(7,8)]
+
+  validate_inputs(models, fit_stats, model_names, available_stats)
+
+  # Setup
+  start_time <- Sys.time()
+  if (is.null(model_names)) {
+    model_names <- paste("Model", seq_along(models))
   }
 
-  # ICC function
-  myICC <- function(lmer_model) {
-    my_variances<- as.data.frame(lme4::VarCorr(lmer_model))$vcov
-    icc<-my_variances[1]/sum(my_variances[1],my_variances[length(my_variances)])
-    paste(round(icc,2)*100, "%", sep="")
+  # Calculate all requested statistics
+  extra_lines <- calculate_fit_statistics(models, fit_stats, silent)
+
+  # Generate table
+  html_path <- generate_stargazer_table(
+    models, extra_lines, model_names, show_viewer, digits, silent, ...
+  )
+
+  if (!silent) {
+    message("Total time: ", format(Sys.time() - start_time, digits = 2))
   }
 
-  # has_converged
-  has_converged <- function(x) {
-    is.null(x@optinfo$conv$lme4$code) &&
-      ( is.null(x@optinfo$conv$opt) | x@optinfo$conv$opt == 0)
+  invisible(html_path)
+}
+
+# Input validation helper
+validate_inputs <- function(models, fit_stats, model_names, available_stats) {
+  # Check models
+  if (!is.list(models) || length(models) == 0) {
+    stop("'models' must be a non-empty list")
   }
 
-
-
-  ## This looks wierd, remove and udate @##
-  #if(mod.names=="") mod.names <- rep("", length(models))
-
-  # Need to use EITHER random OR `random.p` for 'fit.stats'. For now I remove 'random' and use 'random.p' only.
-  if( all(c("random","random.p") %in% fit.stats)) fit.stats<-fit.stats[!fit.stats=="random"]
-
-
-
-
-  #models.are.ML <- !sapply(models, lme4::isREML)
-
-  if("fit" %in% fit.stats ) {
-
-
-
-    fit <-sapply(models, function(x)  c(
-      Abs.deviance = scales::comma(round(-2*logLik(x)[1], 0)),
-      Nparameters =   attr(logLik(x), "df"),
-      #AIC2 =   lme4:::extractAIC.merMod(x)[2],
-      AIC = scales::comma(round(AIC(x),0)),
-      BIC = scales::comma(round(BIC(x),0)),
-      Ngroups = lme4::ngrps(x)[[1]],
-      Nobservations = scales::comma(nobs(x)),
-      Convergence = has_converged(x)
-    ))
-    fit <-cbind(rownames(fit), fit)
-    fit <-unname(unlist(apply(fit, 1, list), F))
+  if (!all(sapply(models, function(x) inherits(x, "merMod")))) {
+    stop("All elements in 'models' must be lmer/glmer objects")
   }
 
+  # Check fit statistics
 
-
-# LRT
-  if("LRT" %in% fit.stats #| "fit" %in% fit.stats
-     ) {
-
-   if( any(!lapply(models, nobs)==stats::nobs(models[[1]])) ) {
-     stop("At least one model wasn't fit to the same sample, so LRT computation is stopped.")
-   } else {
-
-
-        if(any(sapply(models, lme4::isREML))) {
-          if(!silent)   message("Refitting model with ML estimator to extract correct deviance and compute information criteria. \n Might take a long time.")
-          if(!silent)  pb<-txtProgressBar(0, length(models), label="Going progress bar...", style = 3)
-            modelsML<- lapply(1:length(models), function(m) {
-                res = lme4::refitML(models[[m]])
-              if(!silent)   utils::setTxtProgressBar(pb, m)
-                return(res)
-                })
-
-        } else {
-          modelsML <- models
-        }
-   }
-    LRT <- list(c("Likelihood ratio", NA, sapply(2:length(modelsML), function(i) {
-      a<-anova(modelsML[[i]], modelsML[[i-1]])[2,]
-      paste(round(a$Chisq,2), "(", a$`Chi Df`, ")", ifelse(a$`Pr(>Chisq)`<.001, "***",
-                                                           ifelse(a$`Pr(>Chisq)`<.01, "**",
-                                                                  ifelse(a$`Pr(>Chisq)`<.05, "*", ""))), sep="")
-    })))
-
+  unknown_stats <- setdiff(fit_stats, available_stats)
+  if (length(unknown_stats) > 0) {
+    warning("Unknown fit statistics ignored: ", paste(unknown_stats, collapse = ", "))
   }
 
-
-# random
-  if("random" %in% fit.stats | "random.p" %in% fit.stats ) {
-
-  random.variances<-lapply(models, function(x) {
-    variances<-c(attr(lme4::VarCorr(x)[[1]], "stddev")^2, Residual=attr(lme4::VarCorr(x), "sc")^2 )
-    data.frame(variances, names=paste("Variance of", names(variances)), stringsAsFactors = F)
-                      } )
-  random.variances<-suppressWarnings(Reduce(function(x,y) merge(x,y, by="names", all =T, suffixes=letters), random.variances))
-
- if(!silent) {
-   verb("random.variances")
-   print(random.variances)
- }
-
-    # if(!"random.p" %in% fit.stats) {
-random <-lapply(1:nrow(random.variances), function(x) unname(c(random.variances[x,1],
-                                                                       unlist(format(random.variances[x,-1], digits=3, scientific = F))  )))
-    # }
+  # Check model names
+  if (!is.null(model_names) && length(model_names) != length(models)) {
+    stop("'model_names' must have same length as 'models'")
   }
 
+  # Check sample consistency for LRT
+  if ("LRT" %in% fit_stats) {
+    n_obs <- sapply(models, stats::nobs)
+    if (!all(n_obs == n_obs[1])) {
+      stop("All models must be fit to the same sample for LRT computation")
+    }
+  }
+}
 
-  if ("random.p" %in% fit.stats) {
-    message(
-      "Computing bootstrapped p-values. Usually it takes a long time. Be patient, or interrupt and use fit.stats='random' instead of 'random.p'. "
+
+# Main statistics calculation dispatcher
+calculate_fit_statistics <- function(models, fit_stats, silent) {
+  # Remove conflicts (random_p supersedes random)
+  if (sum(c("random", "random_p", "random_ci") %in% fit_stats)>1) {
+    fit_stats <- setdiff(fit_stats, c( "random", "random_ci"))
+    if (!silent) message("Using 'random_p' instead of 'random'")
+  }
+
+  # Define computation functions for each statistic
+  compute_stat <- function(stat) {
+    if (!silent) message("Computing ", stat, "...")
+
+    switch(stat,
+           "fit" = {
+             fit_matrix <- sapply(models, function(model) {
+               c(
+                 "Deviance" = scales::comma(round(-2 * stats::logLik(model)[1], 0)),
+                 "Parameters" = attr(stats::logLik(model), "df"),
+                 "AIC" = scales::comma(round(stats::AIC(model), 0)),
+                 "BIC" = scales::comma(round(stats::BIC(model), 0)),
+                 "Groups" = lme4::ngrps(model)[[1]],
+                 "Observations" = scales::comma(stats::nobs(model)),
+                 "Converged" = check_convergence(model)
+               )
+             })
+             # Convert each row to a list element: c(row_name, values_for_each_model)
+             lapply(rownames(fit_matrix), function(row_name) {
+               c(row_name, fit_matrix[row_name, ])
+             })
+           },
+           "ICC" =  list(c("ICC", compute_icc(models))),
+           "VIF" = list(c("VIF", sapply(models, vif_mer))),
+           "REML" = list(c("REML", lapply(models, function(m) lme4::isREML(m)))),
+           "LRT" = list(c("LRT", compute_lrt(models, silent))),
+           "random" = compute_random_effects(models),
+           "random_p" = compute_random_effects_with_ci(models),
+           "random_ci" = compute_random_effects_with_ci(models, ci = T),
+           "random_anova" = compute_random_anova(models),
+           "R2" = {
+             r2_results <- compute_r2(models)
+             #lapply(r2_results, function(row) c("R2", row))
+             lapply(rownames(r2_results), function(row_name) {
+               c(row_name, round(r2_results[row_name, ], 2))
+             })
+           }
     )
-    boot.models <- lapply(models, function(x) {
-      confint.merMod(
-        x,
-        nsim = 100,
-        parm = "theta_",
-        boot.type = "basic",
-        method = "boot",
-        parallel = "multicore",
-        ncpus = 4,
-        oldNames = F
+  }
+
+  # Apply computation to all requested statistics and flatten the results
+  result_list <- unlist(lapply(fit_stats, compute_stat), recursive = FALSE)
+
+
+  return(result_list)
+}
+
+
+
+
+compute_icc <- function(models) {
+  icc_values <- sapply(models, function(model) {
+    variances <- as.data.frame(lme4::VarCorr(model))$vcov
+    icc <- variances[1] / sum(variances[c(1, length(variances))])
+    paste0(round(icc * 100, 1), "%")
+  })
+
+  icc_values
+}
+
+
+
+compute_lrt <- function(models, silent) {
+  # Refit with ML if necessary
+  if (any(sapply(models, lme4::isREML))) {
+    if (!silent) {
+      message("Refitting models with ML for LRT...")
+      pb <- utils::txtProgressBar(0, length(models), style = 3)
+    }
+
+    models_ml <- lapply(seq_along(models), function(i) {
+      result <- lme4::refitML(models[[i]])
+      if (!silent) utils::setTxtProgressBar(pb, i)
+      result
+    })
+
+    if (!silent) close(pb)
+  } else {
+    models_ml <- models
+  }
+
+  # Compute likelihood ratio tests
+  lrt_results <- sapply(2:length(models_ml), function(i) {
+    anova_result <- stats::anova(models_ml[[i]], models_ml[[i-1]])[2, ]
+    chisq <- f(anova_result$Chisq, 2)
+    df <- anova_result$`Df`
+    p_val <- anova_result$`Pr(>Chisq)`
+    stars <- pvalue_to_stars(p_val)
+
+    paste0(chisq, " (", df, ")", stars)
+  })
+
+  c(NA, lrt_results)
+}
+
+compute_random_effects <- function(models, df = F) {
+  # Extract variance components
+  variance_list <- lapply(models, function(model) {
+    var_corr <- lme4::VarCorr(model)
+    variances <- c(
+      attr(var_corr[[1]], "stddev")^2,
+      Residual = attr(var_corr, "sc")^2
+    )
+    data.frame(
+      variances = variances,
+      names = paste("Variance of", names(variances)),
+      stringsAsFactors = FALSE
+    )
+  })
+
+  # Merge all variance components
+  merged_variances <- Reduce(function(x, y) {
+    merge(x, y, by = "names", all = TRUE, suffixes = paste0("_", seq_along(models)))
+  }, variance_list)
+
+  # Format for output
+  if(!df) {
+  lapply(seq_len(nrow(merged_variances)), function(i) {
+    c(merged_variances$names[i],
+      #format(unlist(merged_variances[i, -1]), digits = 3, scientific = FALSE)
+      f(unlist(merged_variances[i, -1]),2)
       )
-    })
+  })
+  } else {
+    return(merged_variances)
+  }
+}
 
-    p <- lapply(boot.models, function(a) {
-      b <- a[grepl("sd_|sigma", dimnames(a)[[1]]), ]
-      dimnames(b)[[1]] <-
-        gsub("sd_|\\|cntry", "",   dimnames(b)[[1]])
-      dimnames(b)[[1]] <-
-        gsub("sigma", "Residual",   dimnames(b)[[1]])
-      c <- b[, 1] * b[, 2] > 0
-      c[c] <- "#"
-      c[c == "FALSE"] <- ""
-      data.frame(`sig.` = c, names = names(c))
-    })
-
-    p1 <- Reduce(function(x, y)
-      merge(x, y, by = "names", all = T), p)
-    rownames(p1) <- p1$names
-    p1 <- p1[gsub("Variance of ", "", random.variances$names), ]
-
-    random.p <-
-      lapply(1:nrow(random.variances), function(x)
-        unname(c(
-          random.variances[x, 1],
-          paste(format(unlist(
-            random.variances[x, -1]
-          ), digits = 3), unlist(p1[x, -1]), sep = "")
-        )))
+compute_random_effects_with_ci <- function(models, ci = F) {
 
 
+  message(
+    "Computing bootstrapped p-values. Usually it takes a long time. Be patient, or interrupt and use fit.stats='random' instead of 'random.p'. "
+  )
+  boot.models <- lapply(models, function(x) {
+    confint.merMod(
+      x,
+      nsim = 100,
+      parm = "theta_",
+      boot.type = "basic",
+      method = "boot",
+      parallel = "multicore",
+      ncpus = 4,
+      oldNames = F
+    )
+  })
+
+
+random.variances <- compute_random_effects(models, df= T)
+
+p.ci = lapply(boot.models, function(x) apply(x, 1, function(y) {
+    ci.str = paste0(f(y[1]^2,1), " - ", f(y[2]^2,1))
+    sig = ifelse(y[1] * y[2] > 0, "#", "ns")
+    if(ci) paste0(sig, " [", ci.str, "]") else sig
+
+  }
+    ))
+p.ci.df = Reduce(function(x, y)
+    merge(x, y, by = "row.names", all = T), p.ci)
+
+# dropping correlations
+p.ci.df = p.ci.df[!grepl("^cor_", p.ci.df$Row.names),]
+
+#harmonizing the names
+p.ci.df$Row.names = gsub("sigma", "Variance of Residual",   p.ci.df$Row.names, perl = T)
+p.ci.df$Row.names = gsub("sd_", "Variance of ",   p.ci.df$Row.names, perl = T)
+p.ci.df$Row.names = gsub("\\|.*", "",   p.ci.df$Row.names)
+
+if(length(setdiff(random.variances$names, p.ci.df$Row.names))>0)
+  stop("Some random effects are missing in the bootstrap results. Possibly due to singular fit. Use fit.stats='random' instead.")
+
+
+random.p = lapply(random.variances$names, function(x) {
+  paste0(
+    c("",na_str(f(random.variances[random.variances$names==x,-1],1))),
+    na_str(p.ci.df[p.ci.df$Row.names==x,]))
+
+})
+
+return(random.p)
+
+}
+
+na_str <- function(x) {
+  x[x=="NA"] <- ""
+  x[is.na(x)] <- ""
+  x
+}
+
+
+compute_r2 <- function(models) {
+  message("Computing R-squared from empty models...")
+
+  # Fit empty models
+  empty_models <- lapply(models, function(model) {
+    group_var <- names(lme4::getME(model, "flist"))[1]
+    formula_str <- paste(". ~ 1 + (1|", group_var, ")")
+    stats::update(model, formula_str)
+  })
+
+  # Calculate R-squared
+  r2_values <- sapply(seq_along(models), function(i) {
+    var_empty <- as.data.frame(lme4::VarCorr(empty_models[[i]]))$vcov
+    var_full <- as.data.frame(lme4::VarCorr(models[[i]]))$vcov
+
+    # Simplified R-squared calculation
+    c(
+      "Naive R2 Intercept" = (var_empty[1] - var_full[1]) / var_empty[1],
+      "Naive R2 Residual" = (var_empty[length(var_empty)] - var_full[length(var_full)]) /
+        var_empty[length(var_empty)]
+    )
+  })
+
+  r2_values
+}
+
+# Helper functions
+check_convergence <- function(model) {
+  is.null(model@optinfo$conv$lme4$code) &&
+    (is.null(model@optinfo$conv$opt) || model@optinfo$conv$opt == 0)
+}
+
+
+
+generate_stargazer_table <- function(models, extra_lines, model_names,
+                                     show_viewer, digits, silent, ...) {
+
+
+
+  # Escape underscores for LaTeX
+  extra_lines <- lapply(extra_lines, function(line) {
+    gsub("_", "\\\\_", line)
+  })
+
+  # Generate table
+
+  if (show_viewer && requireNamespace("rstudioapi", quietly = TRUE)) {
+    # Create temporary file
+    temp_dir <- tempfile()
+    dir.create(temp_dir)
+    html_file <- file.path(temp_dir, "lmer_table.html")
+    # make table
+  stargazer_output <- utils::capture.output(
+    stargazer::stargazer(
+      models,
+      out = html_file,
+      type = "html",
+      summary = FALSE,
+      no.space = TRUE,
+      single.row = TRUE,
+      star.cutoffs = c(0.05, 0.01, 0.001),
+      omit.stat = "all",
+      column.labels = model_names,
+      add.lines = extra_lines,
+      digits = digits,
+      ...
+    )
+  )
+  # show in viewer
+    rstudioapi::viewer(html_file)
+  } else {
+
+    stargazer::stargazer(
+      models,
+      #out = html_file,
+      #type = "html",
+      summary = FALSE,
+      no.space = TRUE,
+      #single.row = TRUE,
+      #star.cutoffs = c(0.05, 0.01, 0.001),
+      omit.stat = "all",
+      column.labels = model_names,
+      add.lines = extra_lines,
+      digits = digits,
+      ...
+    )
 
   }
 
-  # random.anova
-   if ("random.anova" %in% fit.stats) {
+
+}
+
+#   # random.anova
+compute_random_anova <- function(models) {
+  # This would need lmerTest implementation
      cat("Computing random.anova: ")
      random.anova  <-  list()
         for( i in 1:length(models)) {
-          cat("\r", i, "of", length(models))
+          #cat(i, "of", length(models))
           m <- models[[i]]
            # must assign due to 'ranova' function
             assign(as.character(m@call$data), m@frame)
@@ -213,7 +421,7 @@ random <-lapply(1:nrow(random.variances), function(x) unname(c(random.variances[
             ranova.output.names <- paste("LRT of variance of", ranova.output.names)
             ranova.output <- ranova.output[-1,c("LRT", "Df", "Pr(>Chisq)")]
             ranova.output <- apply(ranova.output, 1, function(x)
-              paste0(format(x[["LRT"]],digits=3) , "(", x[["Df"]], ")",
+              paste0(f(x[["LRT"]],1) , "(", x[["Df"]], ")",
                      LittleHelpers:::pvalue_to_stars(x[["Pr(>Chisq)"]])))
 
            ranova.output <-  data.frame(
@@ -226,7 +434,7 @@ random <-lapply(1:nrow(random.variances), function(x) unname(c(random.variances[
            random.anova[[i]] <- ranova.output
 
            }
-  rm(ranova.output, ranova.output.names)
+
 
   random.anova <- Reduce(function(a,b) {
     merge(a, b, by="term", all=T,
@@ -234,117 +442,8 @@ random <-lapply(1:nrow(random.variances), function(x) unname(c(random.variances[
     random.anova
     )
   random.anova <- lapply(1:nrow(random.anova), function(x) gsub("<NA>", NA, random.anova[x,] ))
+  random.anova
 }
-
-
-
-  if ("R2" %in% fit.stats) {
-    message("Computing zero models to get absolute R-squares (reduction in residual variances).")
-
-    M0 <-
-      lapply(models, function(x)
-        update(x,  paste(".~ 1+ (1|",   names(getME( x, "flist")), ")")))
-
-    random.variances.M0 <- sapply(1:length(M0), function(x) {
-      c(
-        R2.intercept =
-          (
-            attr(lme4::VarCorr(M0[[x]])[[1]], "stddev")[[1]] ^ 2 -
-              attr(lme4::VarCorr(models[[x]])[[1]], "stddev")[[1]] ^ 2
-          ) /
-          (attr(lme4::VarCorr(M0[[x]])[[1]], "stddev")[[1]] ^ 2),
-        R2.Residual =
-          (
-            attr(lme4::VarCorr(M0[[x]]), "sc")[[1]] ^ 2 -
-              attr(lme4::VarCorr(models[[x]]), "sc") ^ 2
-          )[[1]] /
-          attr(lme4::VarCorr(M0[[x]]), "sc")[[1]] ^ 2
-      )
-
-    })
-
-    R2 <- list(c("R2.intercept", round(random.variances.M0[1, ], 2)) ,
-               c("R2.Residual", round(random.variances.M0[2, ], 2)))
-
-  # R2s<-sapply(3:ncol(random.variances), function(i) (random.variances[,i-1]-random.variances[,i]) / random.variances[,i-1] )
-  # R2s<-lapply(1:nrow(R2s), function(x) c(paste("R2 - Reduction in variance of", random.variances$names[[x]]), NA, round(R2s[x,],2)  ))
-  }
-
-
-
-
-
-# ICC
-  ICC <- list(c("ICC",paste(lapply(models, myICC))))
-
-
-# VIF
-  if("VIF" %in% fit.stats ) {
-  VIF <- list(c("Max VIF",
-                paste(lapply(models,
-                             function(x) ifelse(length(fixef(x))>1,  round(max(vif_mer(x)),2), "-")))))
-  }
-
-# REML
-  if("REML" %in% fit.stats ) {
-  REML<- list(c("REML",   paste(lapply(models, function(y) summary(y)$devcomp$dims["REML"]!=0))))
-  }
-
-
-
-
-
-
-# putting  fit.stats together
-  extra.lines<- list()
-  extra.lines<- unlist(lapply(fit.stats, function(x) append(extra.lines, get(x))), F)
-
-  #print(random.variances)
-  if(!silent) verb("Extraction of fit info took", Sys.time() - total.time)
-
-  stage2.stargazer<-Sys.time()
-  require("stargazer")
-  tempDir <- tempfile()
-  dir.create(tempDir)
-  htmlFile <- file.path(tempDir, "index.html")
-
-
-  if(show.viewer==FALSE) {
-    stargazer(models, out="good_table_output.html",
-              type="html",
-              summary=F, no.space=T, single.row=T, star.cutoffs=c(0.05, 0.01, 0.001),
-                             #table.layout = "-l-d-m-c-t-a-",
-                             omit.stat="all",
-                             column.labels=mod.names,
-                             add.lines=extra.lines,
-                             digits=2, ...)
-  } else {
-
-    extra.lines<-lapply(extra.lines, function(x) gsub("_", "\\\\_", x))
-    if(!silent)  print(extra.lines)
-    #assign("extra.lines", extra.lines, envir=.GlobalEnv)
-    #stargazer(hovs.fit1, type="html", out="123.html", add.lines=extra.lines, summary=F, no.space=T, single.row=T, star.cutoffs=c(0.05, 0.01, 0.001),    omit.stat="all")
-    b<-capture.output(stargazer(models, out=htmlFile, type="html", summary=F, no.space=T, single.row=T, star.cutoffs=c(0.05, 0.01, 0.001),
-                                #table.layout = "-l-d-m-c-t-a-",
-                                omit.stat="all",
-                                column.labels=mod.names,
-                                add.lines=extra.lines,
-                                digits=digits,
-                                notes=ifelse("random.p" %in% fit.stats,
-                                             "# significant at p<.05 based on bootstrapped confidence intervals.",
-                                             ""),
-                                notes.append="random.p" %in% fit.stats,
-                                ...
-                                ))
-  viewer	<- getOption("viewer")
-  rstudioapi::viewer(htmlFile)
-  }
-
-  if(!silent) verb("stage2.stargazer", Sys.time()-stage2.stargazer)
-  if(!silent) verb("Total time:", Sys.time()-total.time)
-}
-
-
 
 
 #' Computes pseudo-R2 by subtracting residual variances
@@ -388,24 +487,12 @@ vif_mer <- function (fit) {
     v <- v[-(1:ns), -(1:ns), drop = FALSE]
     nam <- nam[-(1:ns)]
   }
-  #print(v)
-  #print(str(v))
-  #class(v)<-"matrix"
   d <- Matrix::diag(v)^0.5
   v <- Matrix::diag(solve(v/(d %o% d)))
   names(v) <- nam
   v
 }
 
-# > vif.lme <- function (fit) {
-#   >   ## adapted from rms::vif
-#     >   v <- vcov(fit)
-#     >   nam <- names(fixef(fit))
-#     >   ## exclude intercepts
-#       >   ns <- sum(nam == "Intercept" | nam == "(Intercept)")
-#       >   if (ns > 0) v <- v[-(1:ns), -(1:ns), drop = FALSE]
-#       >   diag(solve(cov2cor(v)))
-#       > }
 
 
 
@@ -523,17 +610,9 @@ potential_interactions <- function(random.terms, group.level.terms, lmer.fit, me
 
     data<-eval(parse(text=deparse(lmer.fit@call$data)))
 
-    #f.part1 <- gsub("\\(Intercept\\)", "1", paste(paste(dimnames(model.matrix(lmer.fit))[[2]], collapse=" + "), "+(",
-    #paste(names(ranef(lmer.fit)[[1]]), collapse=" + "), "+"))
-    #f.part2 <- paste("|", names(getME(lmer.fit, "flist")), ")")
-
     re<-sapply(random.terms, function(x) ranef(update(lmer.fit, add_term(lmer.fit@call$formula, random=x))   )[[1]][,x] )
 
     iv <- aggregate(data[,group.level.terms], list(data[,names(getME(lmer.fit, "flist"))]), mean, na.rm=T)
-
-    # out <- round(cor(cbind(re, iv[,-1]), use="pairwise.complete.obs")[1:length(random.terms),
-    #                                                                   (length(random.terms)+1):(length(random.terms)+length(group.level.terms))],
-    #              3)
 
     out<-cor_table(cbind(re, iv[,-1]))[1:length(random.terms),
                                        (length(random.terms)+1):(length(random.terms)+length(group.level.terms))]
@@ -572,7 +651,7 @@ potential_interactions <- function(random.terms, group.level.terms, lmer.fit, me
     })
 
 
-    b<- data.frame(pairs,
+    b <- data.frame(pairs,
                    value=apply(pairs, 1, function(p)  unlist(tb)[names(unlist(tb))== paste(p, collapse=":")]), stringsAsFactors = F)
 
     cat("\nInteractions \n")
@@ -626,8 +705,6 @@ potential_interactions_ind <- function(variables, modelfit) {
   intr.eff$v1 <-factor(intr.eff$v1, levels=lvls)
 
   print(reshape2::dcast(intr.eff, v2 ~ v1, value.var ="vlu", fill = ""))
-  #class(intr.eff)<-c("LHinteractions", "data.frame")
-  #print.LHinteractions(intr.eff)
   invisible(intr.eff)
 }
 
@@ -692,8 +769,8 @@ grand_center <- function(variables, data, prefix="gc.", std = F) {
 
 }
 
-# Creates country level variables####
-#' Creates country level variables by aggregating individual level variables
+# Creates group level variables####
+#' Creates group-level variables by aggregating individual-level variables and adding it to the df
 #'
 #'
 #' @param variables Variable to be aggregated.
@@ -702,35 +779,9 @@ grand_center <- function(variables, data, prefix="gc.", std = F) {
 #' @param FUN Aggregation function, mean by default.
 #' @param prefix Character string, what should be added to the  names of aggregated variables.
 #'
-#'
+#' @returns Returns the original data frame with new group-level variables appended.
+#' @details Alternative to `dplyr::group_by` + `dplyr::mutate`. Can be used within functions.
 #' @export
-# aggr_and_merge <- function(variables, group, data, FUN="mean", prefix="") {
-#
-#   if(length(group)==1) {
-#     c.x<-with(data, tapply(get(variables), get(group),
-#                                function(x) eval(call(FUN, x, na.rm=T)), simplify = T))
-#     c.y<-data.frame(c.x, grp=rownames(c.x))
-#
-#     names(c.y)[1] <- paste(ifelse(prefix=="", group, prefix), variables, sep="")
-#
-#     appended_data<-merge(x=data, c.y, by.x=group, by.y="grp", all.x=TRUE)
-#
-#   } else {
-#     aggs <- tapply(data[,variables], data[,group],
-#                    function(x) eval(call(FUN, x, na.rm=T)), simplify = T)
-#
-#     aggs <-reshape2::melt(aggs)
-#     names(aggs)[names(aggs)=="value"]<-
-#       paste(
-#         ifelse(prefix=="",
-#                paste0(group, collapse=""),
-#                prefix),
-#         variables,
-#         sep=".")
-#     appended_data<-merge(data, aggs, by = group, all.x = T)
-#   }
-#   return(appended_data)
-# }
 aggr_and_merge <- function(variables, group, data, FUN = "mean", prefix = paste0(group, ".")) {
 
   aggr.dat <- aggregate(data[,variables],
@@ -746,9 +797,10 @@ aggr_and_merge <- function(variables, group, data, FUN = "mean", prefix = paste0
 
 
 
-#Corr by country#####
+# Corr by group #####
 #' Within-group correlations
 #'
+#' @description Prints correlations in console, and optionally plots in a graph.
 #' @param var1 String. Name of variable to correlate.
 #' @param var2 String. Name of variable to correlate.
 #' @param group Grouping variable.
@@ -756,15 +808,9 @@ aggr_and_merge <- function(variables, group, data, FUN = "mean", prefix = paste0
 #' @param plot Logical. Should the plot be created?
 #' @param labs Logical. Should value labels be used?
 #' @param highlight.group Characater. What group should be highlighted on graph?
-#'
-#' Prints correlations in console, and plots in a graph.
+#' @importFrom ggplot2 ggplot
 #' @export
 cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pairwise", highlight.group=NA) {
-
-  #require(sjmisc);
-  #require(sjlabelled);
-  requireNamespace("ggplot2")
-
 
   if(sum(class(data)=="tbl")>0) {
     Gr <- as.character(lab_to_fac(data[, group][[1]]))
@@ -778,7 +824,6 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
 
   tb<-data.frame(group=unique(Gr),
                  Corr=t(sapply(unique(Gr),   function(x) {
-                   #cor(V1[Gr==x], V2[Gr==x], use=use, ...)
                    if(all(rowSums(cbind(!is.na(V1[Gr==x]), !is.na(V2[Gr==x])))<2)) {
                      warning(paste("There no valid cases in", x))
                      c(NA, NA, NA)
@@ -879,7 +924,7 @@ if(print == T) {
 }
 
 # What fixed should be turned to random ####
-#' Find random effects across fixed
+#' Find which random effects could be added to a lmer model
 #'@param lmerfit lmer fit
 #'@param terms terms, if NA (default) uses each variable from fixed effects
 #'@param boot Apply bootstrap?
@@ -897,161 +942,6 @@ search_random <- function(lmerfit, terms=NA, boot=F) {
   })
 
   lapply(1:length(o), function(x) VarCorr(o[[x]])[[names(lmerfit@flist)]][terms[[x]], terms[[x]]])
-
-  #anova(lmerfit)
-
-  #confint(lmerfit, method="Wald")
 }
-
-
-# Rights, J.D., & Sterba, S.K. (in press). Quantifying explained variance in multilevel models: An integrative framework for defining R-squared measures. Psychological Methods.
-# r2MLM <- function(data,within_covs,between_covs,random_covs,
-#                   gamma_w,gamma_b,Tau,sigma2,has_intercept=T,clustermeancentered=T){
-#   if(has_intercept==T){
-#     if(length(gamma_b)>1) gamma <- c(1,gamma_w,gamma_b[2:length(gamma_b)])
-#     if(length(gamma_b)==1) gamma <- c(1,gamma_w)
-#     if(is.null(within_covs)==T) gamma_w <- 0
-#   }
-#   if(has_intercept==F){
-#     gamma <- c(gamma_w,gamma_b)
-#     if(is.null(within_covs)==T) gamma_w <- 0
-#     if(is.null(between_covs)==T) gamma_b <- 0
-#   }
-#   if(is.null(gamma)) gamma <- 0
-#   ##compute phi
-#   phi <- var(cbind(1,data[,c(within_covs)],data[,c(between_covs)]),na.rm=T)
-#   if(has_intercept==F) phi <- var(cbind(data[,c(within_covs)],data[,c(between_covs)]),na.rm=T)
-#   if(is.null(within_covs)==T & is.null(within_covs)==T & has_intercept==F) phi <- 0
-#   phi_w <- var(data[,within_covs],na.rm=T)
-#   if(is.null(within_covs)==T) phi_w <- 0
-#   phi_b <- var(cbind(1,data[,between_covs]),na.rm=T)
-#   if(is.null(between_covs)==T) phi_b <- 0
-#   ##compute psi and kappa
-#   var_randomcovs <- var(cbind(1,data[,c(random_covs)]),na.rm=T)
-#   if(length(Tau)>1) psi <- matrix(c(diag(Tau)),ncol=1)
-#   if(length(Tau)==1) psi <- Tau
-#   if(length(Tau)>1) kappa <- matrix(c(Tau[lower.tri(Tau)==TRUE]),ncol=1)
-#   if(length(Tau)==1) kappa <- 0
-#   v <- matrix(c(diag(var_randomcovs)),ncol=1)
-#   r <- matrix(c(var_randomcovs[lower.tri(var_randomcovs)==TRUE]),ncol=1)
-#   if(is.null(random_covs)==TRUE){
-#     v <- 0
-#     r <- 0
-#     m <- matrix(1,ncol=1)
-#   }
-#   if(length(random_covs)>0) m <- matrix(c(colMeans(cbind(1,data[,c(random_covs)]),na.rm=T)),ncol=1)
-#   ##total variance
-#   totalvar_notdecomp <- t(v)%*%psi + 2*(t(r)%*%kappa) + t(gamma)%*%phi%*%gamma + t(m)%*%Tau%*%m + sigma2
-#   totalwithinvar <- (t(gamma_w)%*%phi_w%*%gamma_w) + (t(v)%*%psi + 2*(t(r)%*%kappa)) + sigma2
-#   totalbetweenvar <- (t(gamma_b)%*%phi_b%*%gamma_b) + Tau[1]
-#   totalvar <- totalwithinvar + totalbetweenvar
-#   ##total decomp
-#   decomp_fixed_notdecomp <- (t(gamma)%*%phi%*%gamma) / totalvar
-#   decomp_fixed_within <- (t(gamma_w)%*%phi_w%*%gamma_w) / totalvar
-#   decomp_fixed_between <- (t(gamma_b)%*%phi_b%*%gamma_b) / totalvar
-#   decomp_fixed <- decomp_fixed_within + decomp_fixed_between
-#   decomp_varslopes <- (t(v)%*%psi + 2*(t(r)%*%kappa)) / totalvar
-#   decomp_varmeans <- (t(m)%*%Tau%*%m) / totalvar
-#   decomp_sigma <- sigma2/totalvar
-#   ##within decomp
-#   decomp_fixed_within_w <- (t(gamma_w)%*%phi_w%*%gamma_w) / totalwithinvar
-#   decomp_varslopes_w <- (t(v)%*%psi + 2*(t(r)%*%kappa)) / totalwithinvar
-#   decomp_sigma_w <- sigma2/totalwithinvar
-#   ##between decomp
-#   decomp_fixed_between_b <- (t(gamma_b)%*%phi_b%*%gamma_b) / totalbetweenvar
-#   decomp_varmeans_b <- Tau[1] / totalbetweenvar
-#   #NEW measures
-#   if (clustermeancentered==TRUE){
-#     R2_f <- decomp_fixed
-#     R2_f1 <- decomp_fixed_within
-#     R2_f2 <- decomp_fixed_between
-#     R2_fv <- decomp_fixed + decomp_varslopes
-#     R2_fvm <- decomp_fixed + decomp_varslopes + decomp_varmeans
-#     R2_v <- decomp_varslopes
-#     R2_m <- decomp_varmeans
-#     R2_f_w <- decomp_fixed_within_w
-#     R2_f_b <- decomp_fixed_between_b
-#     R2_fv_w <- decomp_fixed_within_w + decomp_varslopes_w
-#     R2_v_w <- decomp_varslopes_w
-#     R2_m_b <- decomp_varmeans_b
-#   }
-#   if (clustermeancentered==FALSE){
-#     R2_f <- decomp_fixed_notdecomp
-#     R2_fv <- decomp_fixed_notdecomp + decomp_varslopes
-#     R2_fvm <- decomp_fixed_notdecomp + decomp_varslopes + decomp_varmeans
-#     R2_v <- decomp_varslopes
-#     R2_m <- decomp_varmeans
-#   }
-#   if(clustermeancentered==TRUE){
-#     decomp_table <- matrix(c(decomp_fixed_within,decomp_fixed_between,decomp_varslopes,decomp_varmeans,decomp_sigma,
-#                              decomp_fixed_within_w,"NA",decomp_varslopes_w,"NA",decomp_sigma_w,
-#                              "NA",decomp_fixed_between_b,"NA",decomp_varmeans_b,"NA"),ncol=3)
-#     rownames(decomp_table) <- c("fixed, within","fixed, between","slope variation","mean variation","sigma2")
-#     colnames(decomp_table) <- c("total","within","between")
-#     R2_table <- matrix(c(R2_f1,R2_f2,R2_v,R2_m,R2_f,R2_fv,R2_fvm,
-#                          R2_f_w,"NA",R2_v_w,"NA","NA",R2_fv_w,"NA",
-#                          "NA",R2_f_b,"NA",R2_m_b,"NA","NA","NA")
-#                        ,ncol=3)
-#     rownames(R2_table) <- c("f1","f2","v","m","f","fv","fvm")
-#     colnames(R2_table) <- c("total","within","between")
-#   }
-#   ##barchart
-#   if(clustermeancentered==TRUE){
-#     contributions_stacked <- matrix(c(decomp_fixed_within,decomp_fixed_between,decomp_varslopes,decomp_varmeans,decomp_sigma,
-#                                       decomp_fixed_within_w,0,decomp_varslopes_w,0,decomp_sigma_w,
-#                                       0,decomp_fixed_between_b,0,decomp_varmeans_b,0),5,3)
-#     colnames(contributions_stacked) <- c("total","within","between")
-#     rownames(contributions_stacked) <- c("fixed slopes (within)",
-#                                          "fixed slopes (between)",
-#                                          "slope variation (within)",
-#                                          "intercept variation (between)",
-#                                          "residual (within)")
-#     barplot(contributions_stacked, main="Decomposition", horiz=FALSE,
-#             ylim=c(0,1),col=c("darkred","steelblue","darkred","midnightblue","white"),ylab="proportion of variance",
-#             density=c(NA,NA,30,40,NA),angle=c(0,45,0,135,0),xlim=c(0,1),width=c(.3,.3))
-#     legend(.30,-.1,legend=rownames(contributions_stacked),fill=c("darkred","steelblue","darkred","midnightblue","white"),
-#            cex=.7, pt.cex = 1,xpd=T,density=c(NA,NA,30,40,NA),angle=c(0,45,0,135,0))
-#   }
-#   if(clustermeancentered==FALSE){
-#     decomp_table <- matrix(c(decomp_fixed_notdecomp,decomp_varslopes,decomp_varmeans,decomp_sigma),ncol=1)
-#     rownames(decomp_table) <- c("fixed","slope variation","mean variation","sigma2")
-#     colnames(decomp_table) <- c("total")
-#     R2_table <- matrix(c(R2_f,R2_v,R2_m,R2_fv,R2_fvm),ncol=1)
-#     rownames(R2_table) <- c("f","v","m","fv","fvm")
-#     colnames(R2_table) <- c("total")
-#     ##barchar
-#     contributions_stacked <- matrix(c(decomp_fixed_notdecomp,decomp_varslopes,decomp_varmeans,decomp_sigma),4,1)
-#     colnames(contributions_stacked) <- c("total")
-#     rownames(contributions_stacked) <- c("fixed slopes",
-#                                          "slope variation",
-#                                          "intercept variation",
-#                                          "residual")
-#     barplot(contributions_stacked, main="Decomposition", horiz=FALSE,
-#             ylim=c(0,1),col=c("darkblue","darkblue","darkblue","white"),ylab="proportion of variance",
-#             density=c(NA,30,40,NA),angle=c(0,0,135,0),xlim=c(0,1),width=c(.6))
-#     legend(.30,-.1,legend=rownames(contributions_stacked),fill=c("darkblue","darkblue","darkblue","white"),
-#            cex=.7, pt.cex = 1,xpd=TRUE,density=c(NA,30,40,NA),angle=c(0,0,135,0))
-#   }
-#   Output <- list(noquote(decomp_table),noquote(R2_table))
-#   names(Output) <- c("Decompositions","R2s")
-#   return(Output)
-# }
-#
-#
-# ###example input
-#
-# data <- matrix(NA,100,4)
-# xs <- mvrnorm(n=100,mu=c(0,0),Sigma=matrix(c(2,.75,.75,1.5),2,2))
-# ws <- mvrnorm(n=10,mu=c(0,2),Sigma=matrix(c(1,.5,.5,2),2,2))
-# data[,1:2] <- xs
-# for (i in seq(10)){
-#   data[(10*(i-1)+1):(i*10),3] <- ws[i,1]
-#   data[(10*(i-1)+1):(i*10),4] <- ws[i,2]
-#   data[(10*(i-1)+1):(i*10),1] <- data[(10*(i-1)+1):(i*10),1] - mean(data[(10*(i-1)+1):(i*10),1])
-#   data[(10*(i-1)+1):(i*10),2] <- data[(10*(i-1)+1):(i*10),2] - mean(data[(10*(i-1)+1):(i*10),2])
-# }
-# r2MLM(data,within_covs=c(1,2),between_covs=c(3,4),random_covs=c(1,2),
-#       gamma_w=c(2.5,-1),gamma_b=c(1,.25,1.5),Tau=matrix(c(4,1,.75,1,1,.25,.75,.25,.5),3,3),sigma2=10)
-
 
 

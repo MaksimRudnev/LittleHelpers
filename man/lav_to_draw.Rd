@@ -7,8 +7,7 @@
 lav_to_draw(
   m,
   layout = "horizontaltree",
-  try.labels = F,
-  label.wrap = 15,
+  item.labels = NULL,
   std = T,
   elements = NULL,
   thickness = 1,
@@ -20,9 +19,7 @@ lav_to_draw(
 
 \item{layout}{Format of the output.  Possible values are  'verticaltree', 'horizontaltree', 'verticalflow', 'horizontalflow', 'organic', 'circle', 'orgchart', 'auto', 'none', or a JSON string as used in draw.io -> Layout -> Apply. Default is 'horizontaltree'}
 
-\item{try.labels}{Feature in development Try extracting labels from the data.}
-
-\item{label.wrap}{Number of character to wrap a label}
+\item{item.labels}{Named vector where names are item/variable names and values are labels. Adds custom labels.}
 
 \item{std}{Whether include standardized or unstandardized estimates.}
 

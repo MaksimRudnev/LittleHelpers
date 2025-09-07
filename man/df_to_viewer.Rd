@@ -47,7 +47,7 @@ df_to_viewer(
 
 \item{...}{Other arguments passed to `stargazer` or `kableStyling()`.}
 
-\item{df}{data.frame to show. Also works with a list of fitted lm() models.}
+\item{df}{data.frame to show. Also works with a list of fitted models supported by .}
 }
 \description{
 via stargazer and knitr

@@ -4,15 +4,39 @@
 \alias{cor_table}
 \title{Correlation table with stars}
 \usage{
-cor_table(d, method = "spearman", star = TRUE)
+cor_table(d, method = "spearman", star = TRUE, raw = FALSE)
 }
 \arguments{
-\item{d}{Data.frame}
+\item{d}{A data frame or tibble containing numeric variables}
 
-\item{method}{Method from `cor` function. "spearman" by default.}
+\item{method}{Character string indicating correlation method. One of "pearson",
+"kendall", or "spearman" (default)}
 
-\item{star}{If stars for p levels should be added.}
+\item{star}{Logical. If TRUE (default), adds significance stars to correlations}
+
+\item{raw}{Logical. If TRUE, returns raw correlation matrix without formatting}
+}
+\value{
+A matrix containing formatted correlations with significance stars (if requested)
+  or raw correlation values
 }
 \description{
 Produces data frame of correlations with stars standing for significance
+Create Correlation Table with Significance Stars
+
+Creates a formatted correlation matrix with optional significance stars.
+Handles tibble inputs and provides flexible output formats.
+}
+\details{
+Significance levels: * p < 0.05, ** p < 0.01, *** p < 0.001
+}
+\examples{
+\dontrun{
+data <- data.frame(x = rnorm(100), y = rnorm(100), z = rnorm(100))
+cor_table(data)                          # With stars
+cor_table(data, star = FALSE)           # Without stars
+cor_table(data, raw = TRUE)             # Raw correlations
+cor_table(data, method = "pearson")     # Pearson method
+}
+
 }

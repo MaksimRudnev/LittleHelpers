@@ -2,15 +2,26 @@
 % Please edit documentation in R/general_helpers.R
 \name{pvalue_to_stars}
 \alias{pvalue_to_stars}
-\title{Convert numbers to stars}
+\title{Convert P-values to Significance Stars}
 \usage{
-pvalue_to_stars(vector.of.pvalues, na = "")
+pvalue_to_stars(pvalues, na = "")
 }
 \arguments{
-\item{vector.of.pvalues}{self-explaining argument}
+\item{pvalues}{Numeric vector of p-values}
 
-\item{na}{return this if `est` is `NA`}
+\item{na}{Character string to return for NA values (default: "")}
+}
+\value{
+Character vector with significance stars
 }
 \description{
-Convert numbers to stars
+Converts a vector of p-values to significance stars using standard thresholds.
+}
+\details{
+Significance levels: *** p < 0.001, ** p < 0.01, * p < 0.05
+}
+\examples{
+pvalue_to_stars(c(0.001, 0.01, 0.05, 0.1))
+pvalue_to_stars(c(0.001, NA, 0.05), na = "?")
+
 }

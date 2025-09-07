@@ -66,3 +66,16 @@ sig_to_bold <- function(x, star = F, bold.thresh = 1, neg.red = T,
   })}
 
 
+#' Make a matrix full form lower or upper triangle
+#' @param x Square matrix with missing on either triangle
+#' @param lower Logical, if the `x` has data on lower triangle.
+#'
+#' @export
+fill_tri = function(x, lower = T) {
+  if(lower) {
+    x[upper.tri(x)] <- t(x)[upper.tri(x)]
+  } else  {
+    x[lower.tri(x)] <- t(x)[lower.tri(x)]
+  }
+  return(x)
+}

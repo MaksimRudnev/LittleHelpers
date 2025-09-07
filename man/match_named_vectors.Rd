@@ -2,16 +2,35 @@
 % Please edit documentation in R/general_helpers.R
 \name{match_named_vectors}
 \alias{match_named_vectors}
-\title{Match named vectors to a data.frame}
+\title{Combine Named Vectors into Data Frame by Matching Names}
 \usage{
 match_named_vectors(...)
 }
 \arguments{
-\item{...}{Named vectors with same of partly different names. OR a list of named vectors.}
+\item{...}{Named vectors, or a single list of named vectors}
 }
 \value{
-The function returns a data.frame with vectors stacked as columns.
+Data frame with matched names as rows and vectors as columns
 }
 \description{
-Match named vectors to a data.frame
+Creates a data frame by matching names across multiple vectors. Unnamed elements
+(NA names) are preserved as separate rows for each vector.
+}
+\details{
+Named elements are matched by name across all vectors. Unnamed elements
+  (with NA names) are added as separate rows, identified by vector source.
+  Column names are taken from argument names or generated as V1, V2, etc.
+}
+\examples{
+v1 <- c(a = 1, b = 2, 3)        # 3 has no name
+v2 <- c(a = 10, c = 30, 40)     # 40 has no name
+v3 <- c(b = 200, d = 400, 500)  # 500 has no name
+match_named_vectors(v1, v2, v3)
+
+# With custom names
+match_named_vectors(first = v1, second = v2, third = v3)
+
+# With a list
+match_named_vectors(list(v1 = v1, v2 = v2, v3 = v3))
+
 }

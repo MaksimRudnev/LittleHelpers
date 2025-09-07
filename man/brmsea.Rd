@@ -15,6 +15,23 @@ brmsea(
   Ngr = 4
 )
 }
+\arguments{
+\item{file}{gh5 file from Mplus}
+
+\item{file_sel}{Character. The name of the predictive check to be used. Default is "Chi-square values".}
+
+\item{ms}{Logical. If TRUE, the model is a mean structure model. Default is TRUE.}
+
+\item{cil}{Lower bound of the posterior probability interval. Default is .05}
+
+\item{ciu}{Upper bound of the posterior probability interval. Default is .95}
+
+\item{allout}{Logical. If TRUE, returns all BRMSEA values instead of the posterior probability interval. Default is FALSE.}
+
+\item{Min1}{Logical. If TRUE, uses N-1 in the denominator. Default is TRUE.}
+
+\item{Ngr}{Number of groups in the model. Default is 4.}
+}
 \description{
 Adapted from Hoots et al., 2017, https://journals.sagepub.com/doi/suppl/10.1177/0013164417709314
 }

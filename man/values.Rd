@@ -14,6 +14,6 @@ values
 List of Schwartz values
 }
 \author{
-Collected using multiple publications by S.H.Schwartz and coauthors.
+Collected from multiple publications by S.H.Schwartz and coauthors.
 }
 \keyword{datasets}

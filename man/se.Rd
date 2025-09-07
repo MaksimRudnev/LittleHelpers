@@ -2,10 +2,22 @@
 % Please edit documentation in R/general_helpers.R
 \name{se}
 \alias{se}
-\title{Standard err of mean}
+\title{Standard Error of Mean}
 \usage{
 se(variable)
 }
+\arguments{
+\item{variable}{A numeric vector}
+}
+\value{
+Standard error of the mean (numeric scalar)
+}
 \description{
-Standard err of mean
+Calculates the standard error of the mean for a numeric variable,
+removing NA values automatically.
+}
+\examples{
+se(c(1, 2, 3, 4, 5))
+se(c(1, 2, NA, 4, 5))  # NAs removed automatically
+
 }

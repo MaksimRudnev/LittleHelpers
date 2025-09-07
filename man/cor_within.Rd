@@ -28,10 +28,8 @@ cor_within(
 
 \item{labs}{Logical. Should value labels be used?}
 
-\item{highlight.group}{Characater. What group should be highlighted on graph?
-
-Prints correlations in console, and plots in a graph.}
+\item{highlight.group}{Characater. What group should be highlighted on graph?}
 }
 \description{
-Within-group correlations
+Prints correlations in console, and optionally plots in a graph.
 }

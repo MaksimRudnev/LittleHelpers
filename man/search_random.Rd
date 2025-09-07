@@ -2,7 +2,7 @@
 % Please edit documentation in R/multilevel_helpers.R
 \name{search_random}
 \alias{search_random}
-\title{Find random effects across fixed}
+\title{Find which random effects could be added to a lmer model}
 \usage{
 search_random(lmerfit, terms = NA, boot = F)
 }
@@ -14,5 +14,5 @@ search_random(lmerfit, terms = NA, boot = F)
 \item{boot}{Apply bootstrap?}
 }
 \description{
-Find random effects across fixed
+Find which random effects could be added to a lmer model
 }

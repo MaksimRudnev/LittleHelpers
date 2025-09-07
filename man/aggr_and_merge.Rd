@@ -2,7 +2,7 @@
 % Please edit documentation in R/multilevel_helpers.R
 \name{aggr_and_merge}
 \alias{aggr_and_merge}
-\title{Creates country level variables by aggregating individual level variables}
+\title{Creates group-level variables by aggregating individual-level variables and adding it to the df}
 \usage{
 aggr_and_merge(
   variables,
@@ -23,6 +23,12 @@ aggr_and_merge(
 
 \item{prefix}{Character string, what should be added to the  names of aggregated variables.}
 }
+\value{
+Returns the original data frame with new group-level variables appended.
+}
 \description{
-Creates country level variables by aggregating individual level variables
+Creates group-level variables by aggregating individual-level variables and adding it to the df
+}
+\details{
+Alternative to `dplyr::group_by` + `dplyr::mutate`. Can be used within functions.
 }

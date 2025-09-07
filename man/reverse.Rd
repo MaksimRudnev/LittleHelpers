@@ -13,4 +13,6 @@ reverse(var, preserve.labels = T)
 }
 \description{
 Returns same variable with reversed values. Reversing makes use of observed values rather than stored factor levels or attributes.
+
+This function is deprecated and will be removed in future versions. Consider using `car::Recode()` or similar functions for reversing values.
 }

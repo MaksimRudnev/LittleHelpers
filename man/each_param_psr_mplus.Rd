@@ -29,7 +29,7 @@ Returns a vector of different versions of PSR:
 
 \dontrun{
 m <- MplusAutomation::readModels("mybayes.out")
-eachParamPSRMplus(a$gh5$bayesian_data$parameters_autocorr$parameters, 1)
+each_param_psr_mplus(a$gh5$bayesian_data$parameters_autocorr$parameters, 1)
 }
 
 }

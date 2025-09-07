@@ -2,7 +2,7 @@
 #'
 #' via stargazer and knitr
 #'
-#' @param df data.frame to show. Also works with a list of fitted lm() models.
+#' @param df data.frame to show. Also works with a list of fitted models supported by .
 #' @param rownames Logical, if rownames should be shown.
 #' @param summ Passed to `summary` argument of stargazer.
 #' @param kable logical. If data.frame should be passed to kable.  If true, ... will be passed to function kableExtra::kable_styling. Defaults to TRUE. If FALSE, passes df to stargazer.
@@ -38,10 +38,8 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, ht
       kableStyling.arg <- function(kabTab, ...) list(kabTab, ...)
     }
 
+  # Prepare formatting function
   if(!is.null(colformat)) {
-    #colformat <- c(NA, 1,1,0,1,1,1,1,2,0,3)
-   # warning("we're going to format the numbers")
-
     if(!is.null(names(colformat)))  {
       colformat <- colformat[colnames(x)]
       names(colformat) <- colnames(x)
@@ -51,17 +49,17 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, ht
     }
 
     x.formatted <- sapply(col.nmz, function(y) {
-      if(is.character(x[,y]) | is.na(colformat[[y]]))
-        x[,y]
+      if(!is.numeric(x[,y]) | is.na(colformat[[y]]))
+        as.character(x[,y])
       else
-        switch(class(colformat),
-               numeric= f(x[,y], colformat[[y]]),
-               character= sprintf(colformat[[y]], x[,y])
-        )
+        f(x[,y], colformat[[y]])
+        # switch(class(colformat),
+        #        numeric= f(x[,y], colformat[[y]]),
+        #        character= sprintf(colformat[[y]], x[,y]),
+        #        factor = sprintf(colformat[[y]], as.character(x[,y]))
+        #)
 
     })
-
-
 
     dimnames(x.formatted) <- dimnames(x)
 
@@ -72,6 +70,7 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, ht
   }
 
 
+  # Model extractor, if not kable than stargazer
   if(!kable) {
     requireNamespace("stargazer", quietly = T)
       tempDir <- tempfile()
@@ -93,7 +92,6 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, ht
 
       viewer <- getOption("viewer")
       viewer(htmlFile)
-      #rm(this,b,viewer)
   } else {
     requireNamespace("knitr", quietly=T)
     requireNamespace("kableExtra", quietly=T)
@@ -111,8 +109,7 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, ht
 
     } else {
 
-       #if(cell.by = "merged") {
-      #sort table by unique values of 'by' in the way they appear in the data
+    #sort table by unique values of 'by' in the way they appear in the data
       x <- x[unlist(sapply(unique(x[,by]), function(i) which(x[,by] == i))),]
 
     # save kable code to use in the loop below
@@ -146,15 +143,6 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, ht
 
       }
        print(tbl.out)
-
-
-       # } else if(cells.by = "split") {
-
-
-
-      # } else {
-       #  warning("'cells.by' argument can only be 'merged' or 'split'")
-       #}
     }
   }
 }

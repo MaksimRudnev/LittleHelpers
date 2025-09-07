@@ -1,12 +1,12 @@
 Package: LittleHelpers
 Type: Package
-Title: Helpers for comparative studies
-Version: 0.7-02
-Date: 04-09-2025
+Title: Helpers for multisite surveys
+Version: 0.7-04
+Date: 09-07-2025
 Authors@R: 
     person("Maksim", "Rudnev", , "maksim.rudnev@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2714-3840"))
-Description: Continuously updated collection of little helpers (tm) that facilitate my life in analyzing data (mostly comparative datasets) with R.
+Description: Continuously updated collection of little helpers (tm) that facilitate my life in analyzing data (mostly multisite surveys) with R.
 URL: https://github.com/MaksimRudnev/LittleHelpers, https://maksimrudnev.github.io/LittleHelpers/
 BugReports: https://github.com/MaksimRudnev/LittleHelpers/issues
 Depends: R (>= 4.4)

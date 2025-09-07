@@ -1205,7 +1205,7 @@ sig_seg <- function(df, compare.var, y.var, group.var, heights, ends) {
 #'
 #' @export
 get_net <- function(df = NULL, cv = NULL, n = NULL,
-                    title = "Model",
+                    title = "",
                     legend = "none",
                     gamma = .3,
                     layout = "fr",
@@ -1214,7 +1214,7 @@ get_net <- function(df = NULL, cv = NULL, n = NULL,
                     seed = 1,
                     group.id = NA,
                     item_label = function(x) gsub("\\D", "", x),
-                    return.df = F) {
+                    return.df = F, ...) {
   require(qgraph)
   require(tidygraph)
   require(ggraph)
@@ -1235,8 +1235,7 @@ get_net <- function(df = NULL, cv = NULL, n = NULL,
 
 
 
-  ggm.out <- ggmModSelect(cv, n = n, stepwise=stepwise, gamma = gamma, criterion = 'ebic', start = start,
-                          nCores = 6)
+  ggm.out <- ggmModSelect(cv, n = n, stepwise=stepwise, gamma = gamma, start = start, nCores = 6, ...)
 
   gr.tbl <- ggm.out$graph
   gr.tbl[lower.tri(gr.tbl, diag = T)] <-NA
@@ -1245,7 +1244,7 @@ get_net <- function(df = NULL, cv = NULL, n = NULL,
     filter(value>.05 & !duplicated(.))
   gr.tbl2$Var1 <- as.character(gr.tbl2$Var1)
   gr.tbl2$Var2 <- as.character(gr.tbl2$Var2)
-  gr.tbl3 <- as_tbl_graph(gr.tbl2)
+  gr.tbl3 <- as_tbl_graph(gr.tbl2, directed = F)
 
   gr.tbl3 %<>%
     activate(nodes) %>%

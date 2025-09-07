@@ -2,19 +2,38 @@
 % Please edit documentation in R/general_helpers.R
 \name{eststar}
 \alias{eststar}
-\title{Quickly generate string from estimates and p-values}
+\title{Format Estimates with Significance Stars and Optional Confidence Intervals}
 \usage{
-eststar(est, pvalue, digits = 2, na = "", ci.low = NA, ci.hi = NA)
+eststar(est, pvalue, digits = 2, na = "", ci.low = NULL, ci.hi = NULL)
 }
 \arguments{
-\item{est}{estimate}
+\item{est}{Numeric vector of point estimates}
 
-\item{pvalue}{p-value}
+\item{pvalue}{Numeric vector of p-values}
 
-\item{digits}{round to this number of decimals}
+\item{digits}{Number of decimal places for rounding (default: 2)}
 
-\item{na}{return this if `est` is `NA`}
+\item{na}{Character string to return for NA estimates (default: "")}
+
+\item{ci.low}{Numeric vector of confidence interval lower bounds (optional)}
+
+\item{ci.hi}{Numeric vector of confidence interval upper bounds (optional)}
+}
+\value{
+Character vector of formatted estimate strings
 }
 \description{
-Quickly generate string from estimates and p-values
+Creates formatted strings combining point estimates, optional confidence intervals,
+and significance stars from p-values.
+}
+\details{
+When confidence intervals are provided, format is: "est[ci.low ci.hi]***"
+  When not provided, format is: "est***"
+}
+\examples{
+eststar(1.234, 0.001)
+eststar(1.234, 0.001, digits = 3)
+eststar(c(1.2, 2.3), c(0.01, 0.1))
+eststar(1.234, 0.001, ci.low = 0.8, ci.hi = 1.7)
+
 }

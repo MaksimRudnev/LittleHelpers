@@ -2,55 +2,61 @@
 % Please edit documentation in R/multilevel_helpers.R
 \name{lmer_table}
 \alias{lmer_table}
-\title{Function producing a tidy table for many multilevel regressions (lmer fitted objects)}
+\title{Create Regression Table for Multilevel Models}
 \usage{
 lmer_table(
   models,
-  fit.stats = c("fit", "random"),
-  mod.names = "",
-  show.viewer = TRUE,
+  fit_stats = c("fit", "random"),
+  model_names = NULL,
+  show_viewer = TRUE,
   silent = TRUE,
   digits = 2,
   ...
 )
 }
 \arguments{
-\item{models}{List of the fitted lmer objects}
+\item{models}{List of fitted lmer objects}
 
-\item{fit.stats}{What fit statistics to compute/extract and show? Possible options are "ICC", "random", "R2s", "fit", "LRT", "REML", "VIF". See "Details".}
+\item{fit_stats}{Character vector of statistics to include. Options: "ICC",
+"VIF", "REML", "fit", "LRT", "random", "random_p", "random_ci", "random_anova", "R2"}
 
-\item{mod.names}{Vector of the same length as models list, giving names to each model.}
+\item{model_names}{Character vector of model names (default: auto-generated)}
 
-\item{show.viewer}{Logical. Whether the resulting table should be shown in the RStudio viewer. If FALSE then the file "good_table_output.html" is saved to working directory.}
+\item{show_viewer}{Logical. Show in RStudio viewer (TRUE) or save HTML file (FALSE)}
 
-\item{...}{Arguments passed to stargazer.}
+\item{silent}{Logical. Suppress progress messages}
+
+\item{digits}{Integer. Number of digits for rounding}
+
+\item{...}{Additional arguments passed to \code{\link[stargazer]{stargazer}}}
+}
+\value{
+Invisibly returns the HTML output path
 }
 \description{
-Stacks coefficients and SEs, extracts various lmer-specific model fit statistics and confidence intervals for random effects (refits models if necessary), outputs a nicely formatted table using stargazer and shows it directly in Rstudio Viewer.
+Produces a formatted table for multiple lmer fitted objects with various
+fit statistics and model comparisons.
 }
 \details{
-The list of possible fit.stats options:
+Fit statistics:
 \describe{
-\item{fit}{Shows deviance (-2*logLikelihood), AIC, BIC, number of parameters, number of groups, number of observations, if the model converged}
-\item{ICC}{Computes intra-class correlation by fitting an empty model and computing a ratio of first-level and intercept variances.   }
-\item{R2}{Computes R-square by fitting an empoty model and computing a ratio of residuals in an empty model and in the current model. }
-\item{LRT}{Computes Likelihood ratio test; all the models should be fitted to the same sample and be in order of nestedness, otherwise the test fails. }
-\item{random}{Adds variances of all the random effects.}
-\item{random.p}{Adds variances of all the random effects and implements bootstrapping (\code{lme4::confint.merMod}) in order to get confidence intervals and this p.values for variances of random effects. }
-\item{REML}{Shows if REML was used to fit the model.}
-}
-}
-\note{
-Issues to implement:
-\itemize{
-\item Might be veeery slow (something to work on)
+  \item{fit}{Deviance, AIC, BIC, parameters, groups, observations, convergence}
+  \item{ICC}{Intra-class correlation coefficient}
+  \item{R2}{R-squared from empty model comparison}
+  \item{LRT}{Likelihood ratio tests between nested models}
+  \item{random}{Random effect variances}
+  \item{random_p}{Random effect variances with bootstrapped significance sign}
+  \item{random_ci}{Random effect variances with bootstrapped confidence intervals and sig sign}
+  \item{VIF}{Maximum variance inflation factor}
+  \item{REML}{Whether REML estimation was used}
 }
 }
 \examples{
-data("sleepstudy", package="lme4")
-m1=lmer(Reaction ~ Days + (1|Subject), sleepstudy)
-m2=lmer(Reaction ~ Days + (1+Days|Subject), sleepstudy)
-good_table(list(m1, m2))
-
+\dontrun{
+data("sleepstudy", package = "lme4")
+m1 <- lmer(Reaction ~ Days + (1|Subject), sleepstudy)
+m2 <- lmer(Reaction ~ Days + (1+Days|Subject), sleepstudy)
+lmer_table(list(m1, m2))
+}
 
 }

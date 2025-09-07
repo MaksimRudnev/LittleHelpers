@@ -16,7 +16,7 @@ ess_values(
 )
 }
 \arguments{
-\item{data}{ESS dataset of any other dataset with the same 21 value indicator variable names}
+\item{data}{ESS dataset, or any other dataset with the same 21 value indicator variable names}
 
 \item{v2}{Two higher value dimensions}
 
@@ -36,5 +36,5 @@ ess_values(
 Returns a data with appended variables.
 }
 \description{
-Computed in line with Shalom Schwartz's instructions on the ESS EduNet website.
+Computes in line with Shalom Schwartz's instructions on the ESS EduNet website.
 }

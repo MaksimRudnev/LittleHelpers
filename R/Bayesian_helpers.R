@@ -42,7 +42,15 @@ get_psr <- function(path.to.file, last=TRUE, plot = F) {
 #' Hoot's BRMSEA
 #'
 #' @description  Adapted from Hoots et al., 2017, https://journals.sagepub.com/doi/suppl/10.1177/0013164417709314
-#' @export
+#' @param file gh5 file from Mplus
+#' @param file_sel Character. The name of the predictive check to be used. Default is "Chi-square values".
+#' @param ms Logical. If TRUE, the model is a mean structure model. Default is TRUE.
+#' @param cil Lower bound of the posterior probability interval. Default is .05
+#' @param ciu Upper bound of the posterior probability interval. Default is .95
+#' @param allout Logical. If TRUE, returns all BRMSEA values instead of the posterior probability interval. Default is FALSE.
+#' @param Min1 Logical. If TRUE, uses N-1 in the denominator. Default is TRUE.
+#' @param Ngr Number of groups in the model. Default is 4.
+#'
 brmsea <-
   function(file = "bayesian.gh5",
            file_sel = "Chi-square values",
@@ -51,7 +59,7 @@ brmsea <-
            ciu = .95,
            allout = FALSE,
            Min1 = TRUE,
-           Ngr = 4){
+           Ngr = 4) {
 
 
     require(MplusAutomation)
@@ -82,7 +90,7 @@ brmsea <-
       return(attr)
     }
 
-    # Functions importing gh5s mplus data into R #######
+    ## Functions importing gh5s mplus data into R #######
     mplus.get.bayesian.predictive.observed <- function(file,plabel) {
       if (!(file.exists(file))) {
         cstr <- paste("- file does not exist:",file,"\n")
@@ -171,7 +179,7 @@ brmsea <-
     }
 
 
-    # Read in ######
+    ## Read in ######
     obs <- mplus.get.bayesian.predictive.observed(file, file_sel)
     rep <- mplus.get.bayesian.predictive.replicated(file, file_sel)
     # Retrieve pD and N
@@ -182,7 +190,7 @@ brmsea <-
     nvar = sum$NDependentVars
 
 
-    # Compute BRMSEA #######
+    ## Compute BRMSEA #######
 
     # # Compute number of parameters
     if(ms) p <- (((nvar * (nvar + 1)) / 2) + nvar)
@@ -202,6 +210,4 @@ brmsea <-
     if(!allout) out <- BRMSEA_ci
     return(out)
   }
-
-#brmsea("bayesian.gh5", Ngr = 4)
 

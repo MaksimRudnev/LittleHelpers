@@ -4,10 +4,14 @@
 \alias{na_tab}
 \title{Prints the number and percent of NAs in a dataframe}
 \usage{
-na_tab(data, viewer = T)
+na_tab(data, missing.code = c(NA, ""), separately = F, viewer = T)
 }
 \arguments{
 \item{data}{Data.frame}
+
+\item{missing.code}{List of values that should be considered missing.}
+
+\item{separately}{If `TRUE`, reports missing values separately for each value in `missing` argument. If `FALSE`, reports total number of missing values. Only makes sense if `missing` is longer than 1.}
 
 \item{viewer}{If `TRUE``, show in Rstudio viewer, if FALSE returns a data.frame}
 }

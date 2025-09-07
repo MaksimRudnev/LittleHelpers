@@ -8,7 +8,7 @@ get_net(
   df = NULL,
   cv = NULL,
   n = NULL,
-  title = "Model",
+  title = "",
   legend = "none",
   gamma = 0.3,
   layout = "fr",
@@ -17,7 +17,8 @@ get_net(
   seed = 1,
   group.id = NA,
   item_label = function(x) gsub("\\\\D", "", x),
-  return.df = F
+  return.df = F,
+  ...
 )
 }
 \arguments{
