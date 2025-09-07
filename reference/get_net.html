@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">LittleHelpers</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6-05</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7-04</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -28,7 +28,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Make a quick network graph</h1>
-      <small class="dont-index">Source: <a href="https://github.com/MaksimRudnev/LittleHelpers/blob/0.6-05/R/graphs.R" class="external-link"><code>R/graphs.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/MaksimRudnev/LittleHelpers/blob/master/R/graphs.R" class="external-link"><code>R/graphs.R</code></a></small>
       <div class="d-none name"><code>get_net.Rd</code></div>
     </div>
 
@@ -42,7 +42,7 @@
 <span>  df <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cv <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  title <span class="op">=</span> <span class="st">"Model"</span>,</span>
+<span>  title <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  legend <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>  gamma <span class="op">=</span> <span class="fl">0.3</span>,</span>
 <span>  layout <span class="op">=</span> <span class="st">"fr"</span>,</span>
@@ -51,7 +51,8 @@
 <span>  seed <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  group.id <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  item_label <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"\\D"</span>, <span class="st">""</span>, <span class="va">x</span><span class="op">)</span>,</span>
-<span>  return.df <span class="op">=</span> <span class="cn">F</span></span>
+<span>  return.df <span class="op">=</span> <span class="cn">F</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -123,7 +124,7 @@
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>there is no package called ‘tidygraph’</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: ggraph</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>there is no package called ‘ggraph’</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in ggmModSelect(cv, n = n, stepwise = stepwise, gamma = gamma, criterion = "ebic",     start = start, nCores = 6):</span> could not find function "ggmModSelect"</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in ggmModSelect(cv, n = n, stepwise = stepwise, gamma = gamma, start = start,     nCores = 6, ...):</span> could not find function "ggmModSelect"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -136,7 +137,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>

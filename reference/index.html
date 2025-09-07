@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">LittleHelpers</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6-05</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7-04</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,7 +82,7 @@
           <code><a href="aggr_and_merge.html">aggr_and_merge()</a></code>
 
         </dt>
-        <dd>Creates country level variables by aggregating individual level variables</dd>
+        <dd>Creates group-level variables by aggregating individual-level variables and adding it to the df</dd>
       </dl><dl><dt>
 
           <code><a href="potential_interactions.html">potential_interactions()</a></code>
@@ -100,7 +100,7 @@
           <code><a href="search_random.html">search_random()</a></code>
 
         </dt>
-        <dd>Find random effects across fixed</dd>
+        <dd>Find which random effects could be added to a lmer model</dd>
       </dl><dl><dt>
 
           <code><a href="vif_mer.html">vif_mer()</a></code>
@@ -168,7 +168,7 @@
         <dd>Extracts parameters from Bayesian models produces by Mplus where 'readModels' cannot help</dd>
       </dl><dl><dt>
 
-          <code><a href="get_PSR.html">get_psr()</a></code>
+          <code><a href="get_psr.html">get_psr()</a></code>
 
         </dt>
         <dd>get PSR from an mplus output file</dd>
@@ -260,7 +260,7 @@
           <code><a href="eststar.html">eststar()</a></code>
 
         </dt>
-        <dd>Quickly generate string from estimates and p-values</dd>
+        <dd>Format Estimates with Significance Stars and Optional Confidence Intervals</dd>
       </dl><dl><dt>
 
           <code><a href="f.html">f()</a></code>
@@ -278,7 +278,7 @@
           <code><a href="pvalue_to_stars.html">pvalue_to_stars()</a></code>
 
         </dt>
-        <dd>Convert numbers to stars</dd>
+        <dd>Convert P-values to Significance Stars</dd>
       </dl><dl><dt>
 
           <code><a href="df_to_viewer.html">df_to_viewer()</a></code>
@@ -290,7 +290,7 @@
           <code><a href="lmer_table.html">lmer_table()</a></code>
 
         </dt>
-        <dd>Function producing a tidy table for many multilevel regressions (lmer fitted objects)</dd>
+        <dd>Create Regression Table for Multilevel Models</dd>
       </dl></div><div class="section level2">
       <h2 id="plots-and-diagrams">Plots and diagrams<a class="anchor" aria-label="anchor" href="#plots-and-diagrams"></a></h2>
 
@@ -405,10 +405,16 @@
         <dd>Easy cross-tabulation with labels</dd>
       </dl><dl><dt>
 
+          <code><a href="fill_tri.html">fill_tri()</a></code>
+
+        </dt>
+        <dd>Make a matrix full form lower or upper triangle</dd>
+      </dl><dl><dt>
+
           <code><a href="match_named_vectors.html">match_named_vectors()</a></code>
 
         </dt>
-        <dd>Match named vectors to a data.frame</dd>
+        <dd>Combine Named Vectors into Data Frame by Matching Names</dd>
       </dl><dl><dt>
 
           <code><a href="replace_by_table.html">replace_by_table()</a></code>
@@ -432,7 +438,7 @@
           <code><a href="se.html">se()</a></code>
 
         </dt>
-        <dd>Standard err of mean</dd>
+        <dd>Standard Error of Mean</dd>
       </dl><dl><dt>
 
           <code><a href="get_net.html">get_net()</a></code>
@@ -473,7 +479,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>
