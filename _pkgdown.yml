@@ -82,6 +82,7 @@ reference:
           - cor_table
           - compare_cor
           - crosstab
+          - fill_tri
           - match_named_vectors
           - replace_by_table
           - reverse

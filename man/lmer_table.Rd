@@ -18,11 +18,11 @@ lmer_table(
 \item{models}{List of fitted lmer objects}
 
 \item{fit_stats}{Character vector of statistics to include. Options: "ICC",
-"VIF", "REML", "fit", "LRT", "random", "random_p", "random_ci", "random_anova", "R2"}
+"VIF", "REML", "fit", "LRT", "random", "random_p", "random_ci", "random_anova", "R2". See details.}
 
 \item{model_names}{Character vector of model names (default: auto-generated)}
 
-\item{show_viewer}{Logical. Show in RStudio viewer (TRUE) or save HTML file (FALSE)}
+\item{show_viewer}{Logical. Show in RStudio viewer (TRUE) or go with stargazer's default (which is latex, see `type` argument in \code{\link[stargazer]{stargazer}}}
 
 \item{silent}{Logical. Suppress progress messages}
 
