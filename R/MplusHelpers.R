@@ -1,3 +1,46 @@
+#' Get PSR from an Mplus output file
+#'
+#'@param path Path to an Mplus output file or a directory with several output files
+#'@param last Logical. If TRUE (default), returns only the last PSR value, if FALSE, returns a data frame with all PSR values.
+#'@param plot Logical. If TRUE, plots the PSR values across iterations. Default is FALSE.
+#'@return A numeric value (if last=TRUE) or a data frame (if last=FALSE) with PSR values across iterations.
+#'
+#' @export
+get_psr <- function(path, last = TRUE, plot = FALSE) {
+  # Check if path is a directory or a file
+  if(dir.exists(path)) {
+    files <- paste0(path, "/", list.files(path, pattern = "(\\.out)"))
+  } else if(file.exists(path)) {
+    files <- path
+  } else {
+    stop("File '", path, "' was not found.")
+  }
+
+  # Loop through files
+  sapply(files, function(f) {
+
+    mplus.out <- readLines(f)
+
+    if(any(grepl("(ITERATION    SCALE REDUCTION      HIGHEST PSR)",   mplus.out))) {
+      begin <- grep("(ITERATION    SCALE REDUCTION      HIGHEST PSR)",   mplus.out) + 1
+      empty <- mplus.out[begin:length(mplus.out)]==""
+      end <- na.omit(sapply(1:(length(empty)-2), function(x) ifelse(sum(empty[x:(x+2)])==2, x, NA)) )[1] -1 + begin
+
+      out <- read.table(text = mplus.out[begin:end])
+      names(out) <- c("ITERATION", "POTENTIAL SCALE REDUCTION", "PARAMETER WITH HIGHEST PSR")
+
+      if(plot) { plot(x=out[[1]], y=out[[2]], type = "b", xlab="Iteration #", main = "Potential scale reduction", ylab = "", col="violetred")
+        abline(h=1,lty="dashed", col= "skyblue4") }
+
+      if(last) return(out[nrow(out),2]) else  return(out)
+
+    } else {
+      return(NA)
+    }
+  })
+}
+
+
 #' Extract and export Mplus trace and autocorrelation plots into pdf
 #'
 #' @param x Either a model read by \code{\link[MplusAutomation]{readModels}}, OR a gh5 file produced by Mplus (in Mplus it should be stated PLOTS: TYPE IS PLOT2;)
