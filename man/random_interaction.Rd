@@ -30,9 +30,11 @@ random_interaction(
 
 \item{scatter}{Logical. Should scatterplot be created in addition?}
 
-\item{labs}{List of arguments passed to \code{+labs()} PLUS elements named  "line1", "line2"... which are used to name lines on the plot. If there are more or less "line" elements than lines on the plot, they are ignored.}
+\item{labs}{List of arguments passed to \code{+labs()} PLUS elements named  "line1", "line2"... which are used to name lines on the plot. If there are more or less "line" elements than lines on the plot, they are ignored}
 
 \item{x.levels}{desired x-axis coordinates, individual-level term. If NULL (default) are defined automatically.}
+
+\item{silent}{Logical. If TRUE, suppresses messages about interactions being plotted.}
 
 \item{...}{Arguments passed to \code{effect} function of \code{effects} package.}
 }

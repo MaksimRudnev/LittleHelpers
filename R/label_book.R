@@ -16,6 +16,7 @@
 #' #label_book(ess8, max.vals=11, vars=45:50)
 #'}
 #' @md
+#' @aliases label_table
 #' @export
 
 label_book <- function(df, max.vals=25, vars="all", view=TRUE, translate = F) {
@@ -185,6 +186,7 @@ label_book <- function(df, max.vals=25, vars="all", view=TRUE, translate = F) {
 
 #' Convert labelled variable to a factor with corresponding values
 #' @param var.labelled Labelled variable or tibble with a single variable
+#' @param print Logical, whether to print a table of correspondence between original and new values. Default is FALSE.
 #'
 #' @export
 lab_to_fac <- function (var.labelled, print = F)
@@ -281,7 +283,4 @@ unhaven <- function(haven.df) {
 }
 
 
-#' Alias for label_book
-#'
-#' @export
-label_table <- function(...) label_book(...)
+

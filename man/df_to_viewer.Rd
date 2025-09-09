@@ -23,11 +23,13 @@ df_to_viewer(
 )
 }
 \arguments{
+\item{x}{data.frame to show. Also works with a list of fitted models supported by .}
+
 \item{rownames}{Logical, if rownames should be shown.}
 
 \item{summ}{Passed to `summary` argument of stargazer.}
 
-\item{kable}{logical. If data.frame should be passed to kable.  If true, ... will be passed to function kableExtra::kable_styling. Defaults to TRUE. If FALSE, passes df to stargazer.}
+\item{kable}{logical. If data.frame should be passed to kable.  If true, ... will be passed to function kableExtra::kable_styling. Defaults to TRUE. If FALSE, passes `x` to stargazer.}
 
 \item{by}{The name of variable to group the rows by. Used only when `kable=TRUE`}
 
@@ -39,6 +41,8 @@ df_to_viewer(
 
 \item{k.style}{Applies custom kableStyling style, might take two values "default", and "custom".}
 
+\item{digits}{Number of digits to round to, passed to both stargazer and kable.}
+
 \item{kable.options}{A list of arguments passed to `kable` function.}
 
 \item{cells.by.merge}{The headers created by `by` argument can be a single cell spanning all the columns (TRUE) or the subheader can be put in the new line's first column (FALSE). The latter tables are easier to hande in, e.g. MS Word.}
@@ -46,8 +50,6 @@ df_to_viewer(
 \item{cells.by.indent}{Logical. Whether 'by' headers should have an indent.}
 
 \item{...}{Other arguments passed to `stargazer` or `kableStyling()`.}
-
-\item{df}{data.frame to show. Also works with a list of fitted models supported by .}
 }
 \description{
 via stargazer and knitr

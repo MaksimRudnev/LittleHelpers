@@ -15,6 +15,8 @@ cor_between(var1, var2, group, data, print = T, ...)
 
 \item{data}{Dataset}
 
+\item{print}{Logical. Should the correlation table be printed?}
+
 \item{...}{Passed to `cor.test`}
 }
 \description{

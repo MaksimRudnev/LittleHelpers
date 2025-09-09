@@ -19,8 +19,16 @@ Imports:
     magrittr (>= 1.5),
     lme4 (>= 1.1),
     lavaan (>= 0.6),
-    gridExtra (>= 2.0)
-Suggests: knitr,
+    gridExtra (>= 2.0),
+    dplyr (>= 1.0),
+    reshape2 (>= 1.0),
+    scales (>= 1.0),
+    stargazer (>= 5.0),
+    knitr (>= 1.3),
+    rstudioapi (>= 0.1),
+    methods (>= 4.4),
+    qgraph  (>= 1.9)
+Suggests:
     rmarkdown,
     haven,
     magrittr,
@@ -40,7 +48,6 @@ Suggests: knitr,
     survey,
     stringr,
     datawizard
-VignetteBuilder: knitr
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true

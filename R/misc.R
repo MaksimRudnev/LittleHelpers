@@ -39,6 +39,7 @@ compare_cor <- function(corr.X, corr.Y) {
 #' @param bold.thresh Bold font if the absolute value is larger than this threshold.
 #' @param neg.red Red font if the value is negative value.
 #' @param small.thresh Replaces the value with `<|.01|` if the magnitude is smaller than the indicated number. Default is .01.
+#' @param replace.small What to replace small values with. Default is `<|.01|`
 #' @param extra.style Add extra CSS style to the span tag.
 #'
 #' @details Can be used within `mutate()` and passed to `knitr::kable` with parameter `kable.options=list(escape=FALSE)`

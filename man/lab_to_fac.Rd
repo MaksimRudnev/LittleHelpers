@@ -8,6 +8,8 @@ lab_to_fac(var.labelled, print = F)
 }
 \arguments{
 \item{var.labelled}{Labelled variable or tibble with a single variable}
+
+\item{print}{Logical, whether to print a table of correspondence between original and new values. Default is FALSE.}
 }
 \description{
 Convert labelled variable to a factor with corresponding values

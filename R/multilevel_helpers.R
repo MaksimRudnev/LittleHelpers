@@ -722,6 +722,7 @@ potential_interactions_ind <- function(variables, modelfit) {
 #'@param variables Character vector of variables names
 #'@param group Character of length 1,name of grouping variable
 #'@param data Data frame
+#'@param std Logical. Should the variable be standardized (divided by its std. deviation)?
 #'@param prefix Character, added to the befinning of centered variable name.
 #'@return Returns an original data frame binded with the new centered variables
 #'
@@ -807,6 +808,7 @@ aggr_and_merge <- function(variables, group, data, FUN = "mean", prefix = paste0
 #' @param data Data.framer containing var1, var2, and group.
 #' @param plot Logical. Should the plot be created?
 #' @param labs Logical. Should value labels be used?
+#' @param use Character. Passed to `cor.test`, how to handle missing values.
 #' @param highlight.group Characater. What group should be highlighted on graph?
 #' @importFrom ggplot2 ggplot
 #' @export
@@ -875,6 +877,7 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
 #'@param var2 Character name of variable 2.
 #'@param group Character name of group variable.
 #'@param data Dataset
+#'@param print Logical. Should the correlation table be printed?
 #'@param ... Passed to `cor.test`
 #'
 #' @export

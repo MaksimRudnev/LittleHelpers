@@ -2,7 +2,7 @@
 % Please edit documentation in R/lavaan_helpers.R
 \name{sem_tab}
 \alias{sem_tab}
-\title{SEM tab}
+\title{Table with parameters from a lavaan model}
 \usage{
 sem_tab(
   ...,
@@ -15,7 +15,11 @@ sem_tab(
 \item{...}{Fitted lavaan models as separate arguments or a list of models}
 
 \item{what}{Kinds of parameters to report. Possible values "loadings", "intercepts",  "slopes", "covariances", and "others"}
+
+\item{std}{Whether to report standardized or unstandardized estimates}
+
+\item{ci}{Whether to include confidence intervals}
 }
 \description{
-SEM tab
+Table with parameters from a lavaan model
 }

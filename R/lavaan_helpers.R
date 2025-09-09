@@ -5,6 +5,7 @@
 #' @param layout Can be 'dot', 'neato', 'twopi', 'circo', or 'fdp'
 #' @param file character, file name to save svg code, usually with 'svg' extension.
 #' @param rmarkdown Logical. If the function used in the context of Rmarkdown.
+#' @param code.only Logical. If TRUE, the function returns only the dot code as a character string instead of plotting the diagram.
 #' @param adds Any graphviz code to be added to the graph.
 #' @param try.labels Try extracting labels from the data.
 #' @param label.wrap Number of character to wrap a label
@@ -31,7 +32,7 @@ lav_to_graph <- function(m, layout = "dot",
   resid.prefix <- ifelse("resid" %in% elements, "Resid_", "")
   m.original <- m
 
-  if(class(m)=="lavaan") {
+  if(inherits(m, "lavaan")) {
    # pt <- lavaan::parameterTable(m)
 
     if(std) {
@@ -193,7 +194,7 @@ lav_to_graph <- function(m, layout = "dot",
         indicators <- gsub("^.*\\*", "", indicators)
 
         # assign labels to OVs
-        if (class(m.original) == "lavaan" & try.labels) {
+        if (inherits(m.original, "lavaan") & try.labels) {
           message("Trying variable labels")
           d <- eval(lavInspect(m.original, "call")$data, .GlobalEnv)
           ind.labels <- sapply(indicators,
@@ -450,6 +451,7 @@ if(!code.only) {
 #' @param std Whether include standardized or unstandardized estimates.
 #' @param elements Feature in development. Character vector. What to include in the diagram, possible values "obs", "lat.covs", "resid.covs", "resid", "slopes", and "intercepts/thresholds" (currently not supported).
 #' @param thickness The line width multiplier: the paths are made proportional to the coefficients in the model, but sometimes parameters are too small for a line (.e.g, .5 would mean half a pixel). Use higher numbers to make the paths more visible.
+#' @param clip Logical. Whether to copy the result to clipboard automatically.
 #' @details Produces csv-like code that should be pasted to draw.io
 #' The cool thing about it is that you can manually adjust the result --  a feature unavailable in any known diagram producers for lavaan so far.
 #' Step 1.  Run the function using either fitted lavaan model or a syntax.
@@ -613,6 +615,8 @@ if(clip) clipr::write_clip(output, "character", allow_non_interactive = TRUE)
 #' @details  Extracts select fit measures from lavaan objects and lists it in the tables.
 #' @param ... lavaan fitted objects
 #' @param what Character vector of fit indices as given in \pkg{lavaan} `fitMeasures()`
+#' @param LRT Logical. Whether to include likelihood ratio test (anova) comparing the models.
+#' @param print Logical. Whether to print the results to the console.
 #' @examples data("HolzingerSwineford1939", package="lavaan")
 #' m1 = cfa("F1 =~ x1 + x2 + x3 + x4 + x5", estimator= "mlr", HolzingerSwineford1939)
 #' m2 = cfa("F1 =~ x1 + x2 + x3 + x4 + x5; x4 ~~ x5", estimator= "mlr", HolzingerSwineford1939)
@@ -624,7 +628,7 @@ lav_compare = function(..., what = c("cfi", "tli", "rmsea", "srmr", "bic", "df")
 
 
   if(length(what)<1) warning("Please choose at least one fit statistic to report.")
-  if(length(list(...))==1 & "list" %in% class(list(...)[[1]]) ) {
+  if(length(list(...))==1 & inherits(list(...)[[1]], "list") ) {
     modellist = list(...)[[1]]
     modelnames <- names(modellist)
   } else {
@@ -700,13 +704,15 @@ plot_latent_means <- function(fit) {
 
 
 
-#' SEM tab
+#' Table with parameters from a lavaan model
 #' @param ... Fitted lavaan models as separate arguments or a list of models
 #' @param what Kinds of parameters to report. Possible values "loadings", "intercepts",  "slopes", "covariances", and "others"
+#' @param std Whether to report standardized or unstandardized estimates
+#' @param ci Whether to include confidence intervals
 #' @export
 sem_tab <- function(..., what = c("loadings", "intercepts", "slopes", "covariances", "others"), std = F, ci = F) {
 
-  if(length(list(...))==1 & class(list(...)[[1]]) == "list")
+  if(length(list(...))==1 & inherits(list(...)[[1]],"list"))
     modellist = list(...)[[1]]
   else
     modellist = list(...)

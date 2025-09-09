@@ -15,6 +15,10 @@ lav_compare(
 \item{...}{lavaan fitted objects}
 
 \item{what}{Character vector of fit indices as given in \pkg{lavaan} `fitMeasures()`}
+
+\item{LRT}{Logical. Whether to include likelihood ratio test (anova) comparing the models.}
+
+\item{print}{Logical. Whether to print the results to the console.}
 }
 \description{
 Combine fit measures form several models and compare

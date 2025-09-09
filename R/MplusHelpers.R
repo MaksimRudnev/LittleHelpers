@@ -50,8 +50,9 @@ get_psr <- function(path, last = TRUE, plot = FALSE) {
 #' @param param.id Single interger or a vector. Single intterger shows 1:param.id  parameters to plot, a vector shows parameters by their order id. If NULL (default), all the parameters are used.
 #' @param niter How many iterations should be shown on a traceplot. NULL (default) refers to all iterations.  However, traceplots for long chains may result in highly overplotted graphics which are slow and take a lot of space on disk. A specified number will take a random sample of values from the iterations.
 #' @param raster Logical. Currently not used. It was an option to convert vector plots to raster plots to save space and produce smaller pdfs. Currently not used.
+#' @param chains A vector of chain numbers to include. Default is NULL, which includes all chains.
 #' @param PSR Whether PSR (R-hat) should be printed for each parameter. See \code{\link{each_param_psr_mplus}}.
-#' @param PSR.version Version of PSR; default is "Rstan" - the most up-to-date, provided by the Rstan::Rhat function (Vehtari et al., 2019). Other possible values: "Gelman" (Gelman et al. (2004)); or "Mplus" (Asparouhov and  Muthen, 2010), and "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.
+#' @param PSR.version Version of PSR; default is "Rstan" - the most up-to-date, provided by the rstan::Rhat function (Vehtari et al., 2019). Other possible values: "Gelman" (Gelman et al. (2004)); or "Mplus" (Asparouhov and  Muthen, 2010), and "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.
 #' @param ESS Logical. Whether effective sample size should be printed on the plots. See \code{\link[rstan]{ess_bulk}}
 #'
 #' @description The function exports all the available plots for each parameter and every chain. Therefore it can take a long time and the resulting pdf file can be large. Each page in pdf is for a specific parameter.
@@ -312,7 +313,7 @@ dev.off()
 #'
 #' @details Returns a vector of different versions of PSR:
 #' \itemize{
-#'     \item  "Rstan" the most up-to-date, provided by the  \code{\link[Rstan]{Rhat}} function (Vehtari et al., 2019).
+#'     \item  "Rstan" the most up-to-date, provided by the  \code{\link[rstan]{Rhat}} function (Vehtari et al., 2019).
 #'     \item  "Gelman" (Gelman et al. (2004)).
 #'     \item  "Mplus" (Asparouhov and  Muthen, 2010),
 #'     \item  "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.
@@ -388,7 +389,7 @@ each_param_psr_mplus <- function(parameters, id.parameter, iterations.range=NULL
 
 #' Loglikelihood test for MLR estimator - wrapper
 #'
-#' @description Convenience wrapper for \code{\link[LittleHelpers]{diffTestMLR}}
+#' @description Convenience wrapper for \code{\link[LittleHelpers]{diff_test_mlr}}
 #' @param reduced  reduced model read by \code{\link[MplusAutomation]{readModels}}
 #' @param full   full model read by \code{\link[MplusAutomation]{readModels}}
 #' @export
@@ -681,7 +682,7 @@ tech11_14 <- function(output) {
 #' Extracts fit indices of the Multilevel EFA (Mplus output)
 #'
 #' @description Extracts summary statistics from the Mplus output file.
-#' @param output Output file path.
+#' @param mplus.file Output file path.
 #' @return Sorted data frame with differing n of factors at each level and fit statistics. By default it extracts CFI, RMSEA, RMSEA.CI.LO, RMSEA.CI.HI, SRMR.w, SRMR.b, SABIC, AIC, Chi.sq, Chi.df, Chi.p, Chi.scale.
 #' @export
 extract_mlefa <- function(mplus.file) {

@@ -19,7 +19,7 @@ Various versions of PSR
 \details{
 Returns a vector of different versions of PSR:
 \itemize{
-    \item  "Rstan" the most up-to-date, provided by the  \code{\link[Rstan]{Rhat}} function (Vehtari et al., 2019).
+    \item  "Rstan" the most up-to-date, provided by the  \code{\link[rstan]{Rhat}} function (Vehtari et al., 2019).
     \item  "Gelman" (Gelman et al. (2004)).
     \item  "Mplus" (Asparouhov and  Muthen, 2010),
     \item  "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.

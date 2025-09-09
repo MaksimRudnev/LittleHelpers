@@ -14,8 +14,6 @@ random_plot(lmer.fit, optional.names = NA, facets = FALSE, print = T)
 \item{facets}{Logical. Should the random effects be plotted in facets or as a series of single plots?}
 
 \item{print}{If the plots should be actually printed, valid only if facets = F}
-
-\item{scatter}{Logical. Should the scatterplots of the cross-level interactions be plotted? If TRUE, `facets` argument corresponds to scatterplots. This option is under development...}
 }
 \value{
 Returns one or several ggplots. In case one plot is returned it can be appended with `theme`, `geom_`, etc.
@@ -24,5 +22,10 @@ Returns one or several ggplots. In case one plot is returned it can be appended 
 Takes object produced by lme4::lmer() function, extracts random effects and interactions, and returns ggplot2-based plots to examine.
 }
 \examples{
-random_plot(lmr, optional.names=c(`(Intercepts)`="Intercepts", gndr="Female", s.Age = "Effects of age"), facets=TRUE)
+\dontrun{
+random_plot(lmr,
+   optional.names=c(`(Intercepts)`="Intercepts",
+   gndr ="Female", s.Age = "Effects of age"),
+   facets=TRUE)
+   }
 }

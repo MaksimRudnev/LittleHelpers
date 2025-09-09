@@ -26,6 +26,8 @@ lav_to_draw(
 \item{elements}{Feature in development. Character vector. What to include in the diagram, possible values "obs", "lat.covs", "resid.covs", "resid", "slopes", and "intercepts/thresholds" (currently not supported).}
 
 \item{thickness}{The line width multiplier: the paths are made proportional to the coefficients in the model, but sometimes parameters are too small for a line (.e.g, .5 would mean half a pixel). Use higher numbers to make the paths more visible.}
+
+\item{clip}{Logical. Whether to copy the result to clipboard automatically.}
 }
 \description{
 Experimental. Produces  SEM diagrams that can be manually edited in draw.io environment. It's such a pain to work with "static" images from semPlot and similar packages. You would often give up and make your own using MS POwerpoint or similar software... Now you can just run this function using the fitted lavaan model (or simply the syntax for the model - useful for representing theoretical models) and paste the code into draw.io. The result of the automatic layour is likely still  messy, but at least now you can arrange the variables and arrows manually with all the power of draw.io -- and achieve the desired result in a few seconds. See details for specific instructions.

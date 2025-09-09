@@ -4,3 +4,4 @@
 ^docs$
 ^pkgdown$
 ^\.github$
+not_in_pack

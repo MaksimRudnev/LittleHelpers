@@ -2,19 +2,20 @@
 #'
 #' via stargazer and knitr
 #'
-#' @param df data.frame to show. Also works with a list of fitted models supported by .
+#' @param x data.frame to show. Also works with a list of fitted models supported by .
 #' @param rownames Logical, if rownames should be shown.
 #' @param summ Passed to `summary` argument of stargazer.
-#' @param kable logical. If data.frame should be passed to kable.  If true, ... will be passed to function kableExtra::kable_styling. Defaults to TRUE. If FALSE, passes df to stargazer.
+#' @param kable logical. If data.frame should be passed to kable.  If true, ... will be passed to function kableExtra::kable_styling. Defaults to TRUE. If FALSE, passes `x` to stargazer.
 #' @param by The name of variable to group the rows by. Used only when `kable=TRUE`
 #' @param html If viewer should be ignored and just html code returned (useful to embed in Rmarkdown outputs
 #' @param colformat Formats each column using `sprintf`. If numeric, applies rounding only, if character, is passed to `sprintf` directly. Can be named to match x's column names. If not named, must have the same length as there are columns in x.
-#' @param ... Other arguments passed to `stargazer` or `kableStyling()`.
 #' @param sg.style 'style' argument of `stargazer`.
 #' @param k.style Applies custom kableStyling style, might take two values "default", and "custom".
+#' @param digits Number of digits to round to, passed to both stargazer and kable.
 #' @param kable.options A list of arguments passed to `kable` function.
 #' @param cells.by.merge The headers created by `by` argument can be a single cell spanning all the columns (TRUE) or the subheader can be put in the new line's first column (FALSE). The latter tables are easier to hande in, e.g. MS Word.
 #' @param cells.by.indent Logical. Whether 'by' headers should have an indent.
+#' @param ... Other arguments passed to `stargazer` or `kableStyling()`.
 #'
 #' @aliases to_viewer
 #' @export

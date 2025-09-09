@@ -25,6 +25,8 @@ sig_to_bold(
 
 \item{small.thresh}{Replaces the value with `<|.01|` if the magnitude is smaller than the indicated number. Default is .01.}
 
+\item{replace.small}{What to replace small values with. Default is `<|.01|`}
+
 \item{extra.style}{Add extra CSS style to the span tag.}
 }
 \description{

@@ -12,5 +12,5 @@ diff_test_mlr_manual(reduced, full)
 \item{full}{full model read by \code{\link[MplusAutomation]{readModels}}}
 }
 \description{
-Convenience wrapper for \code{\link[LittleHelpers]{diffTestMLR}}
+Convenience wrapper for \code{\link[LittleHelpers]{diff_test_mlr}}
 }

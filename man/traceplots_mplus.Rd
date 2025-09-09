@@ -33,9 +33,11 @@ traceplots_mplus(
 
 \item{niter}{How many iterations should be shown on a traceplot. NULL (default) refers to all iterations.  However, traceplots for long chains may result in highly overplotted graphics which are slow and take a lot of space on disk. A specified number will take a random sample of values from the iterations.}
 
+\item{chains}{A vector of chain numbers to include. Default is NULL, which includes all chains.}
+
 \item{PSR}{Whether PSR (R-hat) should be printed for each parameter. See \code{\link{each_param_psr_mplus}}.}
 
-\item{PSR.version}{Version of PSR; default is "Rstan" - the most up-to-date, provided by the Rstan::Rhat function (Vehtari et al., 2019). Other possible values: "Gelman" (Gelman et al. (2004)); or "Mplus" (Asparouhov and  Muthen, 2010), and "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.}
+\item{PSR.version}{Version of PSR; default is "Rstan" - the most up-to-date, provided by the rstan::Rhat function (Vehtari et al., 2019). Other possible values: "Gelman" (Gelman et al. (2004)); or "Mplus" (Asparouhov and  Muthen, 2010), and "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.}
 
 \item{ESS}{Logical. Whether effective sample size should be printed on the plots. See \code{\link[rstan]{ess_bulk}}}
 }

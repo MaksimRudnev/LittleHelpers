@@ -16,6 +16,10 @@ scatter_means_ci(
 )
 }
 \arguments{
+\item{variable1}{Variable to plot on x axis}
+
+\item{variable2}{Variable to plot on y axis}
+
 \item{group}{Grouping variable}
 
 \item{data}{Data frame}
@@ -24,9 +28,9 @@ scatter_means_ci(
 
 \item{print}{Logical. Should the result be printed in the console?}
 
-\item{var1}{Variable to plot on x axis}
+\item{smooth.method}{Method for smoothing line. "lm" by default.}
 
-\item{var2}{Variable to plot on y axis}
+\item{drop.groups}{Vector of groups to be excluded from the analysis.}
 }
 \description{
 Computes means by group and plots them in as a scatterplot

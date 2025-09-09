@@ -6,6 +6,9 @@
 \usage{
 theme_mr(...)
 }
+\arguments{
+\item{...}{Arguments passed to theme function}
+}
 \description{
 Clean and precise theme
 }

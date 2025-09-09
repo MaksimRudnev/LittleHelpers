@@ -13,8 +13,8 @@ stacked_bar(
   labs = TRUE,
   label.col = NA,
   format.label = "2\%",
-  weight = NA,
   label_col = NA,
+  weight = NA,
   flip = F,
   cat.rev = F
 )
@@ -36,9 +36,13 @@ stacked_bar(
 
 \item{format.label}{Character of one digit standing for decimal places and one symbol added in the end, for example "1\%" would result in "99.9\%" whereas "2$" would lead to "99.99$".}
 
+\item{label_col}{Deprecated, use `label.col` instead.}
+
 \item{weight}{If there is a survey weight, variable to use in crosstab computation.}
 
-\item{label_col}{Same as label.col, saved for legacy.}
+\item{flip}{Logical, whether to flip the coordinates. FALSE by default.}
+
+\item{cat.rev}{Logical, whether to reverse the order of categories in the legend and in the bars. FALSE by default.}
 }
 \description{
 Quick stacked bar plot

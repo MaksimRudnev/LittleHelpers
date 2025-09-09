@@ -26,6 +26,8 @@ get_net(
 
 \item{cv}{Correlation matrix (if df is NULL)}
 
+\item{n}{Sample size (if df is NULL)}
+
 \item{title}{Title of the plot}
 
 \item{legend}{Legend position}
@@ -45,11 +47,14 @@ get_net(
 \item{item_label}{Function that converts the item names to node labels.}
 
 \item{return.df}{Logical, if true, returns tidygraph dataset instead of the plot.}
+
+\item{...}{Additional arguments passed to `ggmModSelect`}
 }
 \description{
 Make a quick network graph
 }
 \examples{
+\dontrun{
 data("HolzingerSwineford1939", package = "lavaan")
 get_net(HolzingerSwineford1939[, 7:15],
        group.id = c(first.factor = "1|2|3",
@@ -57,5 +62,5 @@ get_net(HolzingerSwineford1939[, 7:15],
                     third = "7|8|9"),
        legend = "bottom"
 )
-
+}
 }

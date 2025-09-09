@@ -33,7 +33,9 @@ graph_means_ci(
 Returns ggplot of means by group with 95% confidence intervals. Modifiable with standard ggplot geoms, scales, themes, etc.
 }
 \examples{
-d<-data.frame(v=1:100, group=rep(1:2, 50))
+#' \dontrun{
+d <- data.frame(v=1:100, group=rep(1:2, 50))
 graph_means_ci(d$v, d$group)
 with(d, graph_means_ci(v, group))
+}
 }

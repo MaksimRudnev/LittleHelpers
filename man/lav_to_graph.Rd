@@ -29,6 +29,8 @@ lav_to_graph(
 
 \item{rmarkdown}{Logical. If the function used in the context of Rmarkdown.}
 
+\item{code.only}{Logical. If TRUE, the function returns only the dot code as a character string instead of plotting the diagram.}
+
 \item{try.labels}{Try extracting labels from the data.}
 
 \item{label.wrap}{Number of character to wrap a label}

@@ -2,6 +2,9 @@ url: https://maksimrudnev.github.io/LittleHelpers/
 template:
   bootstrap: 5
   bootswatch: cerulean
+  params:
+    favicon: man/figures/favicon.png # Replace with your icon's path
+
 
 authors:
      Maksim Rudnev:
@@ -25,10 +28,9 @@ reference:
          - search_random
          - vif_mer
 
-     - title: SEM helpers
-       desc: "Handy SEM helpers"
+     - title: Mplus helpers
+       desc: "Extract info from Mplus output, beyond MplusAutomation package"
        contents:
-          - add_all_indir_and_tot
           - check_mplus_model
           - diff_test_mlr
           - diff_test_mlr_manual
@@ -37,12 +39,16 @@ reference:
           - gamma_hat_mplus
           - get_params_mplus
           - get_psr
-          - lav_compare
           - manipulate_mplus
           - partable_mplus
-          - sem_tab
           - tech11_14
-          - brmsea
+
+     - title: lavaan helpers
+       desc: ""
+       contents:
+          - add_all_indir_and_tot
+          - lav_compare
+          - sem_tab
 
      - title: Tools for labelled data and Rstudio viewer
        desc: 'Formatting, showing results, and handling labels'

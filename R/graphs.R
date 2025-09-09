@@ -27,13 +27,15 @@ verb <- function(...) {
 #' @param include.na Logical. Should NAs be a separate level or should they be excluded? FALSE by default.
 #' @param labs Logical. Should percents labels be added to the plot. TRUE by default.
 #' @param label.col In case labels are added, vector of labels colors.
-#' @param label_col Same as label.col, saved for legacy.
 #' @param format.label Character of one digit standing for decimal places and one symbol added in the end, for example "1\%" would result in "99.9\%" whereas "2$" would lead to "99.99$".
+#' @param label_col Deprecated, use `label.col` instead.
 #' @param weight If there is a survey weight, variable to use in crosstab computation.
+#' @param flip Logical, whether to flip the coordinates. FALSE by default.
+#' @param cat.rev Logical, whether to reverse the order of categories in the legend and in the bars. FALSE by default.
 #' @export
 #'
-stacked_bar<-function(variable, group, sort.cat=1, colors=NA, include.na=FALSE, labs=TRUE, label.col=NA, format.label="2%", weight=NA,
-                      label_col=NA, flip = F, cat.rev = F) {
+stacked_bar<-function(variable, group, sort.cat=1, colors=NA, include.na=FALSE, labs=TRUE, label.col=NA, format.label="2%", label_col=NA, weight=NA,
+                      flip = F, cat.rev = F) {
   requireNamespace("RColorBrewer")
   requireNamespace('ggplot2')
   requireNamespace('ggrepel')
@@ -156,223 +158,225 @@ if(cat.rev) levels(b$var) <- rev(levels(b$var))
 #Example
 #stacked_bar(d$SWL2, d$Country, 7)
 
-
-stacked_bar_ntf<-function(var, group, sort.cat=0, flip=FALSE) {
-  requireNamespace("RColorBrewer")
-  requireNamespace(stringr)
-  requireNamespace(ggplot2)
-  requireNamespace(scales)
-  requireNamespace(sjlabelled)
-  dta.graph1<-as.data.frame.matrix(prop.table(table(to_label(group), var),2))
-
-  #Total<-colSums(as.data.frame.matrix(table(to_label(group), var)))
-  #dta.graph2<-rbind(dta.graph1, Total)
-
-  if(sort.cat!=0) {
-    dta.graph1<-dta.graph1[order(dta.graph1[sort.cat,])]
-  }
-
-  #dta.graph1<-dta.graph1/colSums(dta.graph1)
-  datm <- melt(cbind(dta.graph1, ind = rownames(dta.graph1)), id.vars = c('ind'))
-  datm$ind<-factor(datm$ind, levels=levels(to_factor(group)))
-
-  datm$variable<-factor(str_wrap(datm$variable, width = 10), unique(str_wrap(datm$variable, width = 10)))
-
-  g<-ggplot(datm,aes(x = variable,
-                     y = value,
-                     fill = rev(ind),
-                     label=percent(round(value,2)))) +
-    geom_bar(stat = "identity", colour="black", size=.1) +
-    scale_y_continuous(name="", labels = percent_format()
-    ) +
-    xlab("")+
-    #scale_x_discrete(labels=levels(datm$variable))+
-    #theme(legend.title=attr(group, "label")  )+
-    theme_minimal()+
-    scale_fill_manual(name="",
-                      values=brewer.pal(n=5, name="Greys"),
-                      labels=rev(levels(datm$ind))
-    )+
-    #labs(title = gsub('(.{1,50})(\\s|$)', '\\1\n', get_label(group))) +
-    geom_text(size = 3, position = position_stack(vjust = 0.5),
-              col=rep(c("White", "White","Black","Black","Black"), nrow(datm)/5))+
-    theme(panel.grid = element_blank())
-
-  if(flip==TRUE) {
-    g + coord_flip()
-  }
-  else {
-    g
-  }
-}
-
-stacked_bar_ntf_n<-function(var, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap=15, five.categories=TRUE) {
-  #  if(sort.cat!=0) {
-  #    message("Sorting is not active currently!")
-  #    sort.cat=0 }
-
-  requireNamespace("RColorBrewer")
-  requireNamespace(stringr)
-  requireNamespace(ggplot2)
-  requireNamespace(scales)
-  requireNamespace(sjmisc)
-  requireNamespace(reshape2)
-  requireNamespace(sjlabelled)
-
-  if(!is.factor(group)) group <- as.factor(group)
-
-  dta.graph1<-as.data.frame.matrix(prop.table(table(to_label(group), var),2))
-
-  Total.count<-colSums(as.data.frame.matrix(table(to_label(group), var)))
-  dta.graph1<-rbind(Total=Total.count/(sum(Total.count))*0.2,dta.graph1)
-
-  if(sort.cat!=0) {
-    dta.graph1<-dta.graph1[,order(dta.graph1[sort.cat+1,])]
-    Total.count<-Total.count[names(dta.graph1[1,])]
-  }
-
-  datm <- melt(cbind(dta.graph1, ind = rownames(dta.graph1)), id.vars = c('ind'))
-  datm$ind<-factor(datm$ind, levels=rev(c(levels(to_factor(group)), "Total")))
-
-  if(sort.cat!=0) {
-    datm$variable<-factor(str_wrap(datm$variable, width = wrap), unique(str_wrap(datm$variable, width = wrap)))
-  } else {
-    datm$variable<-factor(str_wrap(datm$variable, width = wrap),
-                          sort(unique(str_wrap(datm$variable, width = wrap)), T))
-  }
-
-
-  lbls<-percent(round(datm$value,2))
-  lbls[datm$value < 0.004999]<-NA
-  lbls[seq(1, length(lbls), length(levels(group))+1)]<-NA
-
-
-  g<-ggplot(datm,aes(x = variable,
-                     y = value,
-                     #fill = ind,
-                     label=lbls)) +
-    geom_bar(aes(fill=ind), stat = "identity", colour="black", size=.1) +
-    scale_y_continuous(name="", labels = percent_format()) +
-    xlab("")+
-    theme_minimal()+
-    scale_fill_manual(name="",
-                      values=c("#e34a33",brewer.pal(n=length(levels(group)),
-                                                    name="Greys")),
-                      breaks=levels(datm$ind),
-                      labels=c("Number of responses", levels(datm$ind)[2:length(levels(datm$ind))])
-    )+
-
-    theme(panel.grid = element_blank(),
-          legend.position=ifelse(leg==T, "right", "none"))
-
-  if(five.categories) {
-    g<- g+ geom_text(size = 3,
-                     position = position_stack(vjust = 0.5),
-                     col=rep(c("White", "White","Black","Black","Black", "Black"), nrow(datm)/6))
-  } else {
-    g<- g+ geom_text(size = 3, col="black",
-                     position = position_stack(vjust = 0.5))
-  }
-
-
-  print(Total.count)
-
-  if(flip==TRUE) {
-    g + geom_text(data=datm[datm$ind=="Total",],
-                  aes(y = value+1, label=Total.count), hjust=-0.5, size=2.5, fontface="bold")+coord_flip()
-  }
-  else {
-    g + geom_text(data=datm[datm$ind=="Total",],
-                  aes(y = value+1, label=Total.count), vjust=-0.5, size=2.5)
-  }
-
-}
-
-
-stacked_bar_ntf_nm<-function(vars, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap=15) {
-  #  if(sort.cat!=0) {
-  #    message("Sorting is not active currently!")
-  #    sort.cat=0 }
-
-  requireNamespace("RColorBrewer")
-  requireNamespace(stringr)
-  requireNamespace(ggplot2)
-  requireNamespace(scales)
-  dta.graph1<-sapply(names(vars), function(x) prop.table(table(to_label(group), vars[,x]),2)[,2])
-
-  #dta.graph1<-as.data.frame.matrix(prop.table(table(to_label(group), vars[,1]),2)[,2])
-
-  Total<-colSums(vars[, names(vars)] != 0, na.rm = T)
-  dta.graph1<-rbind(Total=Total/(sum(Total))*0.2,dta.graph1)
-
-  if(sort.cat!=0) {
-    dta.graph1<-dta.graph1[,order(dta.graph1[sort.cat+1,])]
-    Total<-Total[names(dta.graph1[1,])]
-  }
-
-  #dta.graph1<-dta.graph1/colSums(dta.graph1)
-  datm <- melt(dta.graph1, id.vars = c(ind=rownames(dta.graph1)))
-  names(datm)<-c("ind", "variable", "value")
-  datm$ind<-factor(datm$ind, levels=rev(c(levels(to_factor(group)), "Total")))
-
-  datm$variable <- gsub("`", "", datm$variable)
-  datm$variable<-factor(str_wrap(datm$variable, width = wrap), unique(str_wrap(datm$variable, width = wrap)))
-
-  #if(sort.cat!=0) {
-
-  #datm$variable <- factor(datm$variable, levels = datm$variable)
-
-  #datm$variable <- factor(datm$variable, levels=unique(as.character(datm$variable)) )
-  #datm$variable <- transform(datm$variable, variable=reorder(datm$variable, datm$variable))
-  #lvls<-levels(to_factor(var))[order(dta.graph1[sort.cat,])]
-
-  #datm$variable<-factor(datm$variable, levels=datm$variable)
-
-  #datm$variable <- transform(datm$variable, variable=reorder(datm$variable, -order(dta.graph1[sort.cat,])) )
-
-  #  reorder(datm$variable, levels(to_factor(var))[order(dta.graph1[sort.cat,])])
-  #}
-
-  lbls<-percent(round(datm$value,2))
-  lbls[seq(1, length(lbls), 6)]<-Total
-
-  g<-ggplot(datm,aes(x = variable,
-                     y = value,
-                     fill = ind,
-                     label=lbls)) +
-    geom_bar(stat = "identity", colour="black", size=.1) +
-    scale_y_continuous(name="", labels = percent_format()) +
-    xlab("")+
-    #scale_x_discrete(labels=levels(datm$variable))+
-    #theme(legend.title=attr(group, "label")  )+
-    theme_minimal()+
-    scale_fill_manual(name="",
-                      values=c("#e34a33",brewer.pal(n=length(levels(group)),
-                                                    name="Greys")),
-                      breaks=levels(datm$ind),
-                      labels=c("Number of responses", levels(datm$ind)[2:6])
-    )+
-    #labs(title = gsub('(.{1,50})(\\s|$)', '\\1\n', get_label(group))) +
-    geom_text(size = 3,
-              #position = position_stack(),
-              position = position_stack(vjust = 0.5),
-              #vjust=c(rep(c(rep(0.5,5),0), nrow(datm)/6)),
-              col=rep(c("White", "White","Black","Black","Black", "Blue"), nrow(datm)/6))+
-    theme(panel.grid = element_blank(),
-          legend.position=ifelse(leg==T, "right", "none"))
-
-
-  if(flip==TRUE) {
-    g + coord_flip()
-  }
-  else {
-    g
-  }
-
-  #  ifelse(flip==T, g, g+coord_flip())
-
-
-}
+#
+# stacked_bar_ntf<-function(var, group, sort.cat=0, flip=FALSE) {
+#   importFrom("grDevices", "dev.off", "pdf", "rainbow")
+#   importFrom("graphics", "abline", "layout", "lines")
+#   requireNamespace("RColorBrewer")
+#   requireNamespace(stringr)
+#   requireNamespace(ggplot2)
+#   requireNamespace(scales)
+#   requireNamespace(sjlabelled)
+#   dta.graph1<-as.data.frame.matrix(prop.table(table(to_label(group), var),2))
+#
+#   #Total<-colSums(as.data.frame.matrix(table(to_label(group), var)))
+#   #dta.graph2<-rbind(dta.graph1, Total)
+#
+#   if(sort.cat!=0) {
+#     dta.graph1<-dta.graph1[order(dta.graph1[sort.cat,])]
+#   }
+#
+#   #dta.graph1<-dta.graph1/colSums(dta.graph1)
+#   datm <- melt(cbind(dta.graph1, ind = rownames(dta.graph1)), id.vars = c('ind'))
+#   datm$ind<-factor(datm$ind, levels=levels(to_factor(group)))
+#
+#   datm$variable<-factor(str_wrap(datm$variable, width = 10), unique(str_wrap(datm$variable, width = 10)))
+#
+#   g<-ggplot(datm,aes(x = variable,
+#                      y = value,
+#                      fill = rev(ind),
+#                      label=percent(round(value,2)))) +
+#     geom_bar(stat = "identity", colour="black", size=.1) +
+#     scale_y_continuous(name="", labels = percent_format()
+#     ) +
+#     xlab("")+
+#     #scale_x_discrete(labels=levels(datm$variable))+
+#     #theme(legend.title=attr(group, "label")  )+
+#     theme_minimal()+
+#     scale_fill_manual(name="",
+#                       values=brewer.pal(n=5, name="Greys"),
+#                       labels=rev(levels(datm$ind))
+#     )+
+#     #labs(title = gsub('(.{1,50})(\\s|$)', '\\1\n', get_label(group))) +
+#     geom_text(size = 3, position = position_stack(vjust = 0.5),
+#               col=rep(c("White", "White","Black","Black","Black"), nrow(datm)/5))+
+#     theme(panel.grid = element_blank())
+#
+#   if(flip==TRUE) {
+#     g + coord_flip()
+#   }
+#   else {
+#     g
+#   }
+# }
+#
+# stacked_bar_ntf_n<-function(var, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap=15, five.categories=TRUE) {
+#   #  if(sort.cat!=0) {
+#   #    message("Sorting is not active currently!")
+#   #    sort.cat=0 }
+#
+#   requireNamespace("RColorBrewer")
+#   requireNamespace(stringr)
+#   requireNamespace(ggplot2)
+#   requireNamespace(scales)
+#   requireNamespace(sjmisc)
+#   requireNamespace(reshape2)
+#   requireNamespace(sjlabelled)
+#
+#   if(!is.factor(group)) group <- as.factor(group)
+#
+#   dta.graph1<-as.data.frame.matrix(prop.table(table(to_label(group), var),2))
+#
+#   Total.count<-colSums(as.data.frame.matrix(table(to_label(group), var)))
+#   dta.graph1<-rbind(Total=Total.count/(sum(Total.count))*0.2,dta.graph1)
+#
+#   if(sort.cat!=0) {
+#     dta.graph1<-dta.graph1[,order(dta.graph1[sort.cat+1,])]
+#     Total.count<-Total.count[names(dta.graph1[1,])]
+#   }
+#
+#   datm <- melt(cbind(dta.graph1, ind = rownames(dta.graph1)), id.vars = c('ind'))
+#   datm$ind<-factor(datm$ind, levels=rev(c(levels(to_factor(group)), "Total")))
+#
+#   if(sort.cat!=0) {
+#     datm$variable<-factor(str_wrap(datm$variable, width = wrap), unique(str_wrap(datm$variable, width = wrap)))
+#   } else {
+#     datm$variable<-factor(str_wrap(datm$variable, width = wrap),
+#                           sort(unique(str_wrap(datm$variable, width = wrap)), T))
+#   }
+#
+#
+#   lbls<-percent(round(datm$value,2))
+#   lbls[datm$value < 0.004999]<-NA
+#   lbls[seq(1, length(lbls), length(levels(group))+1)]<-NA
+#
+#
+#   g<-ggplot(datm,aes(x = variable,
+#                      y = value,
+#                      #fill = ind,
+#                      label=lbls)) +
+#     geom_bar(aes(fill=ind), stat = "identity", colour="black", size=.1) +
+#     scale_y_continuous(name="", labels = percent_format()) +
+#     xlab("")+
+#     theme_minimal()+
+#     scale_fill_manual(name="",
+#                       values=c("#e34a33",brewer.pal(n=length(levels(group)),
+#                                                     name="Greys")),
+#                       breaks=levels(datm$ind),
+#                       labels=c("Number of responses", levels(datm$ind)[2:length(levels(datm$ind))])
+#     )+
+#
+#     theme(panel.grid = element_blank(),
+#           legend.position=ifelse(leg==T, "right", "none"))
+#
+#   if(five.categories) {
+#     g<- g+ geom_text(size = 3,
+#                      position = position_stack(vjust = 0.5),
+#                      col=rep(c("White", "White","Black","Black","Black", "Black"), nrow(datm)/6))
+#   } else {
+#     g<- g+ geom_text(size = 3, col="black",
+#                      position = position_stack(vjust = 0.5))
+#   }
+#
+#
+#   print(Total.count)
+#
+#   if(flip==TRUE) {
+#     g + geom_text(data=datm[datm$ind=="Total",],
+#                   aes(y = value+1, label=Total.count), hjust=-0.5, size=2.5, fontface="bold")+coord_flip()
+#   }
+#   else {
+#     g + geom_text(data=datm[datm$ind=="Total",],
+#                   aes(y = value+1, label=Total.count), vjust=-0.5, size=2.5)
+#   }
+#
+# }
+#
+#
+# stacked_bar_ntf_nm<-function(vars, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap=15) {
+#   #  if(sort.cat!=0) {
+#   #    message("Sorting is not active currently!")
+#   #    sort.cat=0 }
+#
+#   requireNamespace("RColorBrewer")
+#   requireNamespace(stringr)
+#   requireNamespace(ggplot2)
+#   requireNamespace(scales)
+#   dta.graph1<-sapply(names(vars), function(x) prop.table(table(to_label(group), vars[,x]),2)[,2])
+#
+#   #dta.graph1<-as.data.frame.matrix(prop.table(table(to_label(group), vars[,1]),2)[,2])
+#
+#   Total<-colSums(vars[, names(vars)] != 0, na.rm = T)
+#   dta.graph1<-rbind(Total=Total/(sum(Total))*0.2,dta.graph1)
+#
+#   if(sort.cat!=0) {
+#     dta.graph1<-dta.graph1[,order(dta.graph1[sort.cat+1,])]
+#     Total<-Total[names(dta.graph1[1,])]
+#   }
+#
+#   #dta.graph1<-dta.graph1/colSums(dta.graph1)
+#   datm <- melt(dta.graph1, id.vars = c(ind=rownames(dta.graph1)))
+#   names(datm)<-c("ind", "variable", "value")
+#   datm$ind<-factor(datm$ind, levels=rev(c(levels(to_factor(group)), "Total")))
+#
+#   datm$variable <- gsub("`", "", datm$variable)
+#   datm$variable<-factor(str_wrap(datm$variable, width = wrap), unique(str_wrap(datm$variable, width = wrap)))
+#
+#   #if(sort.cat!=0) {
+#
+#   #datm$variable <- factor(datm$variable, levels = datm$variable)
+#
+#   #datm$variable <- factor(datm$variable, levels=unique(as.character(datm$variable)) )
+#   #datm$variable <- transform(datm$variable, variable=reorder(datm$variable, datm$variable))
+#   #lvls<-levels(to_factor(var))[order(dta.graph1[sort.cat,])]
+#
+#   #datm$variable<-factor(datm$variable, levels=datm$variable)
+#
+#   #datm$variable <- transform(datm$variable, variable=reorder(datm$variable, -order(dta.graph1[sort.cat,])) )
+#
+#   #  reorder(datm$variable, levels(to_factor(var))[order(dta.graph1[sort.cat,])])
+#   #}
+#
+#   lbls<-percent(round(datm$value,2))
+#   lbls[seq(1, length(lbls), 6)]<-Total
+#
+#   g<-ggplot(datm,aes(x = variable,
+#                      y = value,
+#                      fill = ind,
+#                      label=lbls)) +
+#     geom_bar(stat = "identity", colour="black", size=.1) +
+#     scale_y_continuous(name="", labels = percent_format()) +
+#     xlab("")+
+#     #scale_x_discrete(labels=levels(datm$variable))+
+#     #theme(legend.title=attr(group, "label")  )+
+#     theme_minimal()+
+#     scale_fill_manual(name="",
+#                       values=c("#e34a33",brewer.pal(n=length(levels(group)),
+#                                                     name="Greys")),
+#                       breaks=levels(datm$ind),
+#                       labels=c("Number of responses", levels(datm$ind)[2:6])
+#     )+
+#     #labs(title = gsub('(.{1,50})(\\s|$)', '\\1\n', get_label(group))) +
+#     geom_text(size = 3,
+#               #position = position_stack(),
+#               position = position_stack(vjust = 0.5),
+#               #vjust=c(rep(c(rep(0.5,5),0), nrow(datm)/6)),
+#               col=rep(c("White", "White","Black","Black","Black", "Blue"), nrow(datm)/6))+
+#     theme(panel.grid = element_blank(),
+#           legend.position=ifelse(leg==T, "right", "none"))
+#
+#
+#   if(flip==TRUE) {
+#     g + coord_flip()
+#   }
+#   else {
+#     g
+#   }
+#
+#   #  ifelse(flip==T, g, g+coord_flip())
+#
+#
+# }
 
 
 
@@ -388,10 +392,14 @@ stacked_bar_ntf_nm<-function(vars, group, sort.cat=0, flip=FALSE, leg=TRUE, wrap
 #' @param use.labels Whether or not attempt to extract value labels. TRUE by default.
 #' @param data Optional, used only if `X` or `group` have length 1.
 #'
-#' @examples d<-data.frame(v=1:100, group=rep(1:2, 50))
+#' @examples
+#' #' \dontrun{
+#' d <- data.frame(v=1:100, group=rep(1:2, 50))
 #' graph_means_ci(d$v, d$group)
 #' with(d, graph_means_ci(v, group))
+#' }
 #' @export
+
 graph_means_ci <- function(x,
                            group,
                            highlight.group=NA,
@@ -555,12 +563,14 @@ mean_se_lower_upper<-function(x) {
 # Scatter by country #####
 #' Computes means by group and plots them in as a scatterplot
 #'
-#' @param var1 Variable to plot on x axis
-#' @param var2 Variable to plot on y axis
+#' @param variable1 Variable to plot on x axis
+#' @param variable2 Variable to plot on y axis
 #' @param group Grouping variable
 #' @param data Data frame
 #' @param plot Logical. Should the plot be created?
 #' @param print Logical. Should the result be printed in the console?
+#' @param smooth.method Method for smoothing line. "lm" by default.
+#' @param drop.groups Vector of groups to be excluded from the analysis.
 #'
 #'
 #' @details Recommended to use with `with` function, as in example.
@@ -629,10 +639,15 @@ scatter_means_ci <- function(variable1, variable2, group, data, plot=TRUE, print
 #' @param lmer.fit A mer object
 #' @param optional.names A named vector of random effects, where names indicate terms and values are used as axis x labels in correspomding plot. The length  should be equal to a number of random effects. Usually it includes "(Intercepts)" and names of variables whose effects are made random.
 #' @param facets Logical. Should the random effects be plotted in facets or as a series of single plots?
-#' @param scatter Logical. Should the scatterplots of the cross-level interactions be plotted? If TRUE, `facets` argument corresponds to scatterplots. This option is under development...
 #' @param print If the plots should be actually printed, valid only if facets = F
 #' @return Returns one or several ggplots. In case one plot is returned it can be appended with `theme`, `geom_`, etc.
-#' @examples random_plot(lmr, optional.names=c(`(Intercepts)`="Intercepts", gndr="Female", s.Age = "Effects of age"), facets=TRUE)
+#' @examples
+#' \dontrun{
+#' random_plot(lmr,
+#'    optional.names=c(`(Intercepts)`="Intercepts",
+#'    gndr ="Female", s.Age = "Effects of age"),
+#'    facets=TRUE)
+#'    }
 #'@export
 #'
 random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { #optional.names should be a named vector
@@ -713,9 +728,10 @@ random_plot <- function(lmer.fit, optional.names=NA, facets=FALSE, print = T) { 
 #' * "2SD" Computes group-level mean and doubled standard deviation of moderating variable.
 #' * "12SD" Computes group-level mean and plots both standard deviation and doubled standard deviation of moderating variable.
 #' @param scatter Logical. Should scatterplot be created in addition?
-#' @param ... Arguments passed to `effect` function of `effects` package.
-#' @param labs List of arguments passed to `+labs()` PLUS elements named  "line1", "line2"... which are used to name lines on the plot. If there are more or less "line" elements than lines on the plot, they are ignored.
+#' @param labs List of arguments passed to `+labs()` PLUS elements named  "line1", "line2"... which are used to name lines on the plot. If there are more or less "line" elements than lines on the plot, they are ignored
 #' @param x.levels desired x-axis coordinates, individual-level term. If NULL (default) are defined automatically.
+#' @param silent Logical. If TRUE, suppresses messages about interactions being plotted.
+#' @param ... Arguments passed to `effect` function of `effects` package.
 #' @return Returns one or several ggplots. In case one plot is returned it can be appended with `+theme()`, `+geom_()`, etc.
 #' @examples data("Orthodont",package="nlme")
 #' m1 = lmer(distance ~ age*Sex + (age|Subject), data=Orthodont)
@@ -1090,7 +1106,7 @@ random_interaction <- function( x,
 }
 
 #' Clean and precise theme
-#'
+#' @param ... Arguments passed to theme function
 #' @export
 theme_mr <- function(...) {
   theme_minimal()+
@@ -1183,6 +1199,7 @@ sig_seg <- function(df, compare.var, y.var, group.var, heights, ends) {
 #'
 #' @param df Data frame
 #' @param cv Correlation matrix (if df is NULL)
+#' @param n Sample size (if df is NULL)
 #' @param title  Title of the plot
 #' @param legend  Legend position
 #' @param gamma Gamma parameter for the model selection function, see `ggmModSelect`
@@ -1193,8 +1210,9 @@ sig_seg <- function(df, compare.var, y.var, group.var, heights, ends) {
 #' @param group.id Vector of regex expressions to apply to variable names and use it to group variables.
 #' @param item_label Function that converts the item names to node labels.
 #' @param return.df Logical, if true, returns tidygraph dataset instead of the plot.
-
+#' @param ... Additional arguments passed to `ggmModSelect`
 #' @examples
+#' \dontrun{
 #' data("HolzingerSwineford1939", package = "lavaan")
 #' get_net(HolzingerSwineford1939[, 7:15],
 #'        group.id = c(first.factor = "1|2|3",
@@ -1202,6 +1220,8 @@ sig_seg <- function(df, compare.var, y.var, group.var, heights, ends) {
 #'                     third = "7|8|9"),
 #'        legend = "bottom"
 #' )
+#' }
+#' @importFrom qgraph ggmModSelect
 #'
 #' @export
 get_net <- function(df = NULL, cv = NULL, n = NULL,
@@ -1215,9 +1235,9 @@ get_net <- function(df = NULL, cv = NULL, n = NULL,
                     group.id = NA,
                     item_label = function(x) gsub("\\D", "", x),
                     return.df = F, ...) {
-  require(qgraph)
-  require(tidygraph)
-  require(ggraph)
+  #requireNamespace("qgraph")
+  requireNamespace("tidygraph")
+  requireNamespace("ggraph")
 
   if(is.null(cv)) {
     cv <- cor(df, use = "pair")
@@ -1235,13 +1255,13 @@ get_net <- function(df = NULL, cv = NULL, n = NULL,
 
 
 
-  ggm.out <- ggmModSelect(cv, n = n, stepwise=stepwise, gamma = gamma, start = start, nCores = 6, ...)
+  ggm.out <- qgraph::ggmModSelect(cv, n = n, stepwise=stepwise, gamma = gamma, start = start, nCores = 6, ...)
 
   gr.tbl <- ggm.out$graph
   gr.tbl[lower.tri(gr.tbl, diag = T)] <-NA
   gr.tbl2 <- gr.tbl %>%
     reshape2::melt(.) %>%
-    filter(value>.05 & !duplicated(.))
+    dplyr::filter(value>.05 & !duplicated(.))
   gr.tbl2$Var1 <- as.character(gr.tbl2$Var1)
   gr.tbl2$Var2 <- as.character(gr.tbl2$Var2)
   gr.tbl3 <- as_tbl_graph(gr.tbl2, directed = F)

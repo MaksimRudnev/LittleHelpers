@@ -7,7 +7,7 @@
 extract_mlefa(mplus.file)
 }
 \arguments{
-\item{output}{Output file path.}
+\item{mplus.file}{Output file path.}
 }
 \value{
 Sorted data frame with differing n of factors at each level and fit statistics. By default it extracts CFI, RMSEA, RMSEA.CI.LO, RMSEA.CI.HI, SRMR.w, SRMR.b, SABIC, AIC, Chi.sq, Chi.df, Chi.p, Chi.scale.

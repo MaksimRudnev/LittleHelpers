@@ -28,6 +28,8 @@ cor_within(
 
 \item{labs}{Logical. Should value labels be used?}
 
+\item{use}{Character. Passed to `cor.test`, how to handle missing values.}
+
 \item{highlight.group}{Characater. What group should be highlighted on graph?}
 }
 \description{

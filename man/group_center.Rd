@@ -13,6 +13,8 @@ group_center(variables, group, data, std = FALSE, prefix = "g.")
 
 \item{data}{Data frame}
 
+\item{std}{Logical. Should the variable be standardized (divided by its std. deviation)?}
+
 \item{prefix}{Character, added to the befinning of centered variable name.}
 }
 \value{
