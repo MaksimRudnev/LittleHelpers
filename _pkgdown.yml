@@ -3,7 +3,7 @@ template:
   bootstrap: 5
   bootswatch: cerulean
   params:
-    favicon: man/figures/favicon.png # Replace with your icon's path
+    favicon: 'man/figures/favicon.png'
 
 
 authors:
