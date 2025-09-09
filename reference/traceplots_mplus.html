@@ -85,12 +85,16 @@
 <dd><p>How many iterations should be shown on a traceplot. NULL (default) refers to all iterations.  However, traceplots for long chains may result in highly overplotted graphics which are slow and take a lot of space on disk. A specified number will take a random sample of values from the iterations.</p></dd>
 
 
+<dt id="arg-chains">chains<a class="anchor" aria-label="anchor" href="#arg-chains"></a></dt>
+<dd><p>A vector of chain numbers to include. Default is NULL, which includes all chains.</p></dd>
+
+
 <dt id="arg-psr">PSR<a class="anchor" aria-label="anchor" href="#arg-psr"></a></dt>
 <dd><p>Whether PSR (R-hat) should be printed for each parameter. See <code><a href="each_param_psr_mplus.html">each_param_psr_mplus</a></code>.</p></dd>
 
 
 <dt id="arg-psr-version">PSR.version<a class="anchor" aria-label="anchor" href="#arg-psr-version"></a></dt>
-<dd><p>Version of PSR; default is "Rstan" - the most up-to-date, provided by the Rstan::Rhat function (Vehtari et al., 2019). Other possible values: "Gelman" (Gelman et al. (2004)); or "Mplus" (Asparouhov and  Muthen, 2010), and "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.</p></dd>
+<dd><p>Version of PSR; default is "Rstan" - the most up-to-date, provided by the rstan::Rhat function (Vehtari et al., 2019). Other possible values: "Gelman" (Gelman et al. (2004)); or "Mplus" (Asparouhov and  Muthen, 2010), and "Naive" which is a raw ratio of sum of a between- and within-chain variances to a within-chain variance.</p></dd>
 
 
 <dt id="arg-ess">ESS<a class="anchor" aria-label="anchor" href="#arg-ess"></a></dt>

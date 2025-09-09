@@ -68,6 +68,10 @@
 <dd><p>Correlation matrix (if df is NULL)</p></dd>
 
 
+<dt id="arg-n">n<a class="anchor" aria-label="anchor" href="#arg-n"></a></dt>
+<dd><p>Sample size (if df is NULL)</p></dd>
+
+
 <dt id="arg-title">title<a class="anchor" aria-label="anchor" href="#arg-title"></a></dt>
 <dd><p>Title of the plot</p></dd>
 
@@ -107,25 +111,23 @@
 <dt id="arg-return-df">return.df<a class="anchor" aria-label="anchor" href="#arg-return-df"></a></dt>
 <dd><p>Logical, if true, returns tidygraph dataset instead of the plot.</p></dd>
 
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Additional arguments passed to `ggmModSelect`</p></dd>
+
 </dl></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"HolzingerSwineford1939"</span>, package <span class="op">=</span> <span class="st">"lavaan"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">get_net</span><span class="op">(</span><span class="va">HolzingerSwineford1939</span><span class="op">[</span>, <span class="fl">7</span><span class="op">:</span><span class="fl">15</span><span class="op">]</span>,</span></span>
 <span class="r-in"><span>       group.id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>first.factor <span class="op">=</span> <span class="st">"1|2|3"</span>,</span></span>
 <span class="r-in"><span>                    second <span class="op">=</span> <span class="st">"4|5|6"</span>,</span></span>
 <span class="r-in"><span>                    third <span class="op">=</span> <span class="st">"7|8|9"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>       legend <span class="op">=</span> <span class="st">"bottom"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: qgraph</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>there is no package called ‘qgraph’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: tidygraph</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>there is no package called ‘tidygraph’</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: ggraph</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>there is no package called ‘ggraph’</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in ggmModSelect(cv, n = n, stepwise = stepwise, gamma = gamma, start = start,     nCores = 6, ...):</span> could not find function "ggmModSelect"</span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

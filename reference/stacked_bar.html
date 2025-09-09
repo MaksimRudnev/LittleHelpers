@@ -47,8 +47,8 @@
 <span>  labs <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  label.col <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  format.label <span class="op">=</span> <span class="st">"2%"</span>,</span>
-<span>  weight <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  label_col <span class="op">=</span> <span class="cn">NA</span>,</span>
+<span>  weight <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  flip <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>  cat.rev <span class="op">=</span> <span class="cn">F</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -90,12 +90,20 @@
 <dd><p>Character of one digit standing for decimal places and one symbol added in the end, for example "1%" would result in "99.9%" whereas "2$" would lead to "99.99$".</p></dd>
 
 
+<dt id="arg-label-col">label_col<a class="anchor" aria-label="anchor" href="#arg-label-col"></a></dt>
+<dd><p>Deprecated, use `label.col` instead.</p></dd>
+
+
 <dt id="arg-weight">weight<a class="anchor" aria-label="anchor" href="#arg-weight"></a></dt>
 <dd><p>If there is a survey weight, variable to use in crosstab computation.</p></dd>
 
 
-<dt id="arg-label-col">label_col<a class="anchor" aria-label="anchor" href="#arg-label-col"></a></dt>
-<dd><p>Same as label.col, saved for legacy.</p></dd>
+<dt id="arg-flip">flip<a class="anchor" aria-label="anchor" href="#arg-flip"></a></dt>
+<dd><p>Logical, whether to flip the coordinates. FALSE by default.</p></dd>
+
+
+<dt id="arg-cat-rev">cat.rev<a class="anchor" aria-label="anchor" href="#arg-cat-rev"></a></dt>
+<dd><p>Logical, whether to reverse the order of categories in the legend and in the bars. FALSE by default.</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -60,7 +60,11 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-rownames">rownames<a class="anchor" aria-label="anchor" href="#arg-rownames"></a></dt>
+<dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
+<dd><p>data.frame to show. Also works with a list of fitted models supported by .</p></dd>
+
+
+<dt id="arg-rownames">rownames<a class="anchor" aria-label="anchor" href="#arg-rownames"></a></dt>
 <dd><p>Logical, if rownames should be shown.</p></dd>
 
 
@@ -69,7 +73,7 @@
 
 
 <dt id="arg-kable">kable<a class="anchor" aria-label="anchor" href="#arg-kable"></a></dt>
-<dd><p>logical. If data.frame should be passed to kable.  If true, ... will be passed to function kableExtra::kable_styling. Defaults to TRUE. If FALSE, passes df to stargazer.</p></dd>
+<dd><p>logical. If data.frame should be passed to kable.  If true, ... will be passed to function kableExtra::kable_styling. Defaults to TRUE. If FALSE, passes `x` to stargazer.</p></dd>
 
 
 <dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
@@ -92,6 +96,10 @@
 <dd><p>Applies custom kableStyling style, might take two values "default", and "custom".</p></dd>
 
 
+<dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
+<dd><p>Number of digits to round to, passed to both stargazer and kable.</p></dd>
+
+
 <dt id="arg-kable-options">kable.options<a class="anchor" aria-label="anchor" href="#arg-kable-options"></a></dt>
 <dd><p>A list of arguments passed to `kable` function.</p></dd>
 
@@ -106,10 +114,6 @@
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Other arguments passed to `stargazer` or `kableStyling()`.</p></dd>
-
-
-<dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
-<dd><p>data.frame to show. Also works with a list of fitted models supported by .</p></dd>
 
 </dl></div>
 
