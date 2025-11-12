@@ -776,7 +776,7 @@ gamma_hat_mplus = function(mplus.model) {
 }
 
 
-#' manipulate mplus file
+#' Manipulate mplus file
 #' @description Replaces part of the Mplus code, runs it, and reads it in. Facilitates repeated running with a small change in input. Good for testing the effects of particular analyses.
 #' @param inp Input file path.
 #' @param target Character. Block of Mplus code to replace.

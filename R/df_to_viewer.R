@@ -41,6 +41,7 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, ht
 
   # Prepare formatting function
   if(!is.null(colformat)) {
+
     if(!is.null(names(colformat)))  {
       colformat <- colformat[colnames(x)]
       names(colformat) <- colnames(x)
@@ -64,10 +65,19 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, ht
 
     dimnames(x.formatted) <- dimnames(x)
 
+    # fix character NAs to real NAs
     for(i in colnames(x.formatted))
       x.formatted[,i][x.formatted[,i]=="NA"]<-NA
 
+    # keep original 'by' variable
+    x.formatted = as.data.frame(x.formatted)
+    if(!is.null(by)) x.formatted[,by]<-x[,by]
+
+    #print(str(x[,by]))
+
     x<-x.formatted
+    #str(x)
+    #print(str(x[,by]))
   }
 
 
@@ -110,9 +120,18 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, ht
 
     } else {
 
+
+      if(is(x[,by], "factor")) {
+
+    #sort table by levels of factor 'by'
+        x <- x[order(x[,by]),]
+        #x <- x[unlist(sapply(levels(x[,by]), function(i) which(x[,by] == i))),]
+
+
+      } else {
     #sort table by unique values of 'by' in the way they appear in the data
       x <- x[unlist(sapply(unique(x[,by]), function(i) which(x[,by] == i))),]
-
+}
     # save kable code to use in the loop below
       kabTab <- do.call(knitr::kable,
                                      append(kable.options,

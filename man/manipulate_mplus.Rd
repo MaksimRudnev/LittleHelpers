@@ -2,7 +2,7 @@
 % Please edit documentation in R/MplusHelpers.R
 \name{manipulate_mplus}
 \alias{manipulate_mplus}
-\title{manipulate mplus file}
+\title{Manipulate mplus file}
 \usage{
 manipulate_mplus(inp, target, replacement, run = T, read = T, keep.files = T)
 }
