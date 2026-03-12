@@ -19,7 +19,7 @@ ess_values <- function(data, v2=TRUE, v4=TRUE, v10 = TRUE, v21=FALSE, center=TRU
 
   # Reverse items
   d <- suppressMessages(drop_labs(untibble(data[,values$items])))
-  d <- sapply(names(d), function(x) car::Recode(d[,x], "1=6; 2=5; 3=4; 4=3; 5=3; 6=1; else=NA"))
+  d <- sapply(names(d), function(x) car::Recode(d[,x], "1=6; 2=5; 3=4; 4=3; 5=2; 6=1; else=NA"))
 
 
 

@@ -1112,10 +1112,10 @@ theme_mr <- function(...) {
   theme_minimal()+
     do.call("theme", append(list(
       panel.grid = element_blank(), #legend.position = "none",
-      axis.line.x = element_line(color="black", size = 0.5),
-      axis.line.y = element_line(color="black", size = 0.5),
-      axis.title.x = element_text(face="bold", size=14),
-      axis.title.y = element_text(face="bold", size=14)),
+      axis.line.x = element_line(color="black", linewidth = 0.5),
+      axis.line.y = element_line(color="black", linewidth = 0.5),
+      axis.title.x = element_text(face="bold", lineheight=14),
+      axis.title.y = element_text(face="bold", lineheight=14)),
       list(...))
     )
 }

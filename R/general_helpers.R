@@ -74,7 +74,7 @@ cor_table <- function(d,
       t %>%
       as.data.frame %>%
       reshape2::dcast(Var1 ~ Var2, value.var = "p") %>%
-      tibble::set_rownames(., .$Var1) %>%
+      magrittr::set_rownames(., .$Var1) %>%
       dplyr::select(-Var1) %>%
       as.matrix
 

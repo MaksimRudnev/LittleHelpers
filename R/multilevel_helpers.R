@@ -827,15 +827,15 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
   tb<-data.frame(group=unique(Gr),
                  Corr=t(sapply(unique(Gr),   function(x) {
                    if(all(rowSums(cbind(!is.na(V1[Gr==x]), !is.na(V2[Gr==x])))<2)) {
-                     warning(paste("There no valid cases in", x))
-                     c(NA, NA, NA)
+                     warning(paste("No valid cases in", x))
+                     c(NA, NA, NA, NA)
                    } else {
                    r = cor.test(V1[Gr==x], V2[Gr==x], use=use, conf.level = 0.95)
-                   c(r$estimate, r$conf.int)
+                   c(r$estimate, r$conf.int, r$p.value)
                    }
                  })),
                  stringsAsFactors = F)
-  names(tb)[2:4] <-  c("Corr", "hiCI", "loCI")
+  names(tb)[2:5] <-  c("Corr", "hiCI", "loCI", "pval")
 
 
   tb$group<-factor(tb$group, levels=tb$group[order(tb$Corr)])
@@ -865,7 +865,7 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
 
     print(g)
   }
-  return(tb[,-5])
+  return(tb[,-6])
 
 }
 
