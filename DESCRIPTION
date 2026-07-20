@@ -28,7 +28,8 @@ Imports:
     rstudioapi (>= 0.1),
     methods (>= 4.4),
     qgraph (>= 1.9),
-    bootnet (>= 1.8)
+    bootnet (>= 1.8),
+    ggforce
 Suggests:
     rmarkdown,
     haven,
