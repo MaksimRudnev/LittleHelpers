@@ -6,6 +6,8 @@
 \title{Create a codebook, table of labels to explore variables and values in your data}
 \usage{
 label_book(df, max.vals = 25, vars = "all", view = TRUE, translate = F)
+
+label_table(df, max.vals = 25, vars = "all", view = TRUE, translate = F)
 }
 \arguments{
 \item{df}{data.frame, usually an object obtained by reading SPSS datafile with  \code{\link[haven]{read_sav}} or \code{\link[foreign]{read.spss}}}

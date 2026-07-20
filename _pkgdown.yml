@@ -46,6 +46,7 @@ reference:
   desc: Formatting, showing results, and handling labels
   contents:
   - label_book
+  - label_table
   - df_to_viewer
   - to_viewer
   - drop_labs
@@ -72,6 +73,12 @@ reference:
   - stacked_bar
   - theme_mr
   - traceplots_mplus
+- title: Network helpers
+  desc: Fast-forwards work with bootnetResult
+  contents:
+  - prune_boot
+  - plot_clusters
+  - qgraph2igraph
 - title: Miscellaneous
   desc: Convenience functions and shortcuts
   contents:

@@ -1,4 +1,4 @@
-#' Shows data.frame or model(s) in RStudio viewer
+#' Shows data.frame or model(s) summaries in the RStudio viewer
 #'
 #' via stargazer and knitr
 #'

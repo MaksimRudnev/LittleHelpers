@@ -459,7 +459,7 @@ diff_test_mlr <- function(L0, c0, p0,
 #' @param se If SEs should be included.
 #' @param stars Logical. if significance stars should be added.
 #' @param digits Numeric value, how many decimals required.
-#' @return Returns a single data frame with unstandardized parameters.
+#' @return Returns a single data.frame with estimated parameters.
 #' @export
 partable_mplus <- function(models, std=FALSE, se=T, stars=T, digits=2) {
 
@@ -530,7 +530,7 @@ return(out)
 
 #' Check NDP related to residuals and correlations of models read by 'readModels'
 #'
-#' @description Prints if any variance is negative oand whether there are correlations above 1 (OUTPUT: stdyx; is required in the Mplus input)
+#' @description Prints if any variance is negative and whether there are correlations above 1 (OUTPUT: stdyx; is required in the Mplus input)
 #' @param model A single model read by MplusAutomation::readModels
 #' @param additional If additional info should be printed
 #' @param warnings If warnings and errors (if any) should be printed.
@@ -784,7 +784,7 @@ gamma_hat_mplus = function(mplus.model) {
 #' @param run Whether new input files should be executed.  When FALSE, returns a vector of paths to the new input files.
 #' @param read Logical, whether read the models in. When FALSE, returns the list of paths to output files.
 #' @param keep.files Logical. Whether input and output files shuld be kept on disk. When FALSE, all Mplus files are deleted and read in wish readModels.
-#' @return Sorted data frame with differing n of factors at each level and fit statistics. By default it extracts CFI, RMSEA, RMSEA.CI.LO, RMSEA.CI.HI, SRMR.w, SRMR.b, SABIC, AIC, Chi.sq, Chi.df, Chi.p, Chi.scale.
+#' @return Sorted data frame of differing conditions and fit statistics. By default it extracts CFI, RMSEA, RMSEA.CI.LO, RMSEA.CI.HI, SRMR.w, SRMR.b, SABIC, AIC, Chi.sq, Chi.df, Chi.p, Chi.scale.
 #' @export
 manipulate_mplus <- function(inp,
                              target,

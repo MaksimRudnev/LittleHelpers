@@ -3,7 +3,7 @@
 \name{df_to_viewer}
 \alias{df_to_viewer}
 \alias{to_viewer}
-\title{Shows data.frame or model(s) in RStudio viewer}
+\title{Shows data.frame or model(s) summaries in the RStudio viewer}
 \usage{
 df_to_viewer(
   x,

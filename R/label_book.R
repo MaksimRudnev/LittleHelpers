@@ -18,7 +18,6 @@
 #' @md
 #' @aliases label_table
 #' @export
-
 label_book <- function(df, max.vals=25, vars="all", view=TRUE, translate = F) {
 
   if(vars=="all") {
@@ -152,6 +151,9 @@ label_book <- function(df, max.vals=25, vars="all", view=TRUE, translate = F) {
 
 }
 
+#' @rdname label_book
+#' @export
+label_table <- label_book
 
 # for1<- foreign::read.spss("/Users/maksimrudnev/Dropbox/STAT/WORLD values survey/WV6_Data_spss_v_2014_04_28.sav",
 #                     to.data.frame=TRUE,

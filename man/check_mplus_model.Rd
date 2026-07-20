@@ -17,5 +17,5 @@ check_mplus_model(model, additional = TRUE, warnings = TRUE)
 Returns a single data frame with unstandardized parameters.
 }
 \description{
-Prints if any variance is negative oand whether there are correlations above 1 (OUTPUT: stdyx; is required in the Mplus input)
+Prints if any variance is negative and whether there are correlations above 1 (OUTPUT: stdyx; is required in the Mplus input)
 }

@@ -18,7 +18,7 @@ partable_mplus(models, std = FALSE, se = T, stars = T, digits = 2)
 \item{digits}{Numeric value, how many decimals required.}
 }
 \value{
-Returns a single data frame with unstandardized parameters.
+Returns a single data.frame with estimated parameters.
 }
 \description{
 Creates a table (dataframe) of parameters extacted from Mplus

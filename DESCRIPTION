@@ -1,8 +1,8 @@
 Package: LittleHelpers
 Type: Package
-Title: Helpers for multisite surveys
-Version: 0.7-06
-Date: 09-11-2025
+Title: Helpers for multi-site surveys
+Version: 0.7-07
+Date: 18-07-2026
 Authors@R: 
     person("Maksim", "Rudnev", , "maksim.rudnev@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2714-3840"))
@@ -27,7 +27,8 @@ Imports:
     knitr (>= 1.3),
     rstudioapi (>= 0.1),
     methods (>= 4.4),
-    qgraph  (>= 1.9)
+    qgraph (>= 1.9),
+    bootnet (>= 1.8)
 Suggests:
     rmarkdown,
     haven,
@@ -51,4 +52,4 @@ Suggests:
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.0.0

@@ -20,7 +20,7 @@ manipulate_mplus(inp, target, replacement, run = T, read = T, keep.files = T)
 \item{keep.files}{Logical. Whether input and output files shuld be kept on disk. When FALSE, all Mplus files are deleted and read in wish readModels.}
 }
 \value{
-Sorted data frame with differing n of factors at each level and fit statistics. By default it extracts CFI, RMSEA, RMSEA.CI.LO, RMSEA.CI.HI, SRMR.w, SRMR.b, SABIC, AIC, Chi.sq, Chi.df, Chi.p, Chi.scale.
+Sorted data frame of differing conditions and fit statistics. By default it extracts CFI, RMSEA, RMSEA.CI.LO, RMSEA.CI.HI, SRMR.w, SRMR.b, SABIC, AIC, Chi.sq, Chi.df, Chi.p, Chi.scale.
 }
 \description{
 Replaces part of the Mplus code, runs it, and reads it in. Facilitates repeated running with a small change in input. Good for testing the effects of particular analyses.
