@@ -22,7 +22,7 @@ jobs:
       pages: write      # Required for native GitHub Pages deployment
       id-token: write   # Required for native GitHub Pages deployment
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: r-lib/actions/setup-pandoc@v2
 
