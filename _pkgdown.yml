@@ -79,6 +79,10 @@ reference:
   - prune_boot
   - plot_clusters
   - qgraph2igraph
+  - lav_to_pnet_fix
+  - lav_to_pnet_str
+  - summ_pnet
+  - var_labs_pnet
 - title: Miscellaneous
   desc: Convenience functions and shortcuts
   contents:
