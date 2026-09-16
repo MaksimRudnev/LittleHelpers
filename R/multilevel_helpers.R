@@ -815,28 +815,40 @@ aggr_and_merge <- function(variables, group, data, FUN = "mean", prefix = paste0
 cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pairwise", highlight.group=NA) {
 
   if(sum(class(data)=="tbl")>0) {
+    if(labs) {
     Gr <- as.character(lab_to_fac(data[, group][[1]]))
+    } else {
+      Gr <- as.character(data[, group][[1]])
+    }
     V1 <- as.numeric(data[, var1][[1]])
     V2 <- as.numeric(data[, var2][[1]])
   } else {
+    if(labs) {
     Gr <- as.character(lab_to_fac(data[, group]))
+    } else {
+      Gr <- as.character(data[, group])
+    }
     V1 <- data[, var1]
     V2 <- data[, var2]
   }
 
-  tb<-data.frame(group=unique(Gr),
-                 Corr=t(sapply(unique(Gr),   function(x) {
-                   if(all(rowSums(cbind(!is.na(V1[Gr==x]), !is.na(V2[Gr==x])))<2)) {
-                     warning(paste("No valid cases in", x))
-                     c(NA, NA, NA, NA)
-                   } else {
-                   r = cor.test(V1[Gr==x], V2[Gr==x], use=use, conf.level = 0.95)
-                   c(r$estimate, r$conf.int, r$p.value)
-                   }
-                 })),
-                 stringsAsFactors = F)
-  names(tb)[2:5] <-  c("Corr", "hiCI", "loCI", "pval")
+ corlist = lapply(unique(Gr),   function(x) {
 
+    r = try(cor.test(V1[Gr==x], V2[Gr==x], use=use, conf.level = 0.95),
+            silent = T)
+
+    if(inherits(r, "try-error")) {
+      warning(paste("Error in cor.test for group", x))
+      return(c(NA, NA, NA, NA, NA))
+    } else {
+      c(r$estimate, r$conf.int, r$p.value, n = length(na.omit(cbind(V1[Gr==x], V2[Gr==x]))))
+    }
+
+  })
+
+ tb <- data.frame(group=unique(Gr), Reduce(rbind, corlist))
+ colnames(tb)[2:5] <-  c("Corr", "hiCI", "loCI", "pval")
+ rownames(tb) <- NULL
 
   tb$group<-factor(tb$group, levels=tb$group[order(tb$Corr)])
   if(plot==T) {
@@ -865,7 +877,7 @@ cor_within <- function (var1, var2, group, data, plot=TRUE, labs=TRUE, use="pair
 
     print(g)
   }
-  return(tb[,-6])
+  return(tb)
 
 }
 

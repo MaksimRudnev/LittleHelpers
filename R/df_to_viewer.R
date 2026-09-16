@@ -15,13 +15,13 @@
 #' @param kable.options A list of arguments passed to `kable` function.
 #' @param cells.by.merge The headers created by `by` argument can be a single cell spanning all the columns (TRUE) or the subheader can be put in the new line's first column (FALSE). The latter tables are easier to hande in, e.g. MS Word.
 #' @param cells.by.indent Logical. Whether 'by' headers should have an indent.
+#' @param na Value to replace NA in kable printing. Default is empty string. If you want to show NA, set it to "NA".
 #' @param ... Other arguments passed to `stargazer` or `kableStyling()`.
 #'
 #' @aliases to_viewer
 #' @export
 
-df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, html = FALSE, colformat = NULL, sg.style = "ajs", k.style = "default", digits = 2, kable.options = list(), cells.by.merge = T, cells.by.indent = T, ...) {
-
+df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, html = FALSE, colformat = NULL, sg.style = "ajs", k.style = "default", digits = 2, kable.options = list(), cells.by.merge = T, cells.by.indent = T, na = "", ...) {
 
 
   if( k.style =="default") {
@@ -103,18 +103,24 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, ht
 
       viewer <- getOption("viewer")
       viewer(htmlFile)
+
   } else {
     requireNamespace("knitr", quietly=T)
     requireNamespace("kableExtra", quietly=T)
 
     if(is.null(by)) {
 
+      old.kable.na = getOption("knitr.kable.NA")
+      options(knitr.kable.NA = na)
 
     kabTab <- do.call(knitr::kable, append(kable.options,
                                              list(x = x,
                                                   format  = "html",
                                                   row.names = rownames,
                                                   digits=digits)))
+
+    options(knitr.kable.NA = old.kable.na)
+
     do.call(kableExtra::kable_styling, kableStyling.arg(kabTab, ...))
 
 
@@ -131,15 +137,19 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, ht
       } else {
     #sort table by unique values of 'by' in the way they appear in the data
       x <- x[unlist(sapply(unique(x[,by]), function(i) which(x[,by] == i))),]
-}
+      }
     # save kable code to use in the loop below
+      old.kable.na = getOption("knitr.kable.NA")
+      options(knitr.kable.NA = na)
       kabTab <- do.call(knitr::kable,
                                      append(kable.options,
                                             list(x = x[,-which(colnames(x)==by)],
                                                 format  = "html",
                                                 row.names = rownames,
                                                 digits=digits)))
-       tbl.out <- do.call(kableExtra::kable_styling, kableStyling.arg(kabTab, ...))
+      options(knitr.kable.NA = old.kable.na)
+
+      tbl.out <- do.call(kableExtra::kable_styling, kableStyling.arg(kabTab, ...))
 
 
      # add packs of the rows
@@ -162,7 +172,13 @@ df_to_viewer <- function(x, rownames = TRUE, summ=F, kable = TRUE, by = NULL, ht
         end.position = new.end.position
 
       }
+
+
        print(tbl.out)
+
     }
+
   }
+
+
 }

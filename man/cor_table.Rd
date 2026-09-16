@@ -4,7 +4,14 @@
 \alias{cor_table}
 \title{Correlation table with stars}
 \usage{
-cor_table(d, method = "spearman", star = TRUE, raw = FALSE)
+cor_table(
+  d,
+  method = "spearman",
+  use = "pairwise.complete.obs",
+  star = TRUE,
+  raw = FALSE,
+  n = FALSE
+)
 }
 \arguments{
 \item{d}{A data frame or tibble containing numeric variables}
@@ -15,6 +22,8 @@ cor_table(d, method = "spearman", star = TRUE, raw = FALSE)
 \item{star}{Logical. If TRUE (default), adds significance stars to correlations}
 
 \item{raw}{Logical. If TRUE, returns raw correlation matrix without formatting}
+
+\item{n}{Logical. If TRUE, includes sample sizes in parentheses next to correlations}
 }
 \value{
 A matrix containing formatted correlations with significance stars (if requested)

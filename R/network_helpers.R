@@ -84,7 +84,6 @@ prune_boot <- function(net, boot, thresh = NA) {
 plot_clusters <- function(net,
                           layout = "spring",
                           original.categories = NA,
-
                           pointsize = 10,
                           concavity = 3,
                           legend.title = "",
@@ -101,6 +100,17 @@ plot_clusters <- function(net,
                           ...
 )  {
 
+# experimental part
+  if(is.matrix(net)|is.data.frame(net)) {
+    net <- list(
+      graph = net,
+      labels = colnames(net),
+      directed = F
+    )
+    class(net) <- "bootnetResult"
+  }
+
+  # normal part
   bb <- plot(net, weighted = TRUE, signed = TRUE, DoNotPlot = TRUE, layout = layout)
 
   if (is.character(layout)) {
@@ -108,7 +118,7 @@ plot_clusters <- function(net,
   } else if (is.matrix(layout)) {
     bb.lay <- layout
   } else {
-    warning("Can't recognize layout. Use either matrix or character string.")
+    warning("Can't recognize layout. Use either a matrix or a character string.")
   }
 
   nodes <- as.data.frame(bb.lay) %>%
@@ -219,4 +229,211 @@ plot_clusters <- function(net,
     ggplot2::theme_void() +
     ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(.1, .1))) +
     ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(.1, .1)))
+}
+
+
+
+#' Summarize fit indices for multiple network models fitted with psychonetrics package
+#' @param model.list A list of fitted network models
+#' @param what An optional vector of fit indices to summarize
+#' @return A data frame with fit indices for each model as columns and fit indices as rows
+#' @export
+summ_pnet <- function(model.list, what = c("cfi", "rmsea", "srmr", "chisq", "pvalue")) {
+  out <- Reduce(function(x, y) merge(x, y, by = "Measure", sort = F),
+         lapply(names(model.list), function(x) {
+           trash = capture.output(mfit <- fit(model.list[[x]]))
+           out = mfit %>% as.data.frame
+           colnames(out)[[2]] <- x
+           out
+         })) %>% set_rownames(.$Measure)
+
+  if(length(what)>0) out %<>% `[`(what,)
+
+     return(out)
+}
+
+
+#' Convert lavaan syntax to psychonetrix factor structure (lambda) matrix
+#' @param model A lavaan model syntax
+#' @param estimates Logical. If TRUE, uses estimated loadings from a fitted lavaan model. If FALSE, returns just a structure.
+#' @export
+lav_to_pnet_str <- function(model, estimates = F) {
+
+  if( "psychonetrics" %in% rownames(installed.packages())) {
+    requireNamespace("psychonetrics")
+  } else {
+    stop("Package 'psychonetrics' is required for this function. Please install it first.")
+  }
+
+  if(is.character(model)) {
+    model <- lavaan::lavaanify(model)
+    if(estimates) {
+      measure = "ustart"
+      warning("Because estimates = T but the model is not fitted, will try to use user starting values. They must be specified! Otherwise set estimates to FALSE")
+    } else {
+      measure = "user"
+    }
+  } else if(inherits(model, "lavaan")) {
+
+    model <- lavaan::parTable(model)
+    measure = ifelse(estimates, "est", "user")
+
+  } else if(!inherits(model, "lavaanify")) {
+    stop("model must be a character string, a list of character strings (for multiple group models), or a lavaan fitted object.")
+  }
+
+
+factor.matrix0 =
+  model %>%
+  filter(op == "=~") %>%
+  mutate(ordering = as.numeric(factor(rhs, levels = rhs[!duplicated(rhs)])))
+
+if(length(unique(factor.matrix0$group))==1) {
+
+  factor.matrix <-
+    dcast(factor.matrix0,
+          rhs + ordering ~ lhs, value.var = measure, fill = 0) %>%
+    arrange(ordering) %>%  # preserving the general order, so that the same anchor indicators' loadings  get fixed to 1
+    select(-ordering) %>%
+    tibble::column_to_rownames("rhs") %>%  # adds indicator names
+    as.matrix
+  # put the cross-loadings to the end of the matrix, so they don't get fixed to 1 by default
+  factor.matrix <- factor.matrix[order(rowSums(factor.matrix)),]
+
+} else {
+
+  factor.matrix <-
+    lapply(split(factor.matrix0, factor.matrix0$group), function(mat.g) {
+      out = mat.g %>%
+        dcast(rhs + ordering ~ lhs, value.var = measure, fill = 0) %>%
+        arrange(ordering) %>%  # preserving the general order, so that the same anchor indicators' loadings  get fixed to 1
+        select(-ordering) %>%
+        tibble::column_to_rownames("rhs") %>%  # adds indicator names
+        as.matrix
+      # put the cross-loadings to the end of the matrix
+      factor.matrix <- out[order(rowSums(out!=0)),]
+    })
+
+
+}
+
+return(factor.matrix)
+
+}
+
+#' Convert lavaan fitted object to fix the psychonetrics model's loadings
+#' @param fit A lavaan fitted object
+#' @param lnm.model Optional. UNfitted psychonetrics model object. Must have the same factor structure as the lavaan fitted object. If not provided, a new psychonetrics model will be created based on the lavaan model's structure.
+#' @param ... Additional arguments passed to the function `lnm` of `psychonetrics` package.
+#'
+#' @returns A psychonetrics model with fixed loadings based on the lavaan fitted object
+#' @examples
+#' HS.model <- ' visual  =~ x1 + x2 + x3
+#' textual =~ x4 + x5 + x6
+#' speed   =~ x7 + x8 + x9 '
+#' fit <- cfa(HS.model, data=HolzingerSwineford1939, group = "school")
+#' lnm_mod_fixed = lav_to_pnet_fix(fit, data = HolzingerSwineford1939, groupvar = "school")
+#' lnm_mod_fixed %>% runmodel %>% parameters
+#'
+#' @export
+lav_to_pnet_fix <- function(fit, lnm.model=NULL, ...) {
+
+  if( "psychonetrics" %in% rownames(installed.packages())) {
+   requireNamespace("psychonetrics")
+ } else {
+   stop("Package 'psychonetrics' is required for this function. Please install it first.")
+ }
+
+ if(is.null(lnm.model)) {
+
+   cat("Making a new lnm...")
+
+   Lambda = lav_to_pnet_str(fit)
+   varnames = if(length(Lambda)==1)  rownames(Lambda)  else  lapply(Lambda, rownames)
+   lvnames = if(length(Lambda)==1)  colnames(Lambda)  else  lapply(Lambda, colnames)
+
+
+   ngr = lavInspect(fit, "ngroups")
+   lnmodel = lnm(lambda = if(ngr>1) Lambda[[1]] else Lambda, # the function wouldn't work with varying factor structures across groups
+                 vars = if(ngr>1) varnames[[1]] else varnames,
+                 latents = if(ngr>1)  lvnames[[1]] else lvnames,
+                 ...)
+
+ } else {
+   lnmodel = lnm.model
+ }
+
+  # lnmodel.initial = lnmodel
+  # getmatrix(lnmodel.initial, "lambda")
+  # getmatrix(lnmodel, "lambda")
+
+
+ if(lavInspect(fit, "ngroups")>1) {
+    cat("applying constraints for MG case")
+
+    for(g in 1:lavInspect(fit, "ngroups")) {
+
+         g.estimates = lavInspect(fit, "estimates")[[g]]
+
+         loadings = g.estimates$lambda[rownames(Lambda[[g]]), colnames(Lambda[[g]])]
+         indices <- which(loadings != 0, arr.ind = TRUE)
+
+         custom_fixes <- data.frame(
+           row = indices[, "row"],
+           col = indices[, "col"],
+           # Extract the actual estimated values using those indices
+           val = loadings[indices]
+         )
+
+         #Loop through  extracted estimates and fix them in the new model
+         for(i in 1:nrow(custom_fixes)) {
+           lnmodel <- lnmodel %>%
+             fixpar(
+               matrix = "lambda",
+               row = custom_fixes$row[i],
+               col = custom_fixes$col[i],
+               value = custom_fixes$val[i],
+               group = g # Keeps the loop fast and prevents crashes
+             )
+
+         }
+    }
+   } else {
+   cat("applying constraints for one-group case")
+
+   loadings = lavInspect(fit, "estimates")$lambda
+   indices <- which(loadings != 0, arr.ind = TRUE)
+   custom_fixes <- data.frame(
+     row = indices[, "row"],
+     col = indices[, "col"],
+     val = loadings[indices]
+   )
+
+   #Loop through extracted estimates
+   for(i in 1:nrow(custom_fixes)) {
+     lnmodel <- lnmodel %>%
+       fixpar(
+         matrix = "lambda",
+         row = custom_fixes$row[i],
+         col = custom_fixes$col[i],
+         value = custom_fixes$val[i],
+         runmodel = FALSE
+       )
+   }
+ }
+  return(lnmodel)
+}
+
+#' Get variable names matched with their codes in LNM
+#' @param pnet A psychonetrics fitted model object
+#' @export
+var_labs_pnet <- function(pnet) {
+  tr= capture.output(param.names1 <- parameters(pnet))
+  param.names1 %<>% filter(op == "--") %>% select(var1, var1_id)
+  tr= capture.output(param.names2 <- parameters(pnet))
+  param.names2 %<>% filter(op == "--") %>% select(var2, var2_id)
+  parms = rbind(set_colnames(param.names1, c("label", "parm")),
+                set_colnames(param.names2, c("label", "parm"))) %>% distinct %>% arrange(parm)
+
+  setNames(as.vector(parms$label), parms$parm)
 }

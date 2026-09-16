@@ -11,7 +11,7 @@
 #'   "kendall", or "spearman" (default)
 #' @param star Logical. If TRUE (default), adds significance stars to correlations
 #' @param raw Logical. If TRUE, returns raw correlation matrix without formatting
-#'
+#' @param n Logical. If TRUE, includes sample sizes in parentheses next to correlations
 #' @return A matrix containing formatted correlations with significance stars (if requested)
 #'   or raw correlation values
 #'
@@ -35,8 +35,12 @@
 #' @export
 cor_table <- function(d,
                       method = "spearman",
+                      use = "pairwise.complete.obs",
                       star = TRUE,
-                      raw = FALSE) {
+                      raw = FALSE,
+                      n = FALSE) {
+
+  if(raw) n <- star <- FALSE
 
   # Handle tibble input
   if(any(class(d) == "tbl")) {
@@ -44,35 +48,34 @@ cor_table <- function(d,
   }
 
   # Calculate correlation matrix
-  r <- stats::cor(d, use = "pairwise.complete.obs", method = method)
+  r <- stats::cor(d, use = use, method = method)
+
 
   # Calculate sample sizes (for potential future use)
-  # n <- sapply(1:ncol(d), function(a) {
-  #   sapply(1:ncol(d), function(b) {
-  #     v <- !is.na(d[, c(a, b)]) %>% rowSums(.) == 2
-  #     sum(v)
-  #   })
-  # })
-  # rownames(n) <- colnames(n) <- names(d)
 
-  # Return raw correlations if requested
-  if(raw) {
-    return(r)
+  if(n){
+  N <- sapply(1:ncol(d), function(a) {
+    sapply(1:ncol(d), function(b) {
+      v <- nrow(na.omit(d[, c(a, b)]))
+      sum(v)
+    })
+  })
+  rownames(N) <- colnames(N) <- names(d)
   }
 
-  if(star) {
+  if(star & !raw) {
     # Calculate p-values
     varpairs <- t(expand.grid(names(d), names(d)))
     ps <- rbind(varpairs,
                 p = apply(varpairs, 2, function(x) {
                   rrr <- stats::cor.test(as.numeric(d[, x[[1]]]),
                                          as.numeric(d[, x[[2]]]),
-                                         use = "pairwise.complete.obs",
+                                         use = use,
                                          method = method)
                   rrr$p.value
                 })) %>%
       t %>%
-      as.data.frame %>%
+      as.data.frame %>% mutate(p = as.numeric(p)) %>%
       reshape2::dcast(Var1 ~ Var2, value.var = "p") %>%
       magrittr::set_rownames(., .$Var1) %>%
       dplyr::select(-Var1) %>%
@@ -88,19 +91,36 @@ cor_table <- function(d,
     diag(starz) <- ""
 
     # Format correlations with stars
-    m <- paste(format(round(r, 2), digits = 2, nsmall = 2), starz, sep = "")
-    m <- as.data.frame(matrix(m, nrow = ncol(d)))
+    if(n) {
+      m <- paste(format(round(r, 2), digits = 2, nsmall = 2),
+                  " (", N, ")", starz, sep = "")
+    } else {
 
-  } else {
+       m <- paste(format(round(r, 2), digits = 2, nsmall = 2),
+                  starz, sep = "")
+    }
+
+       m <- as.data.frame(matrix(m, nrow = ncol(d)))
+
+  } else if (!star & !raw) {
     # Format correlations without stars
-    m <- format(round(r, 2), digits = 2, nsmall = 2)
+    if(n) {
+      m <- paste(format(round(r, 2), digits = 2, nsmall = 2)," (", N, ")", sep = "")
+    } else {
+      m <- format(round(r, 2), digits = 2, nsmall = 2)
+    }
+
     m <- as.data.frame(matrix(m, nrow = ncol(d)))
   }
 
+  if(raw) {
+    return(r)
+  } else {
   # Set names and return as matrix
   names(m) <- names(d)
   rownames(m) <- names(d)
   as.matrix(m)
+  }
 }
 
 #' Standard Error of Mean

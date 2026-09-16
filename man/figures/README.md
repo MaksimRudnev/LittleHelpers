@@ -22,7 +22,7 @@ Explore multilevel data:
 - `graph_means_ci` Plots means by group.
 - `stacked_bar` Computes proportions cross-table and plots them in a nice way, returns ggplot object, so any further `+theme()`, `+scale_x()`, etc. codes can be added.
 
-Recode multilevel data:
+Manipulate multilevel data:
 
 - `aggr_and_merge` helps to create group-level variables from individual-level variables and merge them back to the data.frame on the go.
 - `grand_center` Quick grand-mean centering.
@@ -38,7 +38,7 @@ Summarize and visualize multilevel regressions:
 
 Compute extra stats for multilevel regressions:
 
-- `explained_variance.merMod` Computes psudo-R-square for two-level regressions fitted with `lmer()`.
+- `explained_variance.merMod` Computes pseudo-R-square for two-level regressions fitted with `lmer()`.
 - `vif_mer` Compute variance inflation factor for multilevel regressions fitted with `lmer()`.
 
 
@@ -46,7 +46,7 @@ Compute extra stats for multilevel regressions:
 
 - `lavTestScore_clean` Wrapper around `lavaan::lavTestScore()`, merging parameter labels with parameters and groups names and adding stars. Useful when you decide with between-group contraints might be relaxed.
 - `mgcfa_diagnose` Print comprehensible output to diagnose problems with MGCFA models.
-- [[ Moved to [MIE package](https://github.com/MaksimRudnev/MIE.package) under the name `globalMI()` ]] `mi_test` Series of measurement invariance tests, analogous to `semTools::measurementInvariance()`.
+- sem_tab Quickly make a table with parameters
 
 - See also [Measurement invariance explorer](https://github.com/MaksimRudnev/MIE.package)
 

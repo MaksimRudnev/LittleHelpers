@@ -712,11 +712,52 @@ plot_latent_means <- function(fit) {
 #' @export
 sem_tab <- function(..., what = c("loadings", "intercepts", "slopes", "covariances", "others"), std = F, ci = F) {
 
-  if(length(list(...))==1 & inherits(list(...)[[1]],"list"))
-    modellist = list(...)[[1]]
-  else
-    modellist = list(...)
+  verb_param = function(x) case_match(x,
+                                      "=~" ~ "loadings",
+                                      "~1" ~ "intercepts",
+                                      "~~" ~ "covariances",
+                                      "~"  ~ "slopes",
+                                      .default = "other"
+  )
 
+  if (...length() > 1 | is(...elt(1), "list") ) {
+    # a list of models
+    modellist = list(...)
+    ml = T
+
+  } else if (is(...elt(1), "lavaan") & lavInspect(...elt(1), "ngroups") == 1) {
+
+    # single model
+    modellist = list(model1 = ...elt(1))
+    ml = T
+
+  } else if (is(...elt(1), "lavaan") & lavInspect(...elt(1), "ngroups") > 1) {
+    # single multi-group model
+    mgmodel = ...elt(1)
+    ml = F
+    #stop("Currently not supporting multigroup models")
+
+    if(std) {
+      pr.tb = standardizedSolution(mgmodel)
+      pr.tb = dplyr::rename(pr.tb, "est" = "est.std")
+    } else {
+      pr.tb = parameterEstimates(mgmodel)
+    }
+    pr.tb.subset = pr.tb %>% mutate(verb_op = verb_param(op)) %>% filter(verb_op  %in% what)
+
+  out = pr.tb.subset %>%
+      mutate(group_name = lavInspect(mgmodel, "group.label")[group]) %>%
+      mutate(est_star = eststar(est, pvalue, ci.low = if(ci) ci.lower else NULL, ci.hi = if(ci) ci.upper else NULL )
+             ) %>%
+      dcast(lhs + op + rhs ~ group_name, value.var = "est_star")
+
+
+  } else {
+    stop("Please provide either a list of lavaan models or several lavaan models as separate arguments.")
+  }
+
+
+if(ml) {
 
 
   if(is.null(names(modellist))) {
@@ -726,12 +767,9 @@ sem_tab <- function(..., what = c("loadings", "intercepts", "slopes", "covarianc
     modelnames <- names(modellist)
   }
 
-  #modellist = list(IH.pool.3bif = IH.pool.3bif, IH.pool.three = IH.pool.three)
 
   names(modellist) <- modelnames
 
-  #str(modellist, 1)
-  #print(names(modellist))
 
   paramlist <- lapply(setNames(nm=modelnames),
                       function(m) {
@@ -751,14 +789,13 @@ sem_tab <- function(..., what = c("loadings", "intercepts", "slopes", "covarianc
   allprms = Reduce(rbind, paramlist)
 
 
-
-  allprms %>% mutate(kind = ifelse(op == "=~", "loadings",
-                                   ifelse(op == "~1", "intercepts",
-                                          ifelse(op == "~~", "covariances",
-                                                 ifelse(op == "~", "slopes", "other"))))) %>%
+ out = allprms %>% mutate(kind = verb_param(op)) %>%
     filter(kind %in% what) %>%
-    mutate(est_star  = eststar(est, pvalue, ci.low = if(ci) ci.lower else NA, ci.hi = if(ci) ci.upper else NA )) %>%
+    mutate(est_star  = eststar(est, pvalue, ci.low = if(ci) ci.lower else NULL, ci.hi = if(ci) ci.upper else NULL )) %>%
     reshape2::dcast(lhs + rhs + kind ~ model, value.var = "est_star")
+}
+
+  return(out)
 
 }
 

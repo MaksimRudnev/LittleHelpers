@@ -779,24 +779,34 @@ gamma_hat_mplus = function(mplus.model) {
 #' Manipulate mplus file
 #' @description Replaces part of the Mplus code, runs it, and reads it in. Facilitates repeated running with a small change in input. Good for testing the effects of particular analyses.
 #' @param inp Input file path.
-#' @param target Character. Block of Mplus code to replace.
-#' @param replacement Character. Mplus code to replace the target. Can be a vector - in this case, multiple outputs will be created.
+#' @param target Character. Block of Mplus code to replace. See base::gsub(.., fixed = T) for details.
+#' @param replacement Character. Mplus code to replace the target. Can be a vector - in this case, multiple outputs will be created. Names of the vector/list will be used to name the new input files.
 #' @param run Whether new input files should be executed.  When FALSE, returns a vector of paths to the new input files.
 #' @param read Logical, whether read the models in. When FALSE, returns the list of paths to output files.
 #' @param keep.files Logical. Whether input and output files shuld be kept on disk. When FALSE, all Mplus files are deleted and read in wish readModels.
+#' @param ... Passed to base::gsub function.
 #' @return Sorted data frame of differing conditions and fit statistics. By default it extracts CFI, RMSEA, RMSEA.CI.LO, RMSEA.CI.HI, SRMR.w, SRMR.b, SABIC, AIC, Chi.sq, Chi.df, Chi.p, Chi.scale.
+
 #' @export
 manipulate_mplus <- function(inp,
                              target,
                              replacement,
                              run = T,
                              read = T,
-                             keep.files = T) {
-  s = readLines(inp)
+                             keep.files = T,
+                             ...) {
+  s = paste(readLines(inp), collapse = "\n")
 
-  lapply(replacement, function(repl) {
-    s.new = gsub(target, repl, s)
-    t.file.name = gsub("\\.inp", paste0("_temp",paste0(sample(LETTERS, 8), collapse = ""),".inp"), inp)
+  if(!any(grepl(target, s, ...))) stop("Target not found in the input file. Check the target string and make sure it is present in the input file.")
+
+  lapply(1:length(replacement), function(repl) {
+    s.new = gsub(target, replacement[[repl]], s, ...)
+    if(is.null(names(replacement))) {
+      t.file.name = gsub("\\.inp", paste0("_mod",paste0(repl, collapse = ""),".inp"), inp)
+    } else {
+      t.file.name = gsub("\\.inp", paste0("_mod_",names(replacement)[[repl]],".inp"), inp)
+    }
+
     print(t.file.name)
     writeLines(s.new, t.file.name)
 
